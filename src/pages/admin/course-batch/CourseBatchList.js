@@ -3,29 +3,29 @@ import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { subjectService } from '../../../services/api';
-import SubjectForm from './SubjectForm';
+import { courseBatchService } from '../../../services/api';
+import CourseBatchForm from './CourseBatchForm';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 200 },
-  { id: 'subjectCode', label: 'Subject Code', minWidth: 150 },
-  { id: 'credit', label: 'Credit', minWidth: 100 },
   { 
-    id: 'type', 
-    label: 'Type', 
+    id: 'startTime', 
+    label: 'Start Date', 
     minWidth: 150,
-    render: (row) => row.type 
+    render: (row) => new Date(row.startTime).toLocaleDateString()
   },
+  { id: 'regularProgramDuration', label: 'Regular Duration (months)', minWidth: 180 },
+  { id: 'maximumProgramDuration', label: 'Maximum Duration (months)', minWidth: 180 },
 ];
 
-const SubjectList = () => {
-  const [subjects, setSubjects] = useState([]);
+const CourseBatchList = () => {
+  const [courseBatches, setCourseBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
-  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedCourseBatch, setSelectedCourseBatch] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
@@ -34,19 +34,19 @@ const SubjectList = () => {
     severity: 'success',
   });
 
-  const fetchSubjects = async () => {
+  const fetchCourseBatches = async () => {
     setLoading(true);
     try {
-      const response = await subjectService.getAll({
+      const response = await courseBatchService.getAll({
         PageIndex: page,
         PageSize: pageSize,
       });
-      setSubjects(response.data || []);
+      setCourseBatches(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch subjects',
+        message: 'Failed to fetch course batches',
         severity: 'error',
       });
     } finally {
@@ -55,7 +55,7 @@ const SubjectList = () => {
   };
 
   useEffect(() => {
-    fetchSubjects();
+    fetchCourseBatches();
   }, [page, pageSize]);
 
   const handlePageChange = (newPage) => {
@@ -68,34 +68,34 @@ const SubjectList = () => {
   };
 
   const handleOpenForm = () => {
-    setSelectedSubject(null);
+    setSelectedCourseBatch(null);
     setFormOpen(true);
   };
 
-  const handleEdit = (subject) => {
-    setSelectedSubject(subject);
+  const handleEdit = (courseBatch) => {
+    setSelectedCourseBatch(courseBatch);
     setFormOpen(true);
   };
 
-  const handleDelete = (subject) => {
-    setSelectedSubject(subject);
+  const handleDelete = (courseBatch) => {
+    setSelectedCourseBatch(courseBatch);
     setDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
     setDeleteLoading(true);
     try {
-      await subjectService.delete(selectedSubject.id);
+      await courseBatchService.delete(selectedCourseBatch.id);
       setAlertInfo({
         open: true,
-        message: 'Subject deleted successfully',
+        message: 'Course batch deleted successfully',
         severity: 'success',
       });
-      fetchSubjects();
+      fetchCourseBatches();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to delete subject',
+        message: 'Failed to delete course batch',
         severity: 'error',
       });
     } finally {
@@ -107,7 +107,7 @@ const SubjectList = () => {
   const handleFormClose = (refreshData) => {
     setFormOpen(false);
     if (refreshData) {
-      fetchSubjects();
+      fetchCourseBatches();
     }
   };
 
@@ -115,7 +115,7 @@ const SubjectList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          Subjects
+          Course Batches
         </Typography>
         <Button
           variant="contained"
@@ -123,13 +123,13 @@ const SubjectList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          Add Subject
+          Add Course Batch
         </Button>
       </Box>
 
       <DataTable
         columns={columns}
-        data={subjects}
+        data={courseBatches}
         totalCount={totalCount}
         page={page - 1}
         pageSize={pageSize}
@@ -141,10 +141,10 @@ const SubjectList = () => {
       />
 
       {formOpen && (
-        <SubjectForm
+        <CourseBatchForm
           open={formOpen}
           onClose={handleFormClose}
-          subject={selectedSubject}
+          courseBatch={selectedCourseBatch}
         />
       )}
 
@@ -152,8 +152,8 @@ const SubjectList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Subject"
-        message={`Are you sure you want to delete the subject "${selectedSubject?.name}"?`}
+        title="Delete Course Batch"
+        message={`Are you sure you want to delete the course batch "${selectedCourseBatch?.name}"?`}
         loading={deleteLoading}
       />
 
@@ -173,4 +173,4 @@ const SubjectList = () => {
   );
 };
 
-export default SubjectList; 
+export default CourseBatchList; 

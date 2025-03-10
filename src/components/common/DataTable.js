@@ -18,6 +18,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
+// Note: This component expects the 'page' prop to be 0-indexed (Material UI standard)
+// but the parent component should handle converting between 0-indexed (UI) and 1-indexed (API) pagination
 const DataTable = ({
   columns,
   data,
@@ -38,7 +40,7 @@ const DataTable = ({
 
   const handleChangeRowsPerPage = (event) => {
     onPageSizeChange(parseInt(event.target.value, 10));
-    onPageChange(0);
+    onPageChange(0); // This will be converted to page 1 in the parent component
   };
 
   return (

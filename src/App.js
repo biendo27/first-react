@@ -8,13 +8,11 @@ import Dashboard from './pages/admin/Dashboard';
 import MajorList from './pages/admin/major';
 import SubjectList from './pages/admin/subject';
 import StudentList from './pages/admin/student';
+import AcademicRecordList from './pages/admin/academic-record';
+import AdministrativeClassList from './pages/admin/administrative-class';
+import CourseBatchList from './pages/admin/course-batch';
+import TrainingProgramList from './pages/admin/training-program';
 import './App.css';
-
-// Create other admin CRUD imports here
-// import AcademicRecordList from './pages/admin/academic-record';
-// import AdministrativeClassList from './pages/admin/administrative-class';
-// import CourseBatchList from './pages/admin/course-batch';
-// import TrainingProgramList from './pages/admin/training-program';
 
 // Create a theme
 const theme = createTheme({
@@ -75,12 +73,10 @@ function App() {
             <Route path="majors" element={<MajorList />} />
             <Route path="subjects" element={<SubjectList />} />
             <Route path="students" element={<StudentList />} />
-            
-            {/* Add other admin CRUD routes here */}
-            {/* <Route path="academic-records" element={<AcademicRecordList />} />
+            <Route path="academic-records" element={<AcademicRecordList />} />
             <Route path="administrative-classes" element={<AdministrativeClassList />} />
             <Route path="course-batches" element={<CourseBatchList />} />
-            <Route path="training-programs" element={<TrainingProgramList />} /> */}
+            <Route path="training-programs" element={<TrainingProgramList />} />
             
             <Route index element={<Navigate to="dashboard" replace />} />
           </Route>

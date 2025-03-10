@@ -57,11 +57,12 @@ const MajorList = () => {
   }, [page, pageSize]);
 
   const handlePageChange = (newPage) => {
-    setPage(newPage);
+    setPage(newPage + 1);
   };
 
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize);
+    setPage(1);
   };
 
   const handleOpenForm = () => {
@@ -128,7 +129,7 @@ const MajorList = () => {
         columns={columns}
         data={majors}
         totalCount={totalCount}
-        page={page}
+        page={page - 1}
         pageSize={pageSize}
         loading={loading}
         onPageChange={handlePageChange}

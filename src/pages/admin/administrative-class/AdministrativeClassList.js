@@ -3,29 +3,33 @@ import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { subjectService } from '../../../services/api';
-import SubjectForm from './SubjectForm';
+import { administrativeClassService } from '../../../services/api';
+import AdministrativeClassForm from './AdministrativeClassForm';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 200 },
-  { id: 'subjectCode', label: 'Subject Code', minWidth: 150 },
-  { id: 'credit', label: 'Credit', minWidth: 100 },
   { 
-    id: 'type', 
-    label: 'Type', 
+    id: 'courseBatch', 
+    label: 'Course Batch', 
     minWidth: 150,
-    render: (row) => row.type 
+    render: (row) => row.courseBatch?.name || 'N/A'
+  },
+  { 
+    id: 'major', 
+    label: 'Major', 
+    minWidth: 150,
+    render: (row) => row.major?.name || 'N/A'
   },
 ];
 
-const SubjectList = () => {
-  const [subjects, setSubjects] = useState([]);
+const AdministrativeClassList = () => {
+  const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
-  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
@@ -34,19 +38,19 @@ const SubjectList = () => {
     severity: 'success',
   });
 
-  const fetchSubjects = async () => {
+  const fetchClasses = async () => {
     setLoading(true);
     try {
-      const response = await subjectService.getAll({
+      const response = await administrativeClassService.getAll({
         PageIndex: page,
         PageSize: pageSize,
       });
-      setSubjects(response.data || []);
+      setClasses(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch subjects',
+        message: 'Failed to fetch administrative classes',
         severity: 'error',
       });
     } finally {
@@ -55,7 +59,7 @@ const SubjectList = () => {
   };
 
   useEffect(() => {
-    fetchSubjects();
+    fetchClasses();
   }, [page, pageSize]);
 
   const handlePageChange = (newPage) => {
@@ -68,34 +72,34 @@ const SubjectList = () => {
   };
 
   const handleOpenForm = () => {
-    setSelectedSubject(null);
+    setSelectedClass(null);
     setFormOpen(true);
   };
 
-  const handleEdit = (subject) => {
-    setSelectedSubject(subject);
+  const handleEdit = (administrativeClass) => {
+    setSelectedClass(administrativeClass);
     setFormOpen(true);
   };
 
-  const handleDelete = (subject) => {
-    setSelectedSubject(subject);
+  const handleDelete = (administrativeClass) => {
+    setSelectedClass(administrativeClass);
     setDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
     setDeleteLoading(true);
     try {
-      await subjectService.delete(selectedSubject.id);
+      await administrativeClassService.delete(selectedClass.id);
       setAlertInfo({
         open: true,
-        message: 'Subject deleted successfully',
+        message: 'Administrative class deleted successfully',
         severity: 'success',
       });
-      fetchSubjects();
+      fetchClasses();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to delete subject',
+        message: 'Failed to delete administrative class',
         severity: 'error',
       });
     } finally {
@@ -107,7 +111,7 @@ const SubjectList = () => {
   const handleFormClose = (refreshData) => {
     setFormOpen(false);
     if (refreshData) {
-      fetchSubjects();
+      fetchClasses();
     }
   };
 
@@ -115,7 +119,7 @@ const SubjectList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          Subjects
+          Administrative Classes
         </Typography>
         <Button
           variant="contained"
@@ -123,13 +127,13 @@ const SubjectList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          Add Subject
+          Add Administrative Class
         </Button>
       </Box>
 
       <DataTable
         columns={columns}
-        data={subjects}
+        data={classes}
         totalCount={totalCount}
         page={page - 1}
         pageSize={pageSize}
@@ -141,10 +145,10 @@ const SubjectList = () => {
       />
 
       {formOpen && (
-        <SubjectForm
+        <AdministrativeClassForm
           open={formOpen}
           onClose={handleFormClose}
-          subject={selectedSubject}
+          administrativeClass={selectedClass}
         />
       )}
 
@@ -152,8 +156,8 @@ const SubjectList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Subject"
-        message={`Are you sure you want to delete the subject "${selectedSubject?.name}"?`}
+        title="Delete Administrative Class"
+        message={`Are you sure you want to delete the administrative class "${selectedClass?.name}"?`}
         loading={deleteLoading}
       />
 
@@ -173,4 +177,4 @@ const SubjectList = () => {
   );
 };
 
-export default SubjectList; 
+export default AdministrativeClassList;
