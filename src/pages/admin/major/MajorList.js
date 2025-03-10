@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DataTable from '../../../components/common/DataTable';
@@ -32,7 +32,7 @@ const MajorList = () => {
     severity: 'success',
   });
 
-  const fetchMajors = async () => {
+  const fetchMajors = useCallback(async () => {
     setLoading(true);
     try {
       const response = await majorService.getAll({
@@ -50,11 +50,11 @@ const MajorList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchMajors();
-  }, [page, pageSize]);
+  }, [fetchMajors]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage + 1);

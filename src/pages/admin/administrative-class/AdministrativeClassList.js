@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DataTable from '../../../components/common/DataTable';
@@ -38,7 +38,7 @@ const AdministrativeClassList = () => {
     severity: 'success',
   });
 
-  const fetchClasses = async () => {
+  const fetchClasses = useCallback(async () => {
     setLoading(true);
     try {
       const response = await administrativeClassService.getAll({
@@ -50,17 +50,17 @@ const AdministrativeClassList = () => {
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch administrative classes',
+        message: 'Failed to fetch classes',
         severity: 'error',
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchClasses();
-  }, [page, pageSize]);
+  }, [fetchClasses]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage + 1);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Button, Typography, Snackbar, Alert, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
@@ -59,7 +59,7 @@ const AcademicRecordList = () => {
     severity: 'success',
   });
 
-  const fetchRecords = async () => {
+  const fetchRecords = useCallback(async () => {
     setLoading(true);
     try {
       const response = await academicRecordService.getAll({
@@ -78,11 +78,11 @@ const AcademicRecordList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize, filters]);
 
   useEffect(() => {
     fetchRecords();
-  }, [page, pageSize]);
+  }, [fetchRecords]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage + 1);

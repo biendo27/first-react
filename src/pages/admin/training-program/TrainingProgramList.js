@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DataTable from '../../../components/common/DataTable';
@@ -45,7 +45,7 @@ const TrainingProgramList = () => {
     severity: 'success',
   });
 
-  const fetchPrograms = async () => {
+  const fetchPrograms = useCallback(async () => {
     setLoading(true);
     try {
       const response = await trainingProgramService.getAll({
@@ -63,11 +63,11 @@ const TrainingProgramList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchPrograms();
-  }, [page, pageSize]);
+  }, [fetchPrograms]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage + 1);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DataTable from '../../../components/common/DataTable';
@@ -34,7 +34,7 @@ const CourseBatchList = () => {
     severity: 'success',
   });
 
-  const fetchCourseBatches = async () => {
+  const fetchCourseBatches = useCallback(async () => {
     setLoading(true);
     try {
       const response = await courseBatchService.getAll({
@@ -52,11 +52,11 @@ const CourseBatchList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchCourseBatches();
-  }, [page, pageSize]);
+  }, [fetchCourseBatches]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage + 1);
