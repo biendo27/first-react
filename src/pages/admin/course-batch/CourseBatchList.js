@@ -5,20 +5,23 @@ import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { courseBatchService } from '../../../services/api';
 import CourseBatchForm from './CourseBatchForm';
-
-const columns = [
-  { id: 'name', label: 'Name', minWidth: 200 },
-  { 
-    id: 'startTime', 
-    label: 'Start Date', 
-    minWidth: 150,
-    render: (row) => new Date(row.startTime).toLocaleDateString()
-  },
-  { id: 'regularProgramDuration', label: 'Regular Duration (months)', minWidth: 180 },
-  { id: 'maximumProgramDuration', label: 'Maximum Duration (months)', minWidth: 180 },
-];
+import { useTranslation } from 'react-i18next';
 
 const CourseBatchList = () => {
+  const { t } = useTranslation(['admin', 'common']);
+  
+  const columns = [
+    { id: 'name', label: t('common:name'), minWidth: 200 },
+    { 
+      id: 'startTime', 
+      label: t('startDate', 'Start Date'), 
+      minWidth: 150,
+      render: (row) => new Date(row.startTime).toLocaleDateString()
+    },
+    { id: 'regularProgramDuration', label: t('regularDuration', 'Regular Duration (months)'), minWidth: 180 },
+    { id: 'maximumProgramDuration', label: t('maximumDuration', 'Maximum Duration (months)'), minWidth: 180 },
+  ];
+
   const [courseBatches, setCourseBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -46,13 +49,13 @@ const CourseBatchList = () => {
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch course batches',
+        message: t('common:error.loading'),
         severity: 'error',
       });
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, [page, pageSize, t]);
 
   useEffect(() => {
     fetchCourseBatches();
@@ -88,14 +91,14 @@ const CourseBatchList = () => {
       await courseBatchService.delete(selectedCourseBatch.id);
       setAlertInfo({
         open: true,
-        message: 'Course batch deleted successfully',
+        message: t('courseBatchDeleteSuccess', 'Course batch deleted successfully'),
         severity: 'success',
       });
       fetchCourseBatches();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to delete course batch',
+        message: t('courseBatchDeleteError', 'Failed to delete course batch'),
         severity: 'error',
       });
     } finally {
@@ -115,7 +118,7 @@ const CourseBatchList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          Course Batches
+          {t('admin:courseBatches', 'Course Batches')}
         </Typography>
         <Button
           variant="contained"
@@ -123,7 +126,7 @@ const CourseBatchList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          Add Course Batch
+          {t('admin:addCourseBatch', 'Add Course Batch')}
         </Button>
       </Box>
 
@@ -152,8 +155,8 @@ const CourseBatchList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Course Batch"
-        message={`Are you sure you want to delete the course batch "${selectedCourseBatch?.name}"?`}
+        title={t('deleteCourseBatchTitle', 'Delete Course Batch')}
+        message={t('deleteCourseBatchConfirmation', 'Are you sure you want to delete this course batch?')}
         loading={deleteLoading}
       />
 

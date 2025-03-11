@@ -36,5 +36,7 @@
     "login": {
       "credentials": "Vui lòng nhập tên đăng nhập và mật khẩu"
     }
-  }
+  },
+  "fieldRequired": "{{field}} là bắt buộc",
+  "name": "Tên"
 } 

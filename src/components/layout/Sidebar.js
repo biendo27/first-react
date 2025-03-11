@@ -47,6 +47,11 @@ const Sidebar = ({ open, onClose, variant = 'permanent' }) => {
       path: '/admin/administrative-classes' 
     },
     { 
+      name: t('courseBatches'), 
+      icon: <AutoStoriesIcon />, 
+      path: '/admin/course-batches' 
+    },
+    { 
       name: t('majors'), 
       icon: <SchoolIcon />, 
       path: '/admin/majors' 

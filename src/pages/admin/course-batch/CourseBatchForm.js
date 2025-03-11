@@ -3,26 +3,28 @@ import * as Yup from 'yup';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { courseBatchService } from '../../../services/api';
-
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  startTime: Yup.date().required('Start date is required'),
-  regularProgramDuration: Yup.number()
-    .required('Regular program duration is required')
-    .positive('Duration must be positive')
-    .integer('Duration must be an integer'),
-  maximumProgramDuration: Yup.number()
-    .required('Maximum program duration is required')
-    .positive('Duration must be positive')
-    .integer('Duration must be an integer')
-    .min(
-      Yup.ref('regularProgramDuration'),
-      'Maximum duration must be greater than or equal to regular duration'
-    ),
-});
+import { useTranslation } from 'react-i18next';
 
 const CourseBatchForm = ({ open, onClose, courseBatch }) => {
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation(['admin', 'common']);
+
+  const validationSchema = Yup.object({
+    name: Yup.string().required(t('common:fieldRequired', { field: t('common:name') })),
+    startTime: Yup.date().required(t('common:fieldRequired', { field: t('startDate', 'Start date') })),
+    regularProgramDuration: Yup.number()
+      .required(t('common:fieldRequired', { field: t('regularDuration', 'Regular program duration') }))
+      .positive(t('durationPositive', 'Duration must be positive'))
+      .integer(t('durationInteger', 'Duration must be an integer')),
+    maximumProgramDuration: Yup.number()
+      .required(t('common:fieldRequired', { field: t('maximumDuration', 'Maximum program duration') }))
+      .positive(t('durationPositive', 'Duration must be positive'))
+      .integer(t('durationInteger', 'Duration must be an integer'))
+      .min(
+        Yup.ref('regularProgramDuration'),
+        t('maxDurationGreaterThanRegular', 'Maximum duration must be greater than or equal to regular duration')
+      ),
+  });
 
   const initialValues = {
     name: courseBatch?.name || '',
@@ -62,7 +64,7 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
     <FormDialog
       open={open}
       onClose={() => onClose(false)}
-      title={courseBatch ? 'Edit Course Batch' : 'Add Course Batch'}
+      title={courseBatch ? t('editCourseBatch', 'Edit Course Batch') : t('addCourseBatch', 'Add Course Batch')}
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -70,12 +72,12 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
     >
       <FormField
         name="name"
-        label="Name"
+        label={t('common:name')}
         required
       />
       <FormField
         name="startTime"
-        label="Start Date"
+        label={t('startDate', 'Start Date')}
         type="date"
         required
         InputLabelProps={{
@@ -84,13 +86,13 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
       />
       <FormField
         name="regularProgramDuration"
-        label="Regular Program Duration (months)"
+        label={t('regularDuration', 'Regular Program Duration (months)')}
         type="number"
         required
       />
       <FormField
         name="maximumProgramDuration"
-        label="Maximum Program Duration (months)"
+        label={t('maximumDuration', 'Maximum Program Duration (months)')}
         type="number"
         required
       />

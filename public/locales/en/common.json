@@ -36,5 +36,7 @@
     "login": {
       "credentials": "Please enter your username and password"
     }
-  }
+  },
+  "fieldRequired": "{{field}} is required",
+  "name": "Name"
 } 
