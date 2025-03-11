@@ -18,7 +18,14 @@ const SubjectList = () => {
       id: 'type', 
       label: t('subject.type'), 
       minWidth: 150,
-      render: (row) => row.type 
+      render: (row) => {
+        if (row.type === 'Compulsory') {
+          return t('subject.typeCompulsory');
+        } else if (row.type === 'Elective') {
+          return t('subject.typeElective');
+        }
+        return row.type;
+      }
     },
   ];
   
