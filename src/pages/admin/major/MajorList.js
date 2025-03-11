@@ -5,18 +5,21 @@ import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { majorService } from '../../../services/api';
 import MajorForm from './MajorForm';
-
-const columns = [
-  { id: 'name', label: 'Name', minWidth: 200 },
-  { 
-    id: 'createdDate', 
-    label: 'Created Date', 
-    minWidth: 150,
-    render: (row) => new Date(row.createdDate).toLocaleDateString() 
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const MajorList = () => {
+  const { t } = useTranslation(['admin', 'common']);
+  
+  const columns = [
+    { id: 'name', label: t('major.name'), minWidth: 200 },
+    { 
+      id: 'createdDate', 
+      label: t('major.createdDate'), 
+      minWidth: 150,
+      render: (row) => new Date(row.createdDate).toLocaleDateString() 
+    },
+  ];
+  
   const [majors, setMajors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -44,13 +47,13 @@ const MajorList = () => {
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch majors',
+        message: t('common:fetchError', { resource: t('majors') }),
         severity: 'error',
       });
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, [page, pageSize, t]);
 
   useEffect(() => {
     fetchMajors();
@@ -86,14 +89,14 @@ const MajorList = () => {
       await majorService.delete(selectedMajor.id);
       setAlertInfo({
         open: true,
-        message: 'Major deleted successfully',
+        message: t('major.majorDeleteSuccess'),
         severity: 'success',
       });
       fetchMajors();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to delete major',
+        message: t('major.majorDeleteError'),
         severity: 'error',
       });
     } finally {
@@ -113,7 +116,7 @@ const MajorList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          Majors
+          {t('majors')}
         </Typography>
         <Button
           variant="contained"
@@ -121,7 +124,7 @@ const MajorList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          Add Major
+          {t('major.addMajor')}
         </Button>
       </Box>
 
@@ -150,8 +153,8 @@ const MajorList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Major"
-        message={`Are you sure you want to delete the major "${selectedMajor?.name}"?`}
+        title={t('major.deleteMajor')}
+        message={t('major.deleteMajorConfirmation')}
         loading={deleteLoading}
       />
 

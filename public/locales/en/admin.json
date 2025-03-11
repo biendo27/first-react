@@ -38,6 +38,53 @@
   "totalMajors": "Total Majors",
   "welcomeMessage": "Welcome to School Management System",
   "dashboardDescription": "This dashboard provides comprehensive tools for managing academic records, administrative classes, course batches, majors, students, subjects, and training programs. Use the navigation menu to access different sections of the system.",
+  "major": {
+    "name": "Name",
+    "createdDate": "Created Date",
+    "addMajor": "Add Major",
+    "editMajor": "Edit Major",
+    "deleteMajor": "Delete Major",
+    "deleteMajorConfirmation": "Are you sure you want to delete this major?",
+    "majorDeleteSuccess": "Major deleted successfully",
+    "majorDeleteError": "Failed to delete major",
+    "majorSaveSuccess": "Major saved successfully",
+    "majorSaveError": "Failed to save major",
+    "majorDetails": "Major Details"
+  },
+  "academicRecord": {
+    "student": "Student",
+    "subject": "Subject",
+    "xScore": "X Score",
+    "yScore": "Y Score",
+    "zScore": "Z Score",
+    "academicYear": "Academic Year",
+    "completionDate": "Completion Date",
+    "resultType": "Result",
+    "note": "Note",
+    "search": "Search",
+    "searchByStudent": "Search by student name or code",
+    "addAcademicRecord": "Add Academic Record",
+    "editAcademicRecord": "Edit Academic Record",
+    "deleteAcademicRecord": "Delete Academic Record",
+    "deleteAcademicRecordConfirmation": "Are you sure you want to delete this academic record?",
+    "academicRecordDeleteSuccess": "Academic record deleted successfully",
+    "academicRecordDeleteError": "Failed to delete academic record",
+    "academicRecordSaveSuccess": "Academic record saved successfully",
+    "academicRecordSaveError": "Failed to save academic record",
+    "academicRecordDetails": "Academic Record Details",
+    "deleteSuccess": "Academic record deleted successfully",
+    "deleteError": "Failed to delete academic record",
+    "scoreValidation": {
+      "required": "{{field}} is required",
+      "min": "{{field}} must be at least {{min}}",
+      "max": "{{field}} must be at most {{max}}"
+    },
+    "yearValidation": {
+      "required": "Academic year is required",
+      "min": "Academic year must be at least {{min}}",
+      "integer": "Academic year must be an integer"
+    }
+  },
   "subject": {
     "name": "Name",
     "subjectCode": "Subject Code",

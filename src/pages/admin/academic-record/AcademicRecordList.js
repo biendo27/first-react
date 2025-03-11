@@ -6,39 +6,42 @@ import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { academicRecordService } from '../../../services/api';
 import AcademicRecordForm from './AcademicRecordForm';
-
-const columns = [
-  { 
-    id: 'student', 
-    label: 'Student', 
-    minWidth: 200,
-    render: (row) => `${row.student?.firstName} ${row.student?.lastName} (${row.student?.studentCode})`
-  },
-  { 
-    id: 'subject', 
-    label: 'Subject', 
-    minWidth: 200,
-    render: (row) => `${row.subject?.name} (${row.subject?.subjectCode})`
-  },
-  { id: 'xScore', label: 'X Score', minWidth: 100 },
-  { id: 'yScore', label: 'Y Score', minWidth: 100 },
-  { id: 'zScore', label: 'Z Score', minWidth: 100 },
-  { id: 'academicYear', label: 'Academic Year', minWidth: 150 },
-  { 
-    id: 'completionDate', 
-    label: 'Completion Date', 
-    minWidth: 150,
-    render: (row) => row.completionDate ? new Date(row.completionDate).toLocaleDateString() : 'N/A'
-  },
-  { 
-    id: 'resultType', 
-    label: 'Result', 
-    minWidth: 120,
-    render: (row) => row.resultType
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const AcademicRecordList = () => {
+  const { t } = useTranslation(['admin', 'common']);
+  
+  const columns = [
+    { 
+      id: 'student', 
+      label: t('academicRecord.student'), 
+      minWidth: 200,
+      render: (row) => `${row.student?.firstName} ${row.student?.lastName} (${row.student?.studentCode})`
+    },
+    { 
+      id: 'subject', 
+      label: t('academicRecord.subject'), 
+      minWidth: 200,
+      render: (row) => `${row.subject?.name} (${row.subject?.subjectCode})`
+    },
+    { id: 'xScore', label: t('academicRecord.xScore'), minWidth: 100 },
+    { id: 'yScore', label: t('academicRecord.yScore'), minWidth: 100 },
+    { id: 'zScore', label: t('academicRecord.zScore'), minWidth: 100 },
+    { id: 'academicYear', label: t('academicRecord.academicYear'), minWidth: 150 },
+    { 
+      id: 'completionDate', 
+      label: t('academicRecord.completionDate'), 
+      minWidth: 150,
+      render: (row) => row.completionDate ? new Date(row.completionDate).toLocaleDateString() : 'N/A'
+    },
+    { 
+      id: 'resultType', 
+      label: t('academicRecord.resultType'), 
+      minWidth: 120,
+      render: (row) => row.resultType
+    },
+  ];
+
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -48,41 +51,50 @@ const AcademicRecordList = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    studentId: '',
-    subjectId: '',
-    academicYear: '',
-  });
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     message: '',
     severity: 'success',
   });
 
+  // Initialize searchInput with searchQuery for consistency
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
+
   const fetchRecords = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await academicRecordService.getAll({
+      const params = {
         PageIndex: page,
         PageSize: pageSize,
-        ...filters,
-      });
+      };
+      
+      if (searchQuery) {
+        params.StudentCode = searchQuery;
+      }
+      
+      const response = await academicRecordService.getAll(params);
       setRecords(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch academic records',
+        message: t('common:fetchError', { resource: t('academicRecords') }),
         severity: 'error',
       });
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, filters]);
+  }, [page, pageSize, searchQuery, t]);
 
+  // Replace with a single useEffect that calls fetchRecords when needed
   useEffect(() => {
+    // This effect will run when page, pageSize, or searchQuery changes
     fetchRecords();
-  }, [fetchRecords]);
+  }, [page, pageSize, searchQuery, fetchRecords]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
@@ -114,14 +126,14 @@ const AcademicRecordList = () => {
       await academicRecordService.delete(selectedRecord.id);
       setAlertInfo({
         open: true,
-        message: 'Academic record deleted successfully',
+        message: t('academicRecord.deleteSuccess'),
         severity: 'success',
       });
       fetchRecords();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to delete academic record',
+        message: t('academicRecord.deleteError'),
         severity: 'error',
       });
     } finally {
@@ -138,23 +150,27 @@ const AcademicRecordList = () => {
   };
 
   const handleFilterChange = (event) => {
-    const { name, value } = event.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setSearchInput(event.target.value);
   };
 
   const handleSearch = () => {
+    setSearchQuery(searchInput);
     setPage(1);
-    fetchRecords();
+    // We don't need to explicitly call fetchRecords here anymore
+    // The useEffect will handle that when searchQuery changes
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          Academic Records
+          {t('academicRecords')}
         </Typography>
         <Button
           variant="contained"
@@ -162,19 +178,19 @@ const AcademicRecordList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          Add Academic Record
+          {t('academicRecord.addAcademicRecord')}
         </Button>
       </Box>
 
-      <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', mb: 2 }}>
         <TextField
-          name="academicYear"
-          label="Academic Year"
+          label={t('academicRecord.searchByStudent')}
           variant="outlined"
           size="small"
-          value={filters.academicYear}
+          value={searchInput}
           onChange={handleFilterChange}
-          type="number"
+          onKeyDown={handleKeyPress}
+          sx={{ mr: 1, flexGrow: 1 }}
         />
         <Button
           variant="contained"
@@ -182,7 +198,7 @@ const AcademicRecordList = () => {
           startIcon={<SearchIcon />}
           onClick={handleSearch}
         >
-          Search
+          {t('academicRecord.search')}
         </Button>
       </Box>
 
@@ -211,8 +227,8 @@ const AcademicRecordList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Academic Record"
-        message={`Are you sure you want to delete this academic record?`}
+        title={t('academicRecord.deleteAcademicRecord')}
+        message={t('academicRecord.deleteAcademicRecordConfirmation')}
         loading={deleteLoading}
       />
 

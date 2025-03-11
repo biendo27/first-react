@@ -3,35 +3,37 @@ import * as Yup from 'yup';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { academicRecordService, studentService, subjectService } from '../../../services/api';
-
-const validationSchema = Yup.object({
-  studentId: Yup.string().required('Student is required'),
-  subjectId: Yup.string().required('Subject is required'),
-  xScore: Yup.number()
-    .required('X Score is required')
-    .min(0, 'X Score must be at least 0')
-    .max(10, 'X Score must be at most 10'),
-  yScore: Yup.number()
-    .required('Y Score is required')
-    .min(0, 'Y Score must be at least 0')
-    .max(10, 'Y Score must be at most 10'),
-  zScore: Yup.number()
-    .required('Z Score is required')
-    .min(0, 'Z Score must be at least 0')
-    .max(10, 'Z Score must be at most 10'),
-  academicYear: Yup.number()
-    .required('Academic year is required')
-    .min(2000, 'Academic year must be at least 2000')
-    .integer('Academic year must be an integer'),
-  completionDate: Yup.date(),
-  note: Yup.string(),
-});
+import { useTranslation } from 'react-i18next';
 
 const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
+  const { t } = useTranslation(['admin', 'common']);
   const [loading, setLoading] = useState(false);
   const [students, setStudents] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
+
+  const validationSchema = Yup.object({
+    studentId: Yup.string().required(t('common:fieldRequired', { field: t('academicRecord.student') })),
+    subjectId: Yup.string().required(t('common:fieldRequired', { field: t('academicRecord.subject') })),
+    xScore: Yup.number()
+      .required(t('academicRecord.scoreValidation.required', { field: t('academicRecord.xScore') }))
+      .min(0, t('academicRecord.scoreValidation.min', { field: t('academicRecord.xScore'), min: 0 }))
+      .max(10, t('academicRecord.scoreValidation.max', { field: t('academicRecord.xScore'), max: 10 })),
+    yScore: Yup.number()
+      .required(t('academicRecord.scoreValidation.required', { field: t('academicRecord.yScore') }))
+      .min(0, t('academicRecord.scoreValidation.min', { field: t('academicRecord.yScore'), min: 0 }))
+      .max(10, t('academicRecord.scoreValidation.max', { field: t('academicRecord.yScore'), max: 10 })),
+    zScore: Yup.number()
+      .required(t('academicRecord.scoreValidation.required', { field: t('academicRecord.zScore') }))
+      .min(0, t('academicRecord.scoreValidation.min', { field: t('academicRecord.zScore'), min: 0 }))
+      .max(10, t('academicRecord.scoreValidation.max', { field: t('academicRecord.zScore'), max: 10 })),
+    academicYear: Yup.number()
+      .required(t('academicRecord.yearValidation.required'))
+      .min(2000, t('academicRecord.yearValidation.min', { min: 2000 }))
+      .integer(t('academicRecord.yearValidation.integer')),
+    completionDate: Yup.date(),
+    note: Yup.string(),
+  });
 
   const initialValues = {
     studentId: academicRecord?.student?.id || '',
@@ -108,7 +110,7 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
     <FormDialog
       open={open}
       onClose={() => onClose(false)}
-      title={academicRecord ? 'Edit Academic Record' : 'Add Academic Record'}
+      title={academicRecord ? t('academicRecord.editAcademicRecord') : t('academicRecord.addAcademicRecord')}
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -117,7 +119,7 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
     >
       <FormField
         name="studentId"
-        label="Student"
+        label={t('academicRecord.student')}
         type="select"
         options={studentOptions}
         required
@@ -125,7 +127,7 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
       />
       <FormField
         name="subjectId"
-        label="Subject"
+        label={t('academicRecord.subject')}
         type="select"
         options={subjectOptions}
         required
@@ -133,34 +135,34 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
       />
       <FormField
         name="xScore"
-        label="X Score"
+        label={t('academicRecord.xScore')}
         type="number"
         required
         inputProps={{ step: "0.1", min: "0", max: "10" }}
       />
       <FormField
         name="yScore"
-        label="Y Score"
+        label={t('academicRecord.yScore')}
         type="number"
         required
         inputProps={{ step: "0.1", min: "0", max: "10" }}
       />
       <FormField
         name="zScore"
-        label="Z Score"
+        label={t('academicRecord.zScore')}
         type="number"
         required
         inputProps={{ step: "0.1", min: "0", max: "10" }}
       />
       <FormField
         name="academicYear"
-        label="Academic Year"
+        label={t('academicRecord.academicYear')}
         type="number"
         required
       />
       <FormField
         name="completionDate"
-        label="Completion Date"
+        label={t('academicRecord.completionDate')}
         type="date"
         InputLabelProps={{
           shrink: true,
@@ -168,7 +170,7 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
       />
       <FormField
         name="note"
-        label="Note"
+        label={t('academicRecord.note')}
         multiline
         rows={3}
       />

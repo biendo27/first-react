@@ -3,13 +3,15 @@ import * as Yup from 'yup';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { majorService } from '../../../services/api';
-
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-});
+import { useTranslation } from 'react-i18next';
 
 const MajorForm = ({ open, onClose, major }) => {
+  const { t } = useTranslation(['admin', 'common']);
   const [loading, setLoading] = useState(false);
+
+  const validationSchema = Yup.object({
+    name: Yup.string().required(t('common:fieldRequired', { field: t('major.name') })),
+  });
 
   const initialValues = {
     name: major?.name || '',
@@ -37,7 +39,7 @@ const MajorForm = ({ open, onClose, major }) => {
     <FormDialog
       open={open}
       onClose={() => onClose(false)}
-      title={major ? 'Edit Major' : 'Add Major'}
+      title={major ? t('major.editMajor') : t('major.addMajor')}
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -45,7 +47,7 @@ const MajorForm = ({ open, onClose, major }) => {
     >
       <FormField
         name="name"
-        label="Name"
+        label={t('major.name')}
         required
       />
     </FormDialog>

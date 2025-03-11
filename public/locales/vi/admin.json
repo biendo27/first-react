@@ -38,6 +38,53 @@
   "totalMajors": "Tổng Số Chuyên Ngành",
   "welcomeMessage": "Chào mừng đến với Hệ thống Quản lý Trường học",
   "dashboardDescription": "Bảng điều khiển này cung cấp các công cụ toàn diện để quản lý hồ sơ học tập, lớp hành chính, khóa học, chuyên ngành, sinh viên, môn học và chương trình đào tạo. Sử dụng menu điều hướng để truy cập các phần khác nhau của hệ thống.",
+  "major": {
+    "name": "Tên",
+    "createdDate": "Ngày Tạo",
+    "addMajor": "Thêm Chuyên Ngành",
+    "editMajor": "Sửa Chuyên Ngành",
+    "deleteMajor": "Xóa Chuyên Ngành",
+    "deleteMajorConfirmation": "Bạn có chắc chắn muốn xóa chuyên ngành này không?",
+    "majorDeleteSuccess": "Đã xóa chuyên ngành thành công",
+    "majorDeleteError": "Không thể xóa chuyên ngành",
+    "majorSaveSuccess": "Đã lưu chuyên ngành thành công",
+    "majorSaveError": "Không thể lưu chuyên ngành",
+    "majorDetails": "Thông Tin Chuyên Ngành"
+  },
+  "academicRecord": {
+    "student": "Sinh Viên",
+    "subject": "Môn Học",
+    "xScore": "Điểm X",
+    "yScore": "Điểm Y",
+    "zScore": "Điểm Z",
+    "academicYear": "Năm Học",
+    "completionDate": "Ngày Hoàn Thành",
+    "resultType": "Kết Quả",
+    "note": "Ghi Chú",
+    "search": "Tìm Kiếm",
+    "searchByStudent": "Tìm kiếm theo tên hoặc mã sinh viên",
+    "addAcademicRecord": "Thêm Hồ Sơ Học Tập",
+    "editAcademicRecord": "Sửa Hồ Sơ Học Tập",
+    "deleteAcademicRecord": "Xóa Hồ Sơ Học Tập",
+    "deleteAcademicRecordConfirmation": "Bạn có chắc chắn muốn xóa hồ sơ học tập này không?",
+    "academicRecordDeleteSuccess": "Đã xóa hồ sơ học tập thành công",
+    "academicRecordDeleteError": "Không thể xóa hồ sơ học tập",
+    "academicRecordSaveSuccess": "Đã lưu hồ sơ học tập thành công",
+    "academicRecordSaveError": "Không thể lưu hồ sơ học tập",
+    "academicRecordDetails": "Thông Tin Hồ Sơ Học Tập",
+    "deleteSuccess": "Đã xóa hồ sơ học tập thành công",
+    "deleteError": "Không thể xóa hồ sơ học tập",
+    "scoreValidation": {
+      "required": "{{field}} là bắt buộc",
+      "min": "{{field}} phải lớn hơn hoặc bằng {{min}}",
+      "max": "{{field}} phải nhỏ hơn hoặc bằng {{max}}"
+    },
+    "yearValidation": {
+      "required": "Năm học là bắt buộc",
+      "min": "Năm học phải từ {{min}} trở lên",
+      "integer": "Năm học phải là số nguyên"
+    }
+  },
   "subject": {
     "name": "Tên",
     "subjectCode": "Mã Môn Học",
