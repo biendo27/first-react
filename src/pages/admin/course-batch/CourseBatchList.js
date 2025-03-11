@@ -10,6 +10,24 @@ import { useTranslation } from 'react-i18next';
 const CourseBatchList = () => {
   const { t } = useTranslation(['admin', 'common']);
   
+  // Convert months to years for display with proper formatting
+  const formatYears = (months) => {
+    const years = months / 12;
+    
+    // For exact years, show without decimal
+    if (years % 1 === 0) {
+      return years.toFixed(0);
+    }
+    
+    // For half years, show as x.5
+    if (years * 2 % 1 === 0) {
+      return years.toFixed(1);
+    }
+    
+    // Otherwise show with up to 2 decimal places
+    return years.toFixed(2);
+  };
+  
   const columns = [
     { id: 'name', label: t('common:name'), minWidth: 200 },
     { 
@@ -18,8 +36,18 @@ const CourseBatchList = () => {
       minWidth: 150,
       render: (row) => new Date(row.startTime).toLocaleDateString()
     },
-    { id: 'regularProgramDuration', label: t('regularDuration', 'Regular Duration (months)'), minWidth: 180 },
-    { id: 'maximumProgramDuration', label: t('maximumDuration', 'Maximum Duration (months)'), minWidth: 180 },
+    { 
+      id: 'regularProgramDuration', 
+      label: t('regularDuration', 'Regular Duration (years)'), 
+      minWidth: 180,
+      render: (row) => formatYears(row.regularProgramDuration)
+    },
+    { 
+      id: 'maximumProgramDuration', 
+      label: t('maximumDuration', 'Maximum Duration (years)'), 
+      minWidth: 180,
+      render: (row) => formatYears(row.maximumProgramDuration)
+    },
   ];
 
   const [courseBatches, setCourseBatches] = useState([]);

@@ -9,21 +9,27 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation(['admin', 'common']);
 
+  // Convert months to years for display
+  const monthsToYears = (months) => {
+    return months ? months / 12 : '';
+  };
+
+  // Convert years to months for storage
+  const yearsToMonths = (years) => {
+    return years ? years * 12 : 0;
+  };
+
   const validationSchema = Yup.object({
     name: Yup.string().required(t('common:fieldRequired', { field: t('common:name') })),
     startTime: Yup.date().required(t('common:fieldRequired', { field: t('startDate', 'Start date') })),
     regularProgramDuration: Yup.number()
       .required(t('common:fieldRequired', { field: t('regularDuration', 'Regular program duration') }))
       .positive(t('durationPositive', 'Duration must be positive'))
-      .integer(t('durationInteger', 'Duration must be an integer')),
+      .min(0.25, t('durationMinimum', 'Duration must be at least 0.25 years')),
     maximumProgramDuration: Yup.number()
       .required(t('common:fieldRequired', { field: t('maximumDuration', 'Maximum program duration') }))
       .positive(t('durationPositive', 'Duration must be positive'))
-      .integer(t('durationInteger', 'Duration must be an integer'))
-      .min(
-        Yup.ref('regularProgramDuration'),
-        t('maxDurationGreaterThanRegular', 'Maximum duration must be greater than or equal to regular duration')
-      ),
+      .min(Yup.ref('regularProgramDuration'), t('maxDurationGreaterThanRegular', 'Maximum duration must be greater than or equal to regular duration')),
   });
 
   const initialValues = {
@@ -31,8 +37,8 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
     startTime: courseBatch?.startTime 
       ? new Date(courseBatch.startTime).toISOString().split('T')[0]
       : '',
-    regularProgramDuration: courseBatch?.regularProgramDuration || '',
-    maximumProgramDuration: courseBatch?.maximumProgramDuration || '',
+    regularProgramDuration: monthsToYears(courseBatch?.regularProgramDuration) || (courseBatch ? '' : 4),
+    maximumProgramDuration: monthsToYears(courseBatch?.maximumProgramDuration) || (courseBatch ? '' : 6),
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -41,8 +47,8 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
       const formattedValues = {
         ...values,
         startTime: new Date(values.startTime).toISOString(),
-        regularProgramDuration: Number(values.regularProgramDuration),
-        maximumProgramDuration: Number(values.maximumProgramDuration),
+        regularProgramDuration: yearsToMonths(parseFloat(values.regularProgramDuration)),
+        maximumProgramDuration: yearsToMonths(parseFloat(values.maximumProgramDuration)),
       };
 
       if (courseBatch) {
@@ -86,15 +92,25 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
       />
       <FormField
         name="regularProgramDuration"
-        label={t('regularDuration', 'Regular Program Duration (months)')}
+        label={t('regularDuration', 'Regular Program Duration (years)')}
         type="number"
         required
+        inputProps={{
+          step: 0.25,  // Allow quarterly years (3 months)
+          min: 0.25,
+        }}
+        helperText={t('durationYearHelper', 'Duration in years (e.g., 1.5 for one and a half years)')}
       />
       <FormField
         name="maximumProgramDuration"
-        label={t('maximumDuration', 'Maximum Program Duration (months)')}
+        label={t('maximumDuration', 'Maximum Program Duration (years)')}
         type="number"
         required
+        inputProps={{
+          step: 0.25,  // Allow quarterly years
+          min: 0.25,
+        }}
+        helperText={t('durationYearHelper', 'Duration in years (e.g., 2.5 for two and a half years)')}
       />
     </FormDialog>
   );
