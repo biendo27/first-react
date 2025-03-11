@@ -14,7 +14,7 @@ const AdminLayout = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <Header onMenuClick={handleDrawerToggle} />
       <Sidebar
         variant={isMobile ? 'temporary' : 'permanent'}
@@ -26,8 +26,9 @@ const AdminLayout = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - 240px)` },
-          minHeight: '100vh',
+          width: { xs: '100%', md: `calc(100% - 240px)` },
+          height: '100vh',
+          overflow: 'auto',
           backgroundColor: '#f5f5f5',
         }}
       >

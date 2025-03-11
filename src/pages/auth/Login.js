@@ -12,6 +12,9 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/api';
 import * as Yup from 'yup';
 import { Formik, Form } from 'formik';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
 
 const validationSchema = Yup.object({
   username: Yup.string().required('Username is required'),
@@ -21,16 +24,19 @@ const validationSchema = Yup.object({
 const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const { login } = useAuth();
+  const { t } = useTranslation();
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       setError('');
-      await authService.login(values.username, values.password);
+      const response = await authService.login(values.username, values.password);
+      login(response.user || { username: values.username }, response.accessToken);
       navigate('/admin/dashboard');
     } catch (error) {
       setError(
         error.response?.data?.message || 
-        'Login failed. Please check your credentials.'
+        t('error.login.credentials')
       );
     } finally {
       setSubmitting(false);
@@ -55,11 +61,15 @@ const Login = () => {
           width: '100%',
         }}
       >
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <LanguageSwitcher />
+        </Box>
+        
         <Typography variant="h5" component="h1" gutterBottom align="center">
-          School Management System
+          {t('adminDashboard')}
         </Typography>
         <Typography variant="subtitle1" gutterBottom align="center">
-          Admin Login
+          {t('login.title')}
         </Typography>
 
         {error && (
@@ -86,7 +96,7 @@ const Login = () => {
                 fullWidth
                 id="username"
                 name="username"
-                label="Username"
+                label={t('login.username')}
                 value={values.username}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -99,7 +109,7 @@ const Login = () => {
                 fullWidth
                 id="password"
                 name="password"
-                label="Password"
+                label={t('login.password')}
                 type="password"
                 value={values.password}
                 onChange={handleChange}
@@ -118,7 +128,7 @@ const Login = () => {
                 sx={{ mt: 3, mb: 2 }}
                 startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
               >
-                Login
+                {t('login.signIn')}
               </Button>
             </Form>
           )}

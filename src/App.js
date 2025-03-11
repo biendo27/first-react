@@ -12,7 +12,12 @@ import AcademicRecordList from './pages/admin/academic-record';
 import AdministrativeClassList from './pages/admin/administrative-class';
 import CourseBatchList from './pages/admin/course-batch';
 import TrainingProgramList from './pages/admin/training-program';
+import { AuthProvider } from './contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
 import './App.css';
+
+// Import i18n configuration
+import './i18n';
 
 // Create a theme
 const theme = createTheme({
@@ -40,50 +45,39 @@ const theme = createTheme({
   },
 });
 
-// Simple auth check function (replace with actual auth logic as needed)
-const isAuthenticated = () => {
-  return !!localStorage.getItem('accessToken');
-};
-
-// Protected route component
-const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
-
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="majors" element={<MajorList />} />
-            <Route path="subjects" element={<SubjectList />} />
-            <Route path="students" element={<StudentList />} />
-            <Route path="academic-records" element={<AcademicRecordList />} />
-            <Route path="administrative-classes" element={<AdministrativeClassList />} />
-            <Route path="course-batches" element={<CourseBatchList />} />
-            <Route path="training-programs" element={<TrainingProgramList />} />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
             
-            <Route index element={<Navigate to="dashboard" replace />} />
-          </Route>
-          
-          <Route path="/" element={<Navigate to="/admin" replace />} />
-        </Routes>
-      </Router>
+            <Route
+              path="/admin"
+              element={
+                <PrivateRoute>
+                  <AdminLayout />
+                </PrivateRoute>
+              }
+            >
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="majors" element={<MajorList />} />
+              <Route path="subjects" element={<SubjectList />} />
+              <Route path="students" element={<StudentList />} />
+              <Route path="academic-records" element={<AcademicRecordList />} />
+              <Route path="administrative-classes" element={<AdministrativeClassList />} />
+              <Route path="course-batches" element={<CourseBatchList />} />
+              <Route path="training-programs" element={<TrainingProgramList />} />
+              
+              <Route index element={<Navigate to="dashboard" replace />} />
+            </Route>
+            
+            <Route path="/" element={<Navigate to="/admin" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

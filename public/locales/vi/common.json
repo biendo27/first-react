@@ -1,0 +1,40 @@
+{
+  "language": "Tiếng Việt",
+  "changeLanguage": "Đổi Ngôn Ngữ",
+  "close": "Đóng",
+  "loading": "Đang tải...",
+  "noData": "Không có dữ liệu",
+  "actions": "Thao tác",
+  "add": "Thêm",
+  "edit": "Sửa",
+  "delete": "Xóa",
+  "save": "Lưu",
+  "cancel": "Hủy",
+  "search": "Tìm kiếm",
+  "filter": "Lọc",
+  "apply": "Áp dụng",
+  "clear": "Xóa",
+  "applyFilters": "Áp Dụng Bộ Lọc",
+  "clearFilters": "Xóa Bộ Lọc",
+  "page": "Trang",
+  "of": "của",
+  "rowsPerPage": "Số dòng mỗi trang",
+  "adminDashboard": "Bảng Điều Khiển Quản Trị",
+  "profile": "Hồ Sơ",
+  "logout": "Đăng Xuất",
+  "openSettings": "Mở cài đặt",
+  "comingSoon": "Sắp ra mắt...",
+  "login": {
+    "title": "Đăng Nhập",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "signIn": "Đăng Nhập"
+  },
+  "error": {
+    "generic": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "loading": "Lỗi tải dữ liệu. Vui lòng thử lại.",
+    "login": {
+      "credentials": "Vui lòng nhập tên đăng nhập và mật khẩu"
+    }
+  }
+} 

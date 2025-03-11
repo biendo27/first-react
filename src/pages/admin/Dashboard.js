@@ -13,6 +13,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import ClassIcon from '@mui/icons-material/Class';
 import SubjectIcon from '@mui/icons-material/Subject';
 import PeopleIcon from '@mui/icons-material/People';
+import { useTranslation } from 'react-i18next';
 
 const StatCard = ({ title, count, icon, color }) => {
   return (
@@ -24,7 +25,7 @@ const StatCard = ({ title, count, icon, color }) => {
         p: 3
       }}>
         <Box>
-          <Typography color="textSecondary" gutterBottom variant="overline">
+          <Typography color="textSecondary" gutterBottom variant="overline" sx={{ textTransform: 'uppercase', fontWeight: 500 }}>
             {title}
           </Typography>
           <Typography variant="h4">{count}</Typography>
@@ -45,15 +46,17 @@ const StatCard = ({ title, count, icon, color }) => {
 };
 
 const Dashboard = () => {
+  const { t } = useTranslation('admin');
+
   return (
     <Box>
       <Typography variant="h4" component="h1" gutterBottom>
-        Dashboard
+        {t('dashboard')}
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Total Students"
+            title={t('totalStudents')}
             count="124"
             icon={<PeopleIcon />}
             color="#4caf50"
@@ -61,7 +64,7 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Total Classes"
+            title={t('totalClasses')}
             count="8"
             icon={<ClassIcon />}
             color="#f44336"
@@ -69,7 +72,7 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Total Subjects"
+            title={t('totalSubjects')}
             count="42"
             icon={<SubjectIcon />}
             color="#2196f3"
@@ -77,7 +80,7 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Total Majors"
+            title={t('totalMajors')}
             count="6"
             icon={<SchoolIcon />}
             color="#ff9800"
@@ -85,13 +88,11 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12}>
           <Card>
-            <CardHeader title="Welcome to School Management System" />
+            <CardHeader title={t('welcomeMessage')} />
             <Divider />
             <CardContent>
               <Typography variant="body1">
-                This dashboard provides comprehensive tools for managing academic records, administrative classes, 
-                course batches, majors, students, subjects, and training programs. Use the navigation menu to access 
-                different sections of the system.
+                {t('dashboardDescription')}
               </Typography>
             </CardContent>
           </Card>

@@ -12,9 +12,11 @@ import {
   TablePagination,
   CircularProgress,
   Box,
+  Tooltip,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useTranslation } from 'react-i18next';
 
 const DataTable = ({
   columns,
@@ -29,6 +31,8 @@ const DataTable = ({
   onDelete,
   renderActions,
 }) => {
+  const { t } = useTranslation('common');
+
   return (
     <Paper>
       <TableContainer>
@@ -43,7 +47,7 @@ const DataTable = ({
                   {column.label}
                 </TableCell>
               ))}
-              <TableCell>Actions</TableCell>
+              <TableCell>{t('actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -56,7 +60,7 @@ const DataTable = ({
             ) : data.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length + 1} align="center">
-                  No data available
+                  {t('noData')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -78,22 +82,26 @@ const DataTable = ({
                     ) : (
                       <Box>
                         {onEdit && (
-                          <IconButton
-                            size="small"
-                            onClick={() => onEdit(row)}
-                            color="primary"
-                          >
-                            <EditIcon />
-                          </IconButton>
+                          <Tooltip title={t('edit')}>
+                            <IconButton
+                              size="small"
+                              onClick={() => onEdit(row)}
+                              color="primary"
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
                         )}
                         {onDelete && (
-                          <IconButton
-                            size="small"
-                            onClick={() => onDelete(row)}
-                            color="error"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                          <Tooltip title={t('delete')}>
+                            <IconButton
+                              size="small"
+                              onClick={() => onDelete(row)}
+                              color="error"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
                         )}
                       </Box>
                     )}
@@ -112,6 +120,10 @@ const DataTable = ({
         page={page}
         onPageChange={onPageChange}
         onRowsPerPageChange={(e) => onPageSizeChange(e.target.value)}
+        labelRowsPerPage={t('rowsPerPage')}
+        labelDisplayedRows={({ from, to, count }) => 
+          `${t('page')} ${page + 1} ${t('of')} ${Math.ceil(count / pageSize)}`
+        }
       />
     </Paper>
   );

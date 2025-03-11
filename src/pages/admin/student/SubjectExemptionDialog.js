@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, memo, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogTitle,
@@ -51,135 +52,151 @@ function TabPanel(props) {
 }
 
 // Create memoized table components to prevent unnecessary re-renders
-const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExemption, page, rowsPerPage, handleChangePage, handleChangeRowsPerPage }) => (
-  <>
-    <TableContainer component={Paper} sx={{ minHeight: '300px', maxHeight: '50vh' }}>
-      <Table size="small" stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell>Subject Code</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Credits</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {loading ? (
+const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExemption, page, rowsPerPage, handleChangePage, handleChangeRowsPerPage }) => {
+  const { t } = useTranslation(['admin', 'common']);
+  
+  return (
+    <>
+      <TableContainer component={Paper} sx={{ minHeight: '300px', maxHeight: '50vh' }}>
+        <Table size="small" stickyHeader>
+          <TableHead>
             <TableRow>
-              <TableCell colSpan={5} align="center">
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                  <CircularProgress size={30} />
-                </Box>
-              </TableCell>
+              <TableCell>{t('exemption.subjectCode')}</TableCell>
+              <TableCell>{t('exemption.subjectName')}</TableCell>
+              <TableCell>{t('exemption.credits')}</TableCell>
+              <TableCell>{t('exemption.type')}</TableCell>
+              <TableCell align="right">{t('actions')}</TableCell>
             </TableRow>
-          ) : subjects.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} align="center">
-                <Box sx={{ py: 3 }}>No subjects found</Box>
-              </TableCell>
-            </TableRow>
-          ) : (
-            subjects.map((subject) => (
-              <TableRow key={subject.id}>
-                <TableCell>{subject.subjectCode}</TableCell>
-                <TableCell>{subject.name}</TableCell>
-                <TableCell>{subject.credit}</TableCell>
-                <TableCell>{subject.type}</TableCell>
-                <TableCell align="right">
-                  <Button
-                    size="small"
-                    variant="contained"
-                    color="primary"
-                    startIcon={<AddIcon />}
-                    onClick={() => handleAddExemption(subject)}
-                  >
-                    Add Exemption
-                  </Button>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                    <CircularProgress size={30} />
+                  </Box>
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
-    <TablePagination
-      rowsPerPageOptions={[5, 10, 25]}
-      component="div"
-      count={totalSubjects}
-      rowsPerPage={rowsPerPage}
-      page={page - 1}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-    />
-  </>
-));
+            ) : subjects.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  <Box sx={{ py: 3 }}>{t('exemption.noSubjectsFound')}</Box>
+                </TableCell>
+              </TableRow>
+            ) : (
+              subjects.map((subject) => (
+                <TableRow key={subject.id}>
+                  <TableCell>{subject.subjectCode}</TableCell>
+                  <TableCell>{subject.name}</TableCell>
+                  <TableCell>{subject.credit}</TableCell>
+                  <TableCell>{subject.type}</TableCell>
+                  <TableCell align="right">
+                    <Button
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      startIcon={<AddIcon />}
+                      onClick={() => handleAddExemption(subject)}
+                    >
+                      {t('exemption.addExemption')}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={totalSubjects}
+        rowsPerPage={rowsPerPage}
+        page={page - 1} // Adjust for MUI's 0-based pagination
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        labelRowsPerPage={t('rowsPerPage')}
+        labelDisplayedRows={({ from, to, count }) => 
+          `${from}-${to} ${t('of')} ${count !== -1 ? count : `${t('more than')} ${to}`}`
+        }
+      />
+    </>
+  );
+});
 
-const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, handleEditExemption, exemptionsPage, exemptionsRowsPerPage, handleExemptionsChangePage, handleExemptionsChangeRowsPerPage }) => (
-  <>
-    <TableContainer component={Paper} sx={{ minHeight: '300px', maxHeight: '50vh' }}>
-      <Table size="small" stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell>Subject Code</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>X Score</TableCell>
-            <TableCell>Y Score</TableCell>
-            <TableCell>Z Score</TableCell>
-            <TableCell>Result</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {exemptionsLoading ? (
+const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, handleEditExemption, exemptionsPage, exemptionsRowsPerPage, handleExemptionsChangePage, handleExemptionsChangeRowsPerPage }) => {
+  const { t } = useTranslation(['admin', 'common']);
+  
+  return (
+    <>
+      <TableContainer component={Paper} sx={{ minHeight: '300px', maxHeight: '50vh' }}>
+        <Table size="small" stickyHeader>
+          <TableHead>
             <TableRow>
-              <TableCell colSpan={7} align="center">
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                  <CircularProgress size={30} />
-                </Box>
-              </TableCell>
+              <TableCell>{t('exemption.subjectCode')}</TableCell>
+              <TableCell>{t('exemption.subjectName')}</TableCell>
+              <TableCell>{t('exemption.xScore')}</TableCell>
+              <TableCell>{t('exemption.yScore')}</TableCell>
+              <TableCell>{t('exemption.zScore')}</TableCell>
+              <TableCell>{t('exemption.result')}</TableCell>
+              <TableCell align="right">{t('actions')}</TableCell>
             </TableRow>
-          ) : exemptions.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={7} align="center">
-                <Box sx={{ py: 3 }}>No exemptions found</Box>
-              </TableCell>
-            </TableRow>
-          ) : (
-            exemptions.map((exemption) => (
-              <TableRow key={exemption.id}>
-                <TableCell>{exemption.subjectCode}</TableCell>
-                <TableCell>{exemption.subjectName}</TableCell>
-                <TableCell>{exemption.xScore.toFixed(2)}</TableCell>
-                <TableCell>{exemption.yScore.toFixed(2)}</TableCell>
-                <TableCell>{exemption.zScore.toFixed(2)}</TableCell>
-                <TableCell>{exemption.resultType}</TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    size="small"
-                    color="primary"
-                    onClick={() => handleEditExemption(exemption)}
-                  >
-                    <EditIcon />
-                  </IconButton>
+          </TableHead>
+          <TableBody>
+            {exemptionsLoading ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                    <CircularProgress size={30} />
+                  </Box>
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
-    <TablePagination
-      rowsPerPageOptions={[5, 10, 25]}
-      component="div"
-      count={totalExemptions}
-      rowsPerPage={exemptionsRowsPerPage}
-      page={exemptionsPage - 1}
-      onPageChange={handleExemptionsChangePage}
-      onRowsPerPageChange={handleExemptionsChangeRowsPerPage}
-    />
-  </>
-));
+            ) : exemptions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  <Box sx={{ py: 3 }}>{t('exemption.noExemptionsFound')}</Box>
+                </TableCell>
+              </TableRow>
+            ) : (
+              exemptions.map((exemption) => (
+                <TableRow key={exemption.id}>
+                  <TableCell>{exemption.subjectCode}</TableCell>
+                  <TableCell>{exemption.subjectName}</TableCell>
+                  <TableCell>{exemption.xScore.toFixed(2)}</TableCell>
+                  <TableCell>{exemption.yScore.toFixed(2)}</TableCell>
+                  <TableCell>{exemption.zScore.toFixed(2)}</TableCell>
+                  <TableCell>{exemption.resultType}</TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={() => handleEditExemption(exemption)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={totalExemptions}
+        rowsPerPage={exemptionsRowsPerPage}
+        page={exemptionsPage - 1} // Adjust for MUI's 0-based pagination
+        onPageChange={handleExemptionsChangePage}
+        onRowsPerPageChange={handleExemptionsChangeRowsPerPage}
+        labelRowsPerPage={t('rowsPerPage')}
+        labelDisplayedRows={({ from, to, count }) => 
+          `${from}-${to} ${t('of')} ${count !== -1 ? count : `${t('more than')} ${to}`}`
+        }
+      />
+    </>
+  );
+});
 
 // Add prop types
 SubjectsTable.propTypes = {
@@ -205,6 +222,7 @@ ExemptionsTable.propTypes = {
 };
 
 const SubjectExemptionDialog = ({ open, onClose, student }) => {
+  const { t } = useTranslation(['admin', 'common']);
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -252,12 +270,12 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       setSubjects(response.data || []);
       setTotalSubjects(response.totalCount || 0);
     } catch (err) {
-      setError('Failed to load subjects: ' + (err.message || 'Unknown error'));
+      setError(t('exemption.failedToLoadSubjects', { error: err.message || t('error.generic') }));
       console.error('Error loading subjects:', err);
     } finally {
       setLoading(false);
     }
-  }, [student, page, rowsPerPage]);
+  }, [student, page, rowsPerPage, t]);
 
   const fetchExemptions = useCallback(async () => {
     if (!student) return;
@@ -285,12 +303,12 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       setExemptions(response.data || []);
       setTotalExemptions(response.totalCount || 0);
     } catch (err) {
-      setError('Failed to load exemptions: ' + (err.message || 'Unknown error'));
+      setError(t('exemption.failedToLoadExemptions', { error: err.message || t('error.generic') }));
       console.error('Error loading exemptions:', err);
     } finally {
       setExemptionsLoading(false);
     }
-  }, [student, exemptionsPage, exemptionsRowsPerPage, exemptionYear, exemptionSemester]);
+  }, [student, exemptionsPage, exemptionsRowsPerPage, exemptionYear, exemptionSemester, t]);
 
   // Load subjects when the dialog opens and on page/rowsPerPage changes
   useEffect(() => {
@@ -407,6 +425,9 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     fetchExemptions();
   };
 
+  const fullName = student ? `${student.firstName} ${student.lastName}` : '';
+  const studentCode = student?.studentCode || '';
+
   return (
     <Dialog 
       open={open} 
@@ -425,7 +446,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       <DialogTitle sx={{ p: 2, pb: 1 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6" noWrap>
-            Subject Exemptions - {student?.firstName} {student?.lastName} ({student?.studentCode})
+            {t('exemption.forStudent', { name: fullName, code: studentCode })}
           </Typography>
           <IconButton edge="end" color="inherit" onClick={onClose} aria-label="close">
             <CloseIcon />
@@ -436,8 +457,8 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="exemption tabs">
-          <Tab label="Available Subjects" id="exemption-tab-0" />
-          <Tab label="Current Exemptions" id="exemption-tab-1" />
+          <Tab label={t('exemption.availableSubjects')} id="exemption-tab-0" />
+          <Tab label={t('exemption.currentExemptions')} id="exemption-tab-1" />
         </Tabs>
       </Box>
       
@@ -474,7 +495,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                 <TextField
                   select
                   fullWidth
-                  label="Academic Year"
+                  label={t('exemption.academicYear')}
                   value={pendingYear}
                   onChange={handleYearChange}
                   size="small"
@@ -493,15 +514,15 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                 <TextField
                   select
                   fullWidth
-                  label="Semester"
+                  label={t('exemption.semester')}
                   value={pendingSemester}
                   onChange={handleSemesterChange}
                   size="small"
                 >
-                  <MenuItem value="">All Semesters</MenuItem>
+                  <MenuItem value="">{t('exemption.allSemesters')}</MenuItem>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
                     <MenuItem key={semester} value={semester}>
-                      Semester {semester}
+                      {t('exemption.semester')} {semester}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -515,7 +536,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                   fullWidth
                   sx={{ height: '100%' }}
                 >
-                  Apply Filters
+                  {t('applyFilters')}
                 </Button>
               </Grid>
               <Grid item xs={3}>
@@ -525,7 +546,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                   fullWidth
                   sx={{ height: '100%' }}
                 >
-                  Clear Filters
+                  {t('clearFilters')}
                 </Button>
               </Grid>
             </Grid>
@@ -546,7 +567,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       
       <DialogActions>
         <Button onClick={onClose} color="primary">
-          Close
+          {t('close')}
         </Button>
       </DialogActions>
       

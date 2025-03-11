@@ -5,31 +5,34 @@ import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { trainingProgramService } from '../../../services/api';
 import TrainingProgramForm from './TrainingProgramForm';
-
-const columns = [
-  { id: 'semester', label: 'Semester', minWidth: 100 },
-  { id: 'academicYear', label: 'Academic Year', minWidth: 130 },
-  { 
-    id: 'subject', 
-    label: 'Subject', 
-    minWidth: 200,
-    render: (row) => row.subject?.name || 'N/A'
-  },
-  { 
-    id: 'major', 
-    label: 'Major', 
-    minWidth: 200,
-    render: (row) => row.major?.name || 'N/A'
-  },
-  { 
-    id: 'courseBatch', 
-    label: 'Course Batch', 
-    minWidth: 200,
-    render: (row) => row.courseBatch?.name || 'N/A'
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const TrainingProgramList = () => {
+  const { t } = useTranslation(['admin', 'common']);
+  
+  const columns = [
+    { id: 'semester', label: t('admin:semester', 'Semester'), minWidth: 100 },
+    { id: 'academicYear', label: t('admin:academicYear', 'Academic Year'), minWidth: 130 },
+    { 
+      id: 'subject', 
+      label: t('admin:subjects', 'Subject'), 
+      minWidth: 200,
+      render: (row) => row.subject?.name || t('common:noData')
+    },
+    { 
+      id: 'major', 
+      label: t('admin:majors', 'Major'), 
+      minWidth: 200,
+      render: (row) => row.major?.name || t('common:noData')
+    },
+    { 
+      id: 'courseBatch', 
+      label: t('admin:courseBatch', 'Course Batch'), 
+      minWidth: 200,
+      render: (row) => row.courseBatch?.name || t('common:noData')
+    },
+  ];
+
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -57,13 +60,13 @@ const TrainingProgramList = () => {
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch training programs',
+        message: t('common:error.loading'),
         severity: 'error',
       });
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, [page, pageSize, t]);
 
   useEffect(() => {
     fetchPrograms();
@@ -99,14 +102,14 @@ const TrainingProgramList = () => {
       await trainingProgramService.delete(selectedProgram.id);
       setAlertInfo({
         open: true,
-        message: 'Training program deleted successfully',
+        message: t('trainingProgramDeleteSuccess', 'Training program deleted successfully'),
         severity: 'success',
       });
       fetchPrograms();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to delete training program',
+        message: t('trainingProgramDeleteError', 'Failed to delete training program'),
         severity: 'error',
       });
     } finally {
@@ -126,7 +129,7 @@ const TrainingProgramList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          Training Programs
+          {t('admin:trainingPrograms')}
         </Typography>
         <Button
           variant="contained"
@@ -134,7 +137,7 @@ const TrainingProgramList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          Add Training Program
+          {t('admin:addTrainingProgram')}
         </Button>
       </Box>
 
@@ -163,8 +166,8 @@ const TrainingProgramList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Training Program"
-        message={`Are you sure you want to delete this training program?`}
+        title={t('deleteTitle', 'Delete Training Program')}
+        message={t('deleteConfirmation', 'Are you sure you want to delete this training program?')}
         loading={deleteLoading}
       />
 
