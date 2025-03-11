@@ -22,10 +22,14 @@ import {
   Tab,
   Divider,
   Alert,
+  TextField,
+  MenuItem,
+  Grid,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 import { subjectExemptionService } from '../../../services/api';
 import ExemptionForm from './ExemptionForm';
 
@@ -168,6 +172,19 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     }
   };
 
+  const handleYearChange = (event) => {
+    setExemptionYear(event.target.value);
+  };
+
+  const handleSemesterChange = (event) => {
+    setExemptionSemester(event.target.value);
+  };
+
+  const handleFilterApply = () => {
+    setExemptionsPage(0);
+    fetchExemptions();
+  };
+
   return (
     <Dialog 
       open={open} 
@@ -262,6 +279,57 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
         </TabPanel>
         
         <TabPanel value={tabValue} index={1}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid item xs={4}>
+              <TextField
+                select
+                fullWidth
+                label="Academic Year"
+                value={exemptionYear}
+                onChange={handleYearChange}
+                size="small"
+              >
+                {[...Array(10)].map((_, i) => {
+                  const year = new Date().getFullYear() - i;
+                  return (
+                    <MenuItem key={year} value={year}>
+                      {year}
+                    </MenuItem>
+                  );
+                })}
+              </TextField>
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                select
+                fullWidth
+                label="Semester"
+                value={exemptionSemester || ''}
+                onChange={handleSemesterChange}
+                size="small"
+              >
+                <MenuItem value="">All Semesters</MenuItem>
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
+                  <MenuItem key={semester} value={semester}>
+                    Semester {semester}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={4}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleFilterApply}
+                startIcon={<SearchIcon />}
+                fullWidth
+                sx={{ height: '100%' }}
+              >
+                Apply Filters
+              </Button>
+            </Grid>
+          </Grid>
+          
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
