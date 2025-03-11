@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import {
   Dialog,
@@ -43,11 +43,166 @@ function TabPanel(props) {
       id={`exemption-tabpanel-${index}`}
       aria-labelledby={`exemption-tab-${index}`}
       {...other}
+      style={{ height: '100%', minHeight: '400px' }}
     >
-      {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
+      {value === index && <Box sx={{ pt: 2, height: '100%' }}>{children}</Box>}
     </div>
   );
 }
+
+// Create memoized table components to prevent unnecessary re-renders
+const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExemption, page, rowsPerPage, handleChangePage, handleChangeRowsPerPage }) => (
+  <>
+    <TableContainer component={Paper} sx={{ minHeight: '300px', maxHeight: '50vh' }}>
+      <Table size="small" stickyHeader>
+        <TableHead>
+          <TableRow>
+            <TableCell>Subject Code</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Credits</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell align="right">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={5} align="center">
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                  <CircularProgress size={30} />
+                </Box>
+              </TableCell>
+            </TableRow>
+          ) : subjects.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} align="center">
+                <Box sx={{ py: 3 }}>No subjects found</Box>
+              </TableCell>
+            </TableRow>
+          ) : (
+            subjects.map((subject) => (
+              <TableRow key={subject.id}>
+                <TableCell>{subject.subjectCode}</TableCell>
+                <TableCell>{subject.name}</TableCell>
+                <TableCell>{subject.credit}</TableCell>
+                <TableCell>{subject.type}</TableCell>
+                <TableCell align="right">
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    startIcon={<AddIcon />}
+                    onClick={() => handleAddExemption(subject)}
+                  >
+                    Add Exemption
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+    <TablePagination
+      rowsPerPageOptions={[5, 10, 25]}
+      component="div"
+      count={totalSubjects}
+      rowsPerPage={rowsPerPage}
+      page={page}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+    />
+  </>
+));
+
+const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, handleEditExemption, exemptionsPage, exemptionsRowsPerPage, handleExemptionsChangePage, handleExemptionsChangeRowsPerPage }) => (
+  <>
+    <TableContainer component={Paper} sx={{ minHeight: '300px', maxHeight: '50vh' }}>
+      <Table size="small" stickyHeader>
+        <TableHead>
+          <TableRow>
+            <TableCell>Subject Code</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>X Score</TableCell>
+            <TableCell>Y Score</TableCell>
+            <TableCell>Z Score</TableCell>
+            <TableCell>Result</TableCell>
+            <TableCell align="right">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {exemptionsLoading ? (
+            <TableRow>
+              <TableCell colSpan={7} align="center">
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                  <CircularProgress size={30} />
+                </Box>
+              </TableCell>
+            </TableRow>
+          ) : exemptions.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} align="center">
+                <Box sx={{ py: 3 }}>No exemptions found</Box>
+              </TableCell>
+            </TableRow>
+          ) : (
+            exemptions.map((exemption) => (
+              <TableRow key={exemption.id}>
+                <TableCell>{exemption.subjectCode}</TableCell>
+                <TableCell>{exemption.subjectName}</TableCell>
+                <TableCell>{exemption.xScore.toFixed(2)}</TableCell>
+                <TableCell>{exemption.yScore.toFixed(2)}</TableCell>
+                <TableCell>{exemption.zScore.toFixed(2)}</TableCell>
+                <TableCell>{exemption.resultType}</TableCell>
+                <TableCell align="right">
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={() => handleEditExemption(exemption)}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+    <TablePagination
+      rowsPerPageOptions={[5, 10, 25]}
+      component="div"
+      count={totalExemptions}
+      rowsPerPage={exemptionsRowsPerPage}
+      page={exemptionsPage}
+      onPageChange={handleExemptionsChangePage}
+      onRowsPerPageChange={handleExemptionsChangeRowsPerPage}
+    />
+  </>
+));
+
+// Add prop types
+SubjectsTable.propTypes = {
+  subjects: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
+  totalSubjects: PropTypes.number.isRequired,
+  handleAddExemption: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+  handleChangePage: PropTypes.func.isRequired,
+  handleChangeRowsPerPage: PropTypes.func.isRequired,
+};
+
+ExemptionsTable.propTypes = {
+  exemptions: PropTypes.array.isRequired,
+  exemptionsLoading: PropTypes.bool.isRequired,
+  totalExemptions: PropTypes.number.isRequired,
+  handleEditExemption: PropTypes.func.isRequired,
+  exemptionsPage: PropTypes.number.isRequired,
+  exemptionsRowsPerPage: PropTypes.number.isRequired,
+  handleExemptionsChangePage: PropTypes.func.isRequired,
+  handleExemptionsChangeRowsPerPage: PropTypes.func.isRequired,
+};
 
 const SubjectExemptionDialog = ({ open, onClose, student }) => {
   const [loading, setLoading] = useState(false);
@@ -206,10 +361,18 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       onClose={onClose} 
       maxWidth="md" 
       fullWidth
+      PaperProps={{
+        sx: { 
+          height: '80vh', 
+          display: 'flex', 
+          flexDirection: 'column',
+          overflow: 'hidden' // Prevent scrollbar jumps
+        }
+      }}
     >
-      <DialogTitle>
+      <DialogTitle sx={{ p: 2, pb: 1 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">
+          <Typography variant="h6" noWrap>
             Subject Exemptions - {student?.firstName} {student?.lastName} ({student?.studentCode})
           </Typography>
           <IconButton edge="end" color="inherit" onClick={onClose} aria-label="close">
@@ -226,7 +389,13 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
         </Tabs>
       </Box>
       
-      <DialogContent>
+      <DialogContent sx={{ 
+        flexGrow: 1, 
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        p: 2
+      }}>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
@@ -234,185 +403,91 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
         )}
         
         <TabPanel value={tabValue} index={0}>
-          <TableContainer component={Paper}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Subject Code</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Credits</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center">
-                      <CircularProgress size={30} />
-                    </TableCell>
-                  </TableRow>
-                ) : subjects.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center">
-                      No subjects found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  subjects.map((subject) => (
-                    <TableRow key={subject.id}>
-                      <TableCell>{subject.subjectCode}</TableCell>
-                      <TableCell>{subject.name}</TableCell>
-                      <TableCell>{subject.credit}</TableCell>
-                      <TableCell>{subject.type}</TableCell>
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          variant="contained"
-                          color="primary"
-                          startIcon={<AddIcon />}
-                          onClick={() => handleAddExemption(subject)}
-                        >
-                          Add Exemption
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={totalSubjects}
-            rowsPerPage={rowsPerPage}
+          <SubjectsTable 
+            subjects={subjects}
+            loading={loading}
+            totalSubjects={totalSubjects}
+            handleAddExemption={handleAddExemption}
             page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPage={rowsPerPage}
+            handleChangePage={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
           />
         </TabPanel>
         
         <TabPanel value={tabValue} index={1}>
-          <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={3}>
-              <TextField
-                select
-                fullWidth
-                label="Academic Year"
-                value={exemptionYear}
-                onChange={handleYearChange}
-                size="small"
-              >
-                {[...Array(10)].map((_, i) => {
-                  const year = new Date().getFullYear() - i;
-                  return (
-                    <MenuItem key={year} value={year}>
-                      {year}
+          <Box sx={{ mb: 2, p: 1, bgcolor: 'background.paper', borderRadius: 1 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={3}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Academic Year"
+                  value={exemptionYear}
+                  onChange={handleYearChange}
+                  size="small"
+                >
+                  {[...Array(10)].map((_, i) => {
+                    const year = new Date().getFullYear() - i;
+                    return (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    );
+                  })}
+                </TextField>
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Semester"
+                  value={exemptionSemester || ''}
+                  onChange={handleSemesterChange}
+                  size="small"
+                >
+                  <MenuItem value="">All Semesters</MenuItem>
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
+                    <MenuItem key={semester} value={semester}>
+                      Semester {semester}
                     </MenuItem>
-                  );
-                })}
-              </TextField>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={3}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleFilterApply}
+                  startIcon={<SearchIcon />}
+                  fullWidth
+                  sx={{ height: '100%' }}
+                >
+                  Apply Filters
+                </Button>
+              </Grid>
+              <Grid item xs={3}>
+                <Button
+                  variant="outlined"
+                  onClick={handleClearFilters}
+                  fullWidth
+                  sx={{ height: '100%' }}
+                >
+                  Clear Filters
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item xs={3}>
-              <TextField
-                select
-                fullWidth
-                label="Semester"
-                value={exemptionSemester || ''}
-                onChange={handleSemesterChange}
-                size="small"
-              >
-                <MenuItem value="">All Semesters</MenuItem>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
-                  <MenuItem key={semester} value={semester}>
-                    Semester {semester}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={3}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleFilterApply}
-                startIcon={<SearchIcon />}
-                fullWidth
-                sx={{ height: '100%' }}
-              >
-                Apply Filters
-              </Button>
-            </Grid>
-            <Grid item xs={3}>
-              <Button
-                variant="outlined"
-                onClick={handleClearFilters}
-                fullWidth
-                sx={{ height: '100%' }}
-              >
-                Clear Filters
-              </Button>
-            </Grid>
-          </Grid>
+          </Box>
           
-          <TableContainer component={Paper}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Subject Code</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>X Score</TableCell>
-                  <TableCell>Y Score</TableCell>
-                  <TableCell>Z Score</TableCell>
-                  <TableCell>Result</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {exemptionsLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center">
-                      <CircularProgress size={30} />
-                    </TableCell>
-                  </TableRow>
-                ) : exemptions.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center">
-                      No exemptions found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  exemptions.map((exemption) => (
-                    <TableRow key={exemption.id}>
-                      <TableCell>{exemption.subjectCode}</TableCell>
-                      <TableCell>{exemption.subjectName}</TableCell>
-                      <TableCell>{exemption.xScore.toFixed(2)}</TableCell>
-                      <TableCell>{exemption.yScore.toFixed(2)}</TableCell>
-                      <TableCell>{exemption.zScore.toFixed(2)}</TableCell>
-                      <TableCell>{exemption.resultType}</TableCell>
-                      <TableCell align="right">
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => handleEditExemption(exemption)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={totalExemptions}
-            rowsPerPage={exemptionsRowsPerPage}
-            page={exemptionsPage}
-            onPageChange={handleExemptionsChangePage}
-            onRowsPerPageChange={handleExemptionsChangeRowsPerPage}
+          <ExemptionsTable 
+            exemptions={exemptions}
+            exemptionsLoading={exemptionsLoading}
+            totalExemptions={totalExemptions}
+            handleEditExemption={handleEditExemption}
+            exemptionsPage={exemptionsPage}
+            exemptionsRowsPerPage={exemptionsRowsPerPage}
+            handleExemptionsChangePage={handleExemptionsChangePage}
+            handleExemptionsChangeRowsPerPage={handleExemptionsChangeRowsPerPage}
           />
         </TabPanel>
       </DialogContent>
