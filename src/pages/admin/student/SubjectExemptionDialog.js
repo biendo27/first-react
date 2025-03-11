@@ -309,7 +309,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                 size="small"
               >
                 <MenuItem value="">All Semesters</MenuItem>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
+                {[1, 2].map((semester) => (
                   <MenuItem key={semester} value={semester}>
                     Semester {semester}
                   </MenuItem>
