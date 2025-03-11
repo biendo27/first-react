@@ -3,27 +3,29 @@ import * as Yup from 'yup';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { subjectService } from '../../../services/api';
-
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  subjectCode: Yup.number()
-    .required('Subject code is required')
-    .positive('Subject code must be positive')
-    .integer('Subject code must be an integer'),
-  credit: Yup.number()
-    .required('Credit is required')
-    .positive('Credit must be positive')
-    .integer('Credit must be an integer'),
-  type: Yup.string().required('Type is required'),
-});
-
-const subjectTypes = [
-  { value: 'Compulsory', label: 'Compulsory' },
-  { value: 'Elective', label: 'Elective' },
-];
+import { useTranslation } from 'react-i18next';
 
 const SubjectForm = ({ open, onClose, subject }) => {
+  const { t } = useTranslation(['admin', 'common']);
   const [loading, setLoading] = useState(false);
+  
+  const validationSchema = Yup.object({
+    name: Yup.string().required(t('common:fieldRequired', { field: t('subject.name') })),
+    subjectCode: Yup.number()
+      .required(t('subject.subjectCodeRequired'))
+      .positive(t('subject.subjectCodePositive'))
+      .integer(t('subject.subjectCodeInteger')),
+    credit: Yup.number()
+      .required(t('subject.creditRequired'))
+      .positive(t('subject.creditPositive'))
+      .integer(t('subject.creditInteger')),
+    type: Yup.string().required(t('common:fieldRequired', { field: t('subject.type') })),
+  });
+  
+  const subjectTypes = [
+    { value: 'Compulsory', label: t('subject.typeCompulsory') },
+    { value: 'Elective', label: t('subject.typeElective') },
+  ];
 
   const initialValues = {
     name: subject?.name || '',
@@ -54,7 +56,7 @@ const SubjectForm = ({ open, onClose, subject }) => {
     <FormDialog
       open={open}
       onClose={() => onClose(false)}
-      title={subject ? 'Edit Subject' : 'Add Subject'}
+      title={subject ? t('subject.editSubject') : t('subject.addSubject')}
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -62,24 +64,24 @@ const SubjectForm = ({ open, onClose, subject }) => {
     >
       <FormField
         name="name"
-        label="Name"
+        label={t('subject.name')}
         required
       />
       <FormField
         name="subjectCode"
-        label="Subject Code"
+        label={t('subject.subjectCode')}
         type="number"
         required
       />
       <FormField
         name="credit"
-        label="Credit"
+        label={t('subject.credit')}
         type="number"
         required
       />
       <FormField
         name="type"
-        label="Type"
+        label={t('subject.type')}
         type="select"
         options={subjectTypes}
         required

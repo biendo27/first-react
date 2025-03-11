@@ -5,20 +5,23 @@ import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { subjectService } from '../../../services/api';
 import SubjectForm from './SubjectForm';
-
-const columns = [
-  { id: 'name', label: 'Name', minWidth: 200 },
-  { id: 'subjectCode', label: 'Subject Code', minWidth: 150 },
-  { id: 'credit', label: 'Credit', minWidth: 100 },
-  { 
-    id: 'type', 
-    label: 'Type', 
-    minWidth: 150,
-    render: (row) => row.type 
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const SubjectList = () => {
+  const { t } = useTranslation(['admin', 'common']);
+  
+  const columns = [
+    { id: 'name', label: t('subject.name'), minWidth: 200 },
+    { id: 'subjectCode', label: t('subject.subjectCode'), minWidth: 150 },
+    { id: 'credit', label: t('subject.credit'), minWidth: 100 },
+    { 
+      id: 'type', 
+      label: t('subject.type'), 
+      minWidth: 150,
+      render: (row) => row.type 
+    },
+  ];
+  
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -46,13 +49,13 @@ const SubjectList = () => {
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch subjects',
+        message: t('common:fetchError', { resource: t('subjects') }),
         severity: 'error',
       });
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, [page, pageSize, t]);
 
   useEffect(() => {
     fetchSubjects();
@@ -88,14 +91,14 @@ const SubjectList = () => {
       await subjectService.delete(selectedSubject.id);
       setAlertInfo({
         open: true,
-        message: 'Subject deleted successfully',
+        message: t('subject.subjectDeleteSuccess'),
         severity: 'success',
       });
       fetchSubjects();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to delete subject',
+        message: t('subject.subjectDeleteError'),
         severity: 'error',
       });
     } finally {
@@ -115,7 +118,7 @@ const SubjectList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          Subjects
+          {t('subjects')}
         </Typography>
         <Button
           variant="contained"
@@ -123,7 +126,7 @@ const SubjectList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          Add Subject
+          {t('subject.addSubject')}
         </Button>
       </Box>
 
@@ -152,8 +155,8 @@ const SubjectList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Subject"
-        message={`Are you sure you want to delete the subject "${selectedSubject?.name}"?`}
+        title={t('subject.deleteSubject')}
+        message={t('subject.deleteSubjectConfirmation')}
         loading={deleteLoading}
       />
 
