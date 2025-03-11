@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Table,
   TableBody,
@@ -7,19 +8,14 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TablePagination,
   IconButton,
-  Box,
-  Typography,
-  Tooltip,
+  TablePagination,
   CircularProgress,
+  Box,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 
-// Note: This component expects the 'page' prop to be 0-indexed (Material UI standard)
-// but the parent component should handle converting between 0-indexed (UI) and 1-indexed (API) pagination
 const DataTable = ({
   columns,
   data,
@@ -31,43 +27,23 @@ const DataTable = ({
   onPageSizeChange,
   onEdit,
   onDelete,
-  onView,
-  title,
+  renderActions,
 }) => {
-  const handleChangePage = (event, newPage) => {
-    onPageChange(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    onPageSizeChange(parseInt(event.target.value, 10));
-    onPageChange(0); // This will be converted to page 1 in the parent component
-  };
-
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      {title && (
-        <Box p={2} display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" component="div">
-            {title}
-          </Typography>
-        </Box>
-      )}
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label="sticky table">
+    <Paper>
+      <TableContainer>
+        <Table>
           <TableHead>
             <TableRow>
               {columns.map((column) => (
                 <TableCell
                   key={column.id}
-                  align={column.align || 'left'}
                   style={{ minWidth: column.minWidth }}
                 >
                   {column.label}
                 </TableCell>
               ))}
-              <TableCell align="right" style={{ minWidth: 100 }}>
-                Actions
-              </TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -84,72 +60,75 @@ const DataTable = ({
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((row) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                    {columns.map((column) => {
-                      const value = column.render
-                        ? column.render(row)
-                        : row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align || 'left'}>
-                          {value}
-                        </TableCell>
-                      );
-                    })}
-                    <TableCell align="right">
-                      {onView && (
-                        <Tooltip title="View">
-                          <IconButton
-                            size="small"
-                            onClick={() => onView(row)}
-                            color="primary"
-                          >
-                            <VisibilityIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      {onEdit && (
-                        <Tooltip title="Edit">
+              data.map((row) => (
+                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                  {columns.map((column) => {
+                    const value = column.render
+                      ? column.render(row)
+                      : row[column.id];
+                    return (
+                      <TableCell key={column.id}>
+                        {value}
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell>
+                    {renderActions ? (
+                      renderActions(row)
+                    ) : (
+                      <Box>
+                        {onEdit && (
                           <IconButton
                             size="small"
                             onClick={() => onEdit(row)}
                             color="primary"
                           >
-                            <EditIcon fontSize="small" />
+                            <EditIcon />
                           </IconButton>
-                        </Tooltip>
-                      )}
-                      {onDelete && (
-                        <Tooltip title="Delete">
+                        )}
+                        {onDelete && (
                           <IconButton
                             size="small"
                             onClick={() => onDelete(row)}
                             color="error"
                           >
-                            <DeleteIcon fontSize="small" />
+                            <DeleteIcon />
                           </IconButton>
-                        </Tooltip>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })
+                        )}
+                      </Box>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 50]}
+        rowsPerPageOptions={[5, 10, 25]}
         component="div"
         count={totalCount}
         rowsPerPage={pageSize}
         page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        onPageChange={onPageChange}
+        onRowsPerPageChange={(e) => onPageSizeChange(e.target.value)}
       />
     </Paper>
   );
+};
+
+DataTable.propTypes = {
+  columns: PropTypes.array.isRequired,
+  data: PropTypes.array.isRequired,
+  totalCount: PropTypes.number.isRequired,
+  page: PropTypes.number.isRequired,
+  pageSize: PropTypes.number.isRequired,
+  loading: PropTypes.bool,
+  onPageChange: PropTypes.func.isRequired,
+  onPageSizeChange: PropTypes.func.isRequired,
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
+  renderActions: PropTypes.func,
 };
 
 export default DataTable; 

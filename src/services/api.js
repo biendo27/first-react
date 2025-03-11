@@ -128,4 +128,24 @@ export const studentService = createCrudService('students');
 export const subjectService = createCrudService('subjects');
 export const trainingProgramService = createCrudService('training-programs');
 
+// Special services with custom endpoints
+export const subjectExemptionService = {
+  getStudentSubjects: async (params) => {
+    const response = await api.get('/v1/student-subjects', { params });
+    return response.data;
+  },
+  getExemptions: async (params) => {
+    const response = await api.get('/v1/subject-exemptions', { params });
+    return response.data;
+  },
+  create: async (data) => {
+    const response = await api.post('/v1/subject-exemptions', data);
+    return response.data;
+  },
+  update: async (id, data) => {
+    const response = await api.put(`/v1/subject-exemptions/${id}`, data);
+    return response.data;
+  }
+};
+
 export default api; 
