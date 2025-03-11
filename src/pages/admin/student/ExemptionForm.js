@@ -16,27 +16,29 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { subjectExemptionService } from '../../../services/api';
-
-const validationSchema = Yup.object({
-  xScore: Yup.number()
-    .required('X Score is required')
-    .min(0, 'Must be between 0 and 10')
-    .max(10, 'Must be between 0 and 10'),
-  yScore: Yup.number()
-    .required('Y Score is required')
-    .min(0, 'Must be between 0 and 10')
-    .max(10, 'Must be between 0 and 10'),
-  zScore: Yup.number()
-    .required('Z Score is required')
-    .min(0, 'Must be between 0 and 10')
-    .max(10, 'Must be between 0 and 10'),
-  note: Yup.string().max(500, 'Note cannot exceed 500 characters'),
-});
+import { useTranslation } from 'react-i18next';
 
 const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
+  const { t } = useTranslation(['admin', 'common']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const isEditing = !!exemption;
+  
+  const validationSchema = Yup.object({
+    xScore: Yup.number()
+      .required(t('common:fieldRequired', { field: t('exemption.xScore') }))
+      .min(0, t('common:numberRange', { min: 0, max: 10 }))
+      .max(10, t('common:numberRange', { min: 0, max: 10 })),
+    yScore: Yup.number()
+      .required(t('common:fieldRequired', { field: t('exemption.yScore') }))
+      .min(0, t('common:numberRange', { min: 0, max: 10 }))
+      .max(10, t('common:numberRange', { min: 0, max: 10 })),
+    zScore: Yup.number()
+      .required(t('common:fieldRequired', { field: t('exemption.zScore') }))
+      .min(0, t('common:numberRange', { min: 0, max: 10 }))
+      .max(10, t('common:numberRange', { min: 0, max: 10 })),
+    note: Yup.string().max(500, t('common:maxLength', { field: t('exemption.note'), length: 500 })),
+  });
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -65,7 +67,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
       onClose(true); // Refresh data after successful submission
     } catch (err) {
       console.error('Error saving exemption:', err);
-      setError('Failed to save exemption. Please try again.');
+      setError(t('common:saveError', { resource: t('exemption.title') }));
     } finally {
       setLoading(false);
     }
@@ -85,7 +87,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
   return (
     <Dialog open={open} onClose={() => onClose(false)} maxWidth="sm" fullWidth>
       <DialogTitle>
-        {isEditing ? 'Edit Subject Exemption' : 'Add Subject Exemption'}
+        {isEditing ? t('exemption.editExemption') : t('exemption.addExemption')}
       </DialogTitle>
       <form onSubmit={formik.handleSubmit}>
         <DialogContent>
@@ -97,10 +99,10 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
 
           <Box mb={3}>
             <Typography variant="subtitle1" gutterBottom>
-              Student: {student?.firstName} {student?.lastName} ({student?.studentCode})
+              {t('student.fullName')}: {student?.firstName} {student?.lastName} ({student?.studentCode})
             </Typography>
             <Typography variant="subtitle1" gutterBottom>
-              Subject: {isEditing ? exemption?.subjectName : subject?.name} (
+              {t('subjects')}: {isEditing ? exemption?.subjectName : subject?.name} (
               {isEditing ? exemption?.subjectCode : subject?.subjectCode})
             </Typography>
           </Box>
@@ -111,7 +113,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
                 fullWidth
                 id="xScore"
                 name="xScore"
-                label="X Score"
+                label={t('exemption.xScore')}
                 type="number"
                 inputProps={{ step: 0.1, min: 0, max: 10 }}
                 value={formik.values.xScore}
@@ -127,7 +129,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
                 fullWidth
                 id="yScore"
                 name="yScore"
-                label="Y Score"
+                label={t('exemption.yScore')}
                 type="number"
                 inputProps={{ step: 0.1, min: 0, max: 10 }}
                 value={formik.values.yScore}
@@ -143,7 +145,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
                 fullWidth
                 id="zScore"
                 name="zScore"
-                label="Z Score"
+                label={t('exemption.zScore')}
                 type="number"
                 inputProps={{ step: 0.1, min: 0, max: 10 }}
                 value={formik.values.zScore}
@@ -159,7 +161,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
                 fullWidth
                 id="note"
                 name="note"
-                label="Note"
+                label={t('exemption.note')}
                 multiline
                 rows={4}
                 value={formik.values.note}
@@ -173,7 +175,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => onClose(false)} disabled={loading}>
-            Cancel
+            {t('common:cancel')}
           </Button>
           <Button
             type="submit"
@@ -182,7 +184,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : null}
           >
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? t('common:saving') : t('common:save')}
           </Button>
         </DialogActions>
       </form>

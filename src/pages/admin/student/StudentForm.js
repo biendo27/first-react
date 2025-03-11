@@ -3,28 +3,30 @@ import * as Yup from 'yup';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { studentService, administrativeClassService } from '../../../services/api';
-
-const validationSchema = Yup.object({
-  studentCode: Yup.string().required('Student code is required'),
-  firstName: Yup.string().required('First name is required'),
-  lastName: Yup.string().required('Last name is required'),
-  dateOfBirth: Yup.date().required('Date of birth is required'),
-  email: Yup.string().email('Invalid email format').required('Email is required'),
-  phoneNumber: Yup.string(),
-  administrativeClassId: Yup.string().required('Class is required'),
-  status: Yup.string().required('Status is required'),
-});
-
-const studentStatusTypes = [
-  { value: 'Active', label: 'Active' },
-  { value: 'Graduated', label: 'Graduated' },
-  { value: 'Suspended', label: 'Suspended' },
-];
+import { useTranslation } from 'react-i18next';
 
 const StudentForm = ({ open, onClose, student }) => {
+  const { t } = useTranslation(['admin', 'common']);
   const [loading, setLoading] = useState(false);
   const [classes, setClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(false);
+  
+  const validationSchema = Yup.object({
+    studentCode: Yup.string().required(t('common:fieldRequired', { field: t('student.studentCode') })),
+    firstName: Yup.string().required(t('common:fieldRequired', { field: t('student.firstName') })),
+    lastName: Yup.string().required(t('common:fieldRequired', { field: t('student.lastName') })),
+    dateOfBirth: Yup.date().required(t('common:fieldRequired', { field: t('student.dateOfBirth') })),
+    email: Yup.string().email(t('common:invalidFormat', { field: t('student.email') })).required(t('common:fieldRequired', { field: t('student.email') })),
+    phoneNumber: Yup.string(),
+    administrativeClassId: Yup.string().required(t('common:fieldRequired', { field: t('student.class') })),
+    status: Yup.string().required(t('common:fieldRequired', { field: t('student.status') })),
+  });
+
+  const studentStatusTypes = [
+    { value: 'Active', label: t('common:statusActive') },
+    { value: 'Graduated', label: t('common:statusGraduated') },
+    { value: 'Suspended', label: t('common:statusSuspended') },
+  ];
 
   const initialValues = {
     studentCode: student?.studentCode || '',
@@ -85,7 +87,7 @@ const StudentForm = ({ open, onClose, student }) => {
     <FormDialog
       open={open}
       onClose={() => onClose(false)}
-      title={student ? 'Edit Student' : 'Add Student'}
+      title={student ? t('common:edit', { resource: t('common:student') }) : t('common:add', { resource: t('common:student') })}
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -96,22 +98,22 @@ const StudentForm = ({ open, onClose, student }) => {
         <>
           <FormField
             name="studentCode"
-            label="Student Code"
+            label={t('student.studentCode')}
             required
           />
           <FormField
             name="firstName"
-            label="First Name"
+            label={t('student.firstName')}
             required
           />
           <FormField
             name="lastName"
-            label="Last Name"
+            label={t('student.lastName')}
             required
           />
           <FormField
             name="dateOfBirth"
-            label="Date of Birth"
+            label={t('student.dateOfBirth')}
             type="date"
             required
             InputLabelProps={{
@@ -120,17 +122,17 @@ const StudentForm = ({ open, onClose, student }) => {
           />
           <FormField
             name="email"
-            label="Email"
+            label={t('student.email')}
             type="email"
             required
           />
           <FormField
             name="phoneNumber"
-            label="Phone Number"
+            label={t('student.phoneNumber')}
           />
           <FormField
             name="administrativeClassId"
-            label="Class"
+            label={t('student.class')}
             type="select"
             options={classOptions}
             required
@@ -138,7 +140,7 @@ const StudentForm = ({ open, onClose, student }) => {
           />
           <FormField
             name="status"
-            label="Status"
+            label={t('student.status')}
             type="select"
             options={studentStatusTypes}
             required

@@ -9,33 +9,36 @@ import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { studentService } from '../../../services/api';
 import StudentForm from './StudentForm';
 import SubjectExemptionDialog from './SubjectExemptionDialog';
-
-const columns = [
-  { id: 'studentCode', label: 'Student Code', minWidth: 120 },
-  { 
-    id: 'name', 
-    label: 'Full Name', 
-    minWidth: 200,
-    render: (row) => `${row.firstName} ${row.lastName}` 
-  },
-  { 
-    id: 'dateOfBirth', 
-    label: 'Date of Birth', 
-    minWidth: 150,
-    render: (row) => new Date(row.dateOfBirth).toLocaleDateString() 
-  },
-  { id: 'email', label: 'Email', minWidth: 200 },
-  { id: 'phoneNumber', label: 'Phone', minWidth: 150 },
-  { id: 'status', label: 'Status', minWidth: 120 },
-  { 
-    id: 'administrativeClass',
-    label: 'Class',
-    minWidth: 150,
-    render: (row) => row.administrativeClass?.name || 'N/A'
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const StudentList = () => {
+  const { t } = useTranslation(['admin', 'common']);
+  
+  const columns = [
+    { id: 'studentCode', label: t('student.studentCode'), minWidth: 120 },
+    { 
+      id: 'name', 
+      label: t('student.fullName'), 
+      minWidth: 200,
+      render: (row) => `${row.firstName} ${row.lastName}` 
+    },
+    { 
+      id: 'dateOfBirth', 
+      label: t('student.dateOfBirth'), 
+      minWidth: 150,
+      render: (row) => new Date(row.dateOfBirth).toLocaleDateString() 
+    },
+    { id: 'email', label: t('student.email'), minWidth: 200 },
+    { id: 'phoneNumber', label: t('student.phoneNumber'), minWidth: 150 },
+    { id: 'status', label: t('student.status'), minWidth: 120 },
+    { 
+      id: 'administrativeClass',
+      label: t('student.class'),
+      minWidth: 150,
+      render: (row) => row.administrativeClass?.name || 'N/A'
+    },
+  ];
+
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -65,13 +68,13 @@ const StudentList = () => {
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch students',
+        message: t('common:fetchError', { resource: t('students') }),
         severity: 'error',
       });
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, [page, pageSize, t]);
 
   useEffect(() => {
     fetchStudents();
@@ -117,14 +120,14 @@ const StudentList = () => {
       await studentService.delete(selectedStudent.id);
       setAlertInfo({
         open: true,
-        message: 'Student deleted successfully',
+        message: t('common:deleteSuccess', { resource: t('common:student') }),
         severity: 'success',
       });
       fetchStudents();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to delete student',
+        message: t('common:deleteError', { resource: t('common:student') }),
         severity: 'error',
       });
     } finally {
@@ -150,7 +153,7 @@ const StudentList = () => {
         startIcon={<SyncIcon />}
         sx={{ mr: 1 }}
       >
-        Exemptions
+        {t('subjectExemptions')}
       </Button>
       <Button
         size="small"
@@ -160,7 +163,7 @@ const StudentList = () => {
         startIcon={<EditIcon />}
         sx={{ mr: 1 }}
       >
-        Edit
+        {t('common:edit')}
       </Button>
       <Button
         size="small"
@@ -169,7 +172,7 @@ const StudentList = () => {
         onClick={() => handleDelete(student)}
         startIcon={<DeleteIcon />}
       >
-        Delete
+        {t('common:delete')}
       </Button>
     </Box>
   );
@@ -178,7 +181,7 @@ const StudentList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          Students
+          {t('students')}
         </Typography>
         <Button
           variant="contained"
@@ -186,7 +189,7 @@ const StudentList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          Add Student
+          {t('common:add', { resource: t('common:student') })}
         </Button>
       </Box>
 
@@ -214,8 +217,8 @@ const StudentList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Student"
-        message={`Are you sure you want to delete the student "${selectedStudent?.firstName} ${selectedStudent?.lastName}"?`}
+        title={t('common:deleteTitle', { resource: t('common:student') })}
+        message={t('common:deleteConfirmation', { name: `${selectedStudent?.firstName} ${selectedStudent?.lastName}` })}
         loading={deleteLoading}
       />
 

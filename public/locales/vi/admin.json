@@ -59,7 +59,10 @@
     "noSubjectsFound": "Không tìm thấy môn học nào",
     "noExemptionsFound": "Không tìm thấy miễn học nào",
     "failedToLoadSubjects": "Lỗi tải môn học: {{error}}",
-    "failedToLoadExemptions": "Lỗi tải miễn học: {{error}}"
+    "failedToLoadExemptions": "Lỗi tải miễn học: {{error}}",
+    "applyFilters": "Áp Dụng Bộ Lọc",
+    "clearFilters": "Xóa Bộ Lọc",
+    "filteringBy": "Lọc theo"
   },
   "student": {
     "firstName": "Tên",
@@ -71,6 +74,16 @@
     "phoneNumber": "Số Điện Thoại",
     "status": "Trạng Thái",
     "class": "Lớp",
-    "major": "Chuyên Ngành"
+    "major": "Chuyên Ngành",
+    "addStudent": "Thêm Sinh Viên",
+    "editStudent": "Sửa Sinh Viên",
+    "deleteStudent": "Xóa Sinh Viên",
+    "deleteStudentConfirmation": "Bạn có chắc chắn muốn xóa sinh viên này không?",
+    "studentDeleteSuccess": "Đã xóa sinh viên thành công",
+    "studentDeleteError": "Không thể xóa sinh viên",
+    "studentSaveSuccess": "Đã lưu sinh viên thành công",
+    "studentSaveError": "Không thể lưu sinh viên",
+    "studentDetails": "Thông Tin Sinh Viên",
+    "actions": "Thao Tác"
   }
 } 

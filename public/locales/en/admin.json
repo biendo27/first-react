@@ -59,7 +59,10 @@
     "noSubjectsFound": "No subjects found",
     "noExemptionsFound": "No exemptions found",
     "failedToLoadSubjects": "Failed to load subjects: {{error}}",
-    "failedToLoadExemptions": "Failed to load exemptions: {{error}}"
+    "failedToLoadExemptions": "Failed to load exemptions: {{error}}",
+    "applyFilters": "Apply Filters",
+    "clearFilters": "Clear Filters",
+    "filteringBy": "Filtering by"
   },
   "student": {
     "firstName": "First Name",
@@ -71,6 +74,16 @@
     "phoneNumber": "Phone Number",
     "status": "Status",
     "class": "Class",
-    "major": "Major"
+    "major": "Major",
+    "addStudent": "Add Student",
+    "editStudent": "Edit Student",
+    "deleteStudent": "Delete Student",
+    "deleteStudentConfirmation": "Are you sure you want to delete this student?",
+    "studentDeleteSuccess": "Student deleted successfully",
+    "studentDeleteError": "Failed to delete student",
+    "studentSaveSuccess": "Student saved successfully",
+    "studentSaveError": "Failed to save student",
+    "studentDetails": "Student Details",
+    "actions": "Actions"
   }
 } 

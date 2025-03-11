@@ -5,8 +5,8 @@
   "loading": "Loading...",
   "noData": "No data available",
   "actions": "Actions",
-  "add": "Add",
-  "edit": "Edit",
+  "add": "Add {{resource}}",
+  "edit": "Edit {{resource}}",
   "delete": "Delete",
   "save": "Save",
   "cancel": "Cancel",
@@ -38,5 +38,20 @@
     }
   },
   "fieldRequired": "{{field}} is required",
-  "name": "Name"
+  "name": "Name",
+  "invalidFormat": "Invalid {{field}} format",
+  "statusActive": "Active",
+  "statusGraduated": "Graduated",
+  "statusSuspended": "Suspended",
+  "student": "Student",
+  "deleteTitle": "Delete {{resource}}",
+  "deleteConfirmation": "Are you sure you want to delete \"{{name}}\"?",
+  "deleteSuccess": "{{resource}} deleted successfully",
+  "deleteError": "Failed to delete {{resource}}",
+  "fetchError": "Failed to fetch {{resource}}",
+  "saveSuccess": "{{resource}} saved successfully",
+  "saveError": "Failed to save {{resource}}",
+  "saving": "Saving...",
+  "numberRange": "Must be between {{min}} and {{max}}",
+  "maxLength": "{{field}} cannot exceed {{length}} characters"
 } 
