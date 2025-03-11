@@ -67,6 +67,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
   const [exemptionYear, setExemptionYear] = useState(new Date().getFullYear());
   const [exemptionSemester, setExemptionSemester] = useState(null);
   const [error, setError] = useState(null);
+  const [hasAppliedFilters, setHasAppliedFilters] = useState(false);
 
   const fetchSubjects = useCallback(async () => {
     if (!student || !student.studentCode) return;
@@ -95,13 +96,18 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     setExemptionsLoading(true);
     setError(null);
     try {
-      const response = await subjectExemptionService.getExemptions({
+      const params = {
         StudentCode: student.studentCode,
-        Semester: exemptionSemester,
-        Year: exemptionYear,
         PageIndex: exemptionsPage + 1,
         PageSize: exemptionsRowsPerPage,
-      });
+      };
+      
+      if (hasAppliedFilters) {
+        if (exemptionSemester) params.Semester = exemptionSemester;
+        params.Year = exemptionYear;
+      }
+      
+      const response = await subjectExemptionService.getExemptions(params);
       setExemptions(response.data || []);
       setTotalExemptions(response.totalCount || 0);
     } catch (err) {
@@ -110,7 +116,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     } finally {
       setExemptionsLoading(false);
     }
-  }, [student, exemptionsPage, exemptionsRowsPerPage, exemptionSemester, exemptionYear]);
+  }, [student, exemptionsPage, exemptionsRowsPerPage, exemptionYear, exemptionSemester, hasAppliedFilters]);
 
   useEffect(() => {
     if (open && tabValue === 0) {
@@ -122,7 +128,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     if (open && tabValue === 1) {
       fetchExemptions();
     }
-  }, [open, fetchExemptions, tabValue]);
+  }, [open, fetchExemptions, tabValue, exemptionsPage, exemptionsRowsPerPage]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -181,6 +187,15 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
   };
 
   const handleFilterApply = () => {
+    setExemptionsPage(0);
+    setHasAppliedFilters(true);
+    fetchExemptions();
+  };
+
+  const handleClearFilters = () => {
+    setExemptionYear(new Date().getFullYear());
+    setExemptionSemester(null);
+    setHasAppliedFilters(false);
     setExemptionsPage(0);
     fetchExemptions();
   };
@@ -280,7 +295,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
         
         <TabPanel value={tabValue} index={1}>
           <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <TextField
                 select
                 fullWidth
@@ -299,7 +314,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                 })}
               </TextField>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <TextField
                 select
                 fullWidth
@@ -309,14 +324,14 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                 size="small"
               >
                 <MenuItem value="">All Semesters</MenuItem>
-                {[1, 2].map((semester) => (
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
                   <MenuItem key={semester} value={semester}>
                     Semester {semester}
                   </MenuItem>
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <Button
                 variant="contained"
                 color="primary"
@@ -326,6 +341,16 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                 sx={{ height: '100%' }}
               >
                 Apply Filters
+              </Button>
+            </Grid>
+            <Grid item xs={3}>
+              <Button
+                variant="outlined"
+                onClick={handleClearFilters}
+                fullWidth
+                sx={{ height: '100%' }}
+              >
+                Clear Filters
               </Button>
             </Grid>
           </Grid>
