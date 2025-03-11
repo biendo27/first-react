@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'https://localhost:7269'; // Update with your actual API URL
+// const API_URL = 'https://bien-api.roz.io.vn'; // Update with your actual API URL
 
 // Create axios instance with default config
 const api = axios.create({
