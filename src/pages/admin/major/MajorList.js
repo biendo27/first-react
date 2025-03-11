@@ -56,7 +56,7 @@ const MajorList = () => {
     fetchMajors();
   }, [fetchMajors]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
   };
 

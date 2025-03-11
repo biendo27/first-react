@@ -89,7 +89,7 @@ const CourseBatchList = () => {
     fetchCourseBatches();
   }, [fetchCourseBatches]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
   };
 

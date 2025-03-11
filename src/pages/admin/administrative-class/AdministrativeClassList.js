@@ -62,7 +62,7 @@ const AdministrativeClassList = () => {
     fetchClasses();
   }, [fetchClasses]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
   };
 

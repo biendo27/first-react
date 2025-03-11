@@ -72,7 +72,7 @@ const TrainingProgramList = () => {
     fetchPrograms();
   }, [fetchPrograms]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
   };
 

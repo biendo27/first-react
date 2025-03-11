@@ -80,7 +80,7 @@ const StudentList = () => {
     fetchStudents();
   }, [fetchStudents]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
   };
 

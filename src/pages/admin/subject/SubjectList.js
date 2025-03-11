@@ -61,7 +61,7 @@ const SubjectList = () => {
     fetchSubjects();
   }, [fetchSubjects]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
   };
 

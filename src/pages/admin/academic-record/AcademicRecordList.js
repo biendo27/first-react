@@ -84,7 +84,7 @@ const AcademicRecordList = () => {
     fetchRecords();
   }, [fetchRecords]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
   };
 
