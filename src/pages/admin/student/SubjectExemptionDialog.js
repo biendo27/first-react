@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   Dialog,
@@ -108,7 +108,7 @@ const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExempti
       component="div"
       count={totalSubjects}
       rowsPerPage={rowsPerPage}
-      page={page}
+      page={page - 1}
       onPageChange={handleChangePage}
       onRowsPerPageChange={handleChangeRowsPerPage}
     />
@@ -174,7 +174,7 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
       component="div"
       count={totalExemptions}
       rowsPerPage={exemptionsRowsPerPage}
-      page={exemptionsPage}
+      page={exemptionsPage - 1}
       onPageChange={handleExemptionsChangePage}
       onRowsPerPageChange={handleExemptionsChangeRowsPerPage}
     />
@@ -205,105 +205,137 @@ ExemptionsTable.propTypes = {
 };
 
 const SubjectExemptionDialog = ({ open, onClose, student }) => {
-  const [loading, setLoading] = useState(false);
-  const [exemptionsLoading, setExemptionsLoading] = useState(false);
   const [subjects, setSubjects] = useState([]);
-  const [exemptions, setExemptions] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [exemptionsPage, setExemptionsPage] = useState(0);
-  const [exemptionsRowsPerPage, setExemptionsRowsPerPage] = useState(5);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalSubjects, setTotalSubjects] = useState(0);
+  
+  const [exemptions, setExemptions] = useState([]);
+  const [exemptionsLoading, setExemptionsLoading] = useState(false);
+  const [exemptionsPage, setExemptionsPage] = useState(1);
+  const [exemptionsRowsPerPage, setExemptionsRowsPerPage] = useState(10);
   const [totalExemptions, setTotalExemptions] = useState(0);
+  
   const [tabValue, setTabValue] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedExemption, setSelectedExemption] = useState(null);
+  
+  // State for filter values
   const [exemptionYear, setExemptionYear] = useState(new Date().getFullYear());
-  const [exemptionSemester, setExemptionSemester] = useState(null);
-  const [error, setError] = useState(null);
-  const [hasAppliedFilters, setHasAppliedFilters] = useState(false);
+  const [exemptionSemester, setExemptionSemester] = useState('');
+  const [pendingYear, setPendingYear] = useState(new Date().getFullYear());
+  const [pendingSemester, setPendingSemester] = useState('');
+  
+  // Use a ref to track if a specific action triggered the fetch
+  const actionRef = useRef({ 
+    type: null, // 'initial', 'pagination', 'filter', 'tabChange', 'formClose'
+    filterApplied: false
+  });
 
   const fetchSubjects = useCallback(async () => {
-    if (!student || !student.studentCode) return;
+    if (!student) return;
     
     setLoading(true);
-    setError(null);
+    setError('');
+    
     try {
+      // Use the correct service method for subjects
       const response = await subjectExemptionService.getStudentSubjects({
         StudentCode: student.studentCode,
-        PageIndex: page + 1,
+        PageIndex: page,
         PageSize: rowsPerPage,
       });
+      
       setSubjects(response.data || []);
       setTotalSubjects(response.totalCount || 0);
     } catch (err) {
-      console.error('Error fetching student subjects:', err);
-      setError('Failed to load student subjects. Please try again.');
+      setError('Failed to load subjects: ' + (err.message || 'Unknown error'));
+      console.error('Error loading subjects:', err);
     } finally {
       setLoading(false);
     }
   }, [student, page, rowsPerPage]);
 
   const fetchExemptions = useCallback(async () => {
-    if (!student || !student.studentCode) return;
+    if (!student) return;
     
     setExemptionsLoading(true);
-    setError(null);
+    setError('');
+    
     try {
-      const params = {
+      let params = {
         StudentCode: student.studentCode,
-        PageIndex: exemptionsPage + 1,
-        PageSize: exemptionsRowsPerPage,
+        PageIndex: exemptionsPage,
+        PageSize: exemptionsRowsPerPage
       };
       
-      if (hasAppliedFilters) {
+      // Only add filter parameters if filters have been explicitly applied
+      if (actionRef.current.filterApplied) {
+        if (exemptionYear) params.Year = exemptionYear;
         if (exemptionSemester) params.Semester = exemptionSemester;
-        params.Year = exemptionYear;
       }
       
+      console.log('Fetching exemptions with params:', params, 'Action:', actionRef.current.type);
+      
       const response = await subjectExemptionService.getExemptions(params);
+      
       setExemptions(response.data || []);
       setTotalExemptions(response.totalCount || 0);
     } catch (err) {
-      console.error('Error fetching student exemptions:', err);
-      setError('Failed to load subject exemptions. Please try again.');
+      setError('Failed to load exemptions: ' + (err.message || 'Unknown error'));
+      console.error('Error loading exemptions:', err);
     } finally {
       setExemptionsLoading(false);
     }
-  }, [student, exemptionsPage, exemptionsRowsPerPage, exemptionYear, exemptionSemester, hasAppliedFilters]);
+  }, [student, exemptionsPage, exemptionsRowsPerPage, exemptionYear, exemptionSemester]);
 
+  // Load subjects when the dialog opens and on page/rowsPerPage changes
   useEffect(() => {
     if (open && tabValue === 0) {
+      actionRef.current.type = 'initial';
       fetchSubjects();
     }
-  }, [open, fetchSubjects, tabValue]);
+  }, [open, tabValue, fetchSubjects]);
 
+  // Load exemptions when necessary, controlled by the action type
   useEffect(() => {
     if (open && tabValue === 1) {
-      fetchExemptions();
+      // Only fetch if there's a specific trigger action (not just a re-render)
+      if (actionRef.current.type) {
+        fetchExemptions();
+      }
     }
-  }, [open, fetchExemptions, tabValue, exemptionsPage, exemptionsRowsPerPage]);
+  }, [open, tabValue, fetchExemptions]);
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    actionRef.current.type = 'pagination';
+    // MUI pagination is 0-based, but our API expects 1-based
+    setPage(newPage + 1);
   };
 
   const handleChangeRowsPerPage = (event) => {
+    actionRef.current.type = 'pagination';
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setPage(1); // Reset to first page
   };
 
   const handleExemptionsChangePage = (event, newPage) => {
-    setExemptionsPage(newPage);
+    actionRef.current.type = 'pagination';
+    // MUI pagination is 0-based, but our API expects 1-based
+    setExemptionsPage(newPage + 1);
   };
 
   const handleExemptionsChangeRowsPerPage = (event) => {
+    actionRef.current.type = 'pagination';
     setExemptionsRowsPerPage(parseInt(event.target.value, 10));
-    setExemptionsPage(0);
+    setExemptionsPage(1); // Reset to first page
   };
 
   const handleTabChange = (event, newValue) => {
+    actionRef.current.type = 'tabChange';
     setTabValue(newValue);
   };
 
@@ -314,44 +346,64 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
   };
 
   const handleEditExemption = (exemption) => {
-    setSelectedExemption(exemption);
     setSelectedSubject(null);
+    setSelectedExemption(exemption);
     setFormOpen(true);
   };
 
   const handleFormClose = (refresh = false) => {
     setFormOpen(false);
-    setSelectedSubject(null);
-    setSelectedExemption(null);
-    
-    if (refresh) {
-      if (tabValue === 0) {
-        fetchSubjects();
-      } else {
-        fetchExemptions();
-      }
+    if (refresh && tabValue === 1) {
+      actionRef.current.type = 'formClose';
+      // Don't change the filter state on form close
+      fetchExemptions();
     }
   };
 
+  // Update only the pending state, not the actual filters
   const handleYearChange = (event) => {
-    setExemptionYear(event.target.value);
+    setPendingYear(event.target.value);
   };
 
+  // Update only the pending state, not the actual filters
   const handleSemesterChange = (event) => {
-    setExemptionSemester(event.target.value);
+    setPendingSemester(event.target.value);
   };
 
+  // Apply the filters only when the button is clicked
   const handleFilterApply = () => {
-    setExemptionsPage(0);
-    setHasAppliedFilters(true);
+    setExemptionYear(pendingYear);
+    setExemptionSemester(pendingSemester);
+    setExemptionsPage(1); // Reset to first page when applying filters
+    
+    // Set action type and filterApplied flag before triggering fetch
+    actionRef.current = {
+      type: 'filter',
+      filterApplied: true
+    };
+    
+    // Manually call fetchExemptions to ensure it uses the updated state
     fetchExemptions();
   };
 
+  // Clear filters and reset to default state
   const handleClearFilters = () => {
-    setExemptionYear(new Date().getFullYear());
-    setExemptionSemester(null);
-    setHasAppliedFilters(false);
-    setExemptionsPage(0);
+    const currentYear = new Date().getFullYear();
+    
+    // Update both pending and actual state
+    setPendingYear(currentYear);
+    setPendingSemester('');
+    setExemptionYear(currentYear);
+    setExemptionSemester('');
+    setExemptionsPage(1);
+    
+    // Set action type and reset filterApplied flag before triggering fetch
+    actionRef.current = {
+      type: 'filter',
+      filterApplied: false
+    };
+    
+    // Manually call fetchExemptions to ensure it uses the updated state
     fetchExemptions();
   };
 
@@ -366,7 +418,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
           height: '80vh', 
           display: 'flex', 
           flexDirection: 'column',
-          overflow: 'hidden' // Prevent scrollbar jumps
+          overflow: 'hidden'
         }
       }}
     >
@@ -423,7 +475,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                   select
                   fullWidth
                   label="Academic Year"
-                  value={exemptionYear}
+                  value={pendingYear}
                   onChange={handleYearChange}
                   size="small"
                 >
@@ -442,7 +494,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                   select
                   fullWidth
                   label="Semester"
-                  value={exemptionSemester || ''}
+                  value={pendingSemester}
                   onChange={handleSemesterChange}
                   size="small"
                 >
