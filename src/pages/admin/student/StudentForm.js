@@ -87,7 +87,7 @@ const StudentForm = ({ open, onClose, student }) => {
     <FormDialog
       open={open}
       onClose={() => onClose(false)}
-      title={student ? t('common:edit', { resource: t('common:student') }) : t('common:add', { resource: t('common:student') })}
+      title={student ? t('student.editStudent') : t('student.addStudent')}
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}

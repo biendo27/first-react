@@ -120,14 +120,14 @@ const StudentList = () => {
       await studentService.delete(selectedStudent.id);
       setAlertInfo({
         open: true,
-        message: t('common:deleteSuccess', { resource: t('common:student') }),
+        message: t('student.studentDeleteSuccess'),
         severity: 'success',
       });
       fetchStudents();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: t('common:deleteError', { resource: t('common:student') }),
+        message: t('student.studentDeleteError'),
         severity: 'error',
       });
     } finally {
@@ -153,7 +153,7 @@ const StudentList = () => {
         startIcon={<SyncIcon />}
         sx={{ mr: 1 }}
       >
-        {t('subjectExemptions')}
+        {t('exemptionsButton')}
       </Button>
       <Button
         size="small"
@@ -163,7 +163,7 @@ const StudentList = () => {
         startIcon={<EditIcon />}
         sx={{ mr: 1 }}
       >
-        {t('common:edit')}
+        {t('student.editStudent')}
       </Button>
       <Button
         size="small"
@@ -172,7 +172,7 @@ const StudentList = () => {
         onClick={() => handleDelete(student)}
         startIcon={<DeleteIcon />}
       >
-        {t('common:delete')}
+        {t('student.deleteStudent')}
       </Button>
     </Box>
   );
@@ -189,7 +189,7 @@ const StudentList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          {t('common:add', { resource: t('common:student') })}
+          {t('student.addStudent')}
         </Button>
       </Box>
 
@@ -217,8 +217,8 @@ const StudentList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title={t('common:deleteTitle', { resource: t('common:student') })}
-        message={t('common:deleteConfirmation', { name: `${selectedStudent?.firstName} ${selectedStudent?.lastName}` })}
+        title={t('student.deleteStudent')}
+        message={t('student.deleteStudentConfirmation')}
         loading={deleteLoading}
       />
 
