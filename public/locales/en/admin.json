@@ -74,6 +74,12 @@
     "academicRecordDetails": "Academic Record Details",
     "deleteSuccess": "Academic record deleted successfully",
     "deleteError": "Failed to delete academic record",
+    "resultTypes": {
+      "none": "None",
+      "disqualification": "Disqualification",
+      "passed": "Passed",
+      "exempted": "Exempted"
+    },
     "scoreValidation": {
       "required": "{{field}} is required",
       "min": "{{field}} must be at least {{min}}",
@@ -156,5 +162,12 @@
     "studentSaveError": "Failed to save student",
     "studentDetails": "Student Details",
     "actions": "Actions"
+  },
+  "trainingProgram": {
+    "editTrainingProgram": "Edit Training Program",
+    "semesterMin": "Semester must be at least {{min}}",
+    "semesterMax": "Semester cannot exceed {{max}}",
+    "academicYearMin": "Academic Year must be at least {{min}}",
+    "academicYearMax": "Academic Year cannot exceed {{max}}"
   }
 } 

@@ -38,7 +38,21 @@ const AcademicRecordList = () => {
       id: 'resultType', 
       label: t('academicRecord.resultType'), 
       minWidth: 120,
-      render: (row) => row.resultType
+      render: (row) => {
+        const type = row.resultType;
+        switch (type) {
+          case 'None':
+            return t('academicRecord.resultTypes.none');
+          case 'Disqualification':
+            return t('academicRecord.resultTypes.disqualification');
+          case 'Passed':
+            return t('academicRecord.resultTypes.passed');
+          case 'Exempted':
+            return t('academicRecord.resultTypes.exempted');
+          default:
+            return type;
+        }
+      }
     },
   ];
 

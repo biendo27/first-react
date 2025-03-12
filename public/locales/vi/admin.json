@@ -74,6 +74,12 @@
     "academicRecordDetails": "Thông Tin Hồ Sơ Học Tập",
     "deleteSuccess": "Đã xóa hồ sơ học tập thành công",
     "deleteError": "Không thể xóa hồ sơ học tập",
+    "resultTypes": {
+      "none": "Không có",
+      "disqualification": "Không đạt",
+      "passed": "Đạt",
+      "exempted": "Miễn học"
+    },
     "scoreValidation": {
       "required": "{{field}} là bắt buộc",
       "min": "{{field}} phải lớn hơn hoặc bằng {{min}}",

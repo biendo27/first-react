@@ -3,22 +3,25 @@ import * as Yup from 'yup';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { trainingProgramService, majorService, subjectService, courseBatchService } from '../../../services/api';
-
-const validationSchema = Yup.object({
-  semester: Yup.number()
-    .required('Semester is required')
-    .min(1, 'Semester must be at least 1')
-    .max(8, 'Semester cannot exceed 8'),
-  academicYear: Yup.number()
-    .required('Academic Year is required')
-    .min(2000, 'Academic Year must be at least 2000')
-    .max(2100, 'Academic Year cannot exceed 2100'),
-  subjectId: Yup.string().required('Subject is required'),
-  majorId: Yup.string().required('Major is required'),
-  courseBatchId: Yup.string().required('Course Batch is required'),
-});
+import { useTranslation } from 'react-i18next';
 
 const TrainingProgramForm = ({ open, onClose, program }) => {
+  const { t } = useTranslation(['admin', 'common']);
+  
+  const validationSchema = Yup.object({
+    semester: Yup.number()
+      .required(t('common:fieldRequired', { field: t('semester') }))
+      .min(1, t('trainingProgram.semesterMin', { min: 1 }))
+      .max(8, t('trainingProgram.semesterMax', { max: 8 })),
+    academicYear: Yup.number()
+      .required(t('common:fieldRequired', { field: t('academicYear') }))
+      .min(2000, t('trainingProgram.academicYearMin', { min: 2000 }))
+      .max(2100, t('trainingProgram.academicYearMax', { max: 2100 })),
+    subjectId: Yup.string().required(t('common:fieldRequired', { field: t('subject.name') })),
+    majorId: Yup.string().required(t('common:fieldRequired', { field: t('major.name') })),
+    courseBatchId: Yup.string().required(t('common:fieldRequired', { field: t('courseBatch') })),
+  });
+
   const [loading, setLoading] = useState(false);
   const [majors, setMajors] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -98,7 +101,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
     <FormDialog
       open={open}
       onClose={() => onClose(false)}
-      title={program ? 'Edit Training Program' : 'Add Training Program'}
+      title={program ? t('trainingProgram.editTrainingProgram') : t('addTrainingProgram')}
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -109,19 +112,19 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
         <>
           <FormField
             name="semester"
-            label="Semester"
+            label={t('semester')}
             type="number"
             required
           />
           <FormField
             name="academicYear"
-            label="Academic Year"
+            label={t('academicYear')}
             type="number"
             required
           />
           <FormField
             name="subjectId"
-            label="Subject"
+            label={t('subject.name')}
             type="select"
             options={subjectOptions}
             required
@@ -129,7 +132,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
           />
           <FormField
             name="majorId"
-            label="Major"
+            label={t('major.name')}
             type="select"
             options={majorOptions}
             required
@@ -137,7 +140,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
           />
           <FormField
             name="courseBatchId"
-            label="Course Batch"
+            label={t('courseBatch')}
             type="select"
             options={courseBatchOptions}
             required
