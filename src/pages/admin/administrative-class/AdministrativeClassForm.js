@@ -3,14 +3,17 @@ import * as Yup from 'yup';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { administrativeClassService, majorService, courseBatchService } from '../../../services/api';
-
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  courseBatchId: Yup.string().required('Course batch is required'),
-  majorId: Yup.string().required('Major is required'),
-});
+import { useTranslation } from 'react-i18next';
 
 const AdministrativeClassForm = ({ open, onClose, administrativeClass }) => {
+  const { t } = useTranslation(['admin', 'common']);
+
+  const validationSchema = Yup.object({
+    name: Yup.string().required(t('common:fieldRequired', { field: t('administrativeClass.name') })),
+    courseBatchId: Yup.string().required(t('common:fieldRequired', { field: t('courseBatch') })),
+    majorId: Yup.string().required(t('common:fieldRequired', { field: t('major.name') })),
+  });
+
   const [loading, setLoading] = useState(false);
   const [majors, setMajors] = useState([]);
   const [courseBatches, setCourseBatches] = useState([]);
@@ -75,7 +78,9 @@ const AdministrativeClassForm = ({ open, onClose, administrativeClass }) => {
     <FormDialog
       open={open}
       onClose={() => onClose(false)}
-      title={administrativeClass ? 'Edit Administrative Class' : 'Add Administrative Class'}
+      title={administrativeClass 
+        ? t('administrativeClass.editAdministrativeClass') 
+        : t('administrativeClass.addAdministrativeClass')}
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -83,12 +88,12 @@ const AdministrativeClassForm = ({ open, onClose, administrativeClass }) => {
     >
       <FormField
         name="name"
-        label="Name"
+        label={t('administrativeClass.name')}
         required
       />
       <FormField
         name="courseBatchId"
-        label="Course Batch"
+        label={t('courseBatch')}
         type="select"
         options={courseBatchOptions}
         required
@@ -96,7 +101,7 @@ const AdministrativeClassForm = ({ open, onClose, administrativeClass }) => {
       />
       <FormField
         name="majorId"
-        label="Major"
+        label={t('major.name')}
         type="select"
         options={majorOptions}
         required

@@ -4,6 +4,7 @@
   "subjects": "Subjects",
   "majors": "Majors",
   "classes": "Classes",
+  "administrativeClasses": "Administrative Classes",
   "academicRecords": "Academic Records",
   "trainingPrograms": "Training Programs",
   "trainingProgram": "Training Program",
@@ -169,5 +170,14 @@
     "semesterMax": "Semester cannot exceed {{max}}",
     "academicYearMin": "Academic Year must be at least {{min}}",
     "academicYearMax": "Academic Year cannot exceed {{max}}"
+  },
+  "administrativeClass": {
+    "name": "Name",
+    "addAdministrativeClass": "Add Administrative Class",
+    "editAdministrativeClass": "Edit Administrative Class",
+    "deleteAdministrativeClass": "Delete Administrative Class",
+    "deleteConfirmation": "Are you sure you want to delete the administrative class \"{{name}}\"?",
+    "deleteSuccess": "Administrative class deleted successfully",
+    "deleteError": "Failed to delete administrative class"
   }
 } 

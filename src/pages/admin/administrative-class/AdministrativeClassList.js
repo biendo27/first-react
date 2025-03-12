@@ -5,24 +5,27 @@ import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { administrativeClassService } from '../../../services/api';
 import AdministrativeClassForm from './AdministrativeClassForm';
-
-const columns = [
-  { id: 'name', label: 'Name', minWidth: 200 },
-  { 
-    id: 'courseBatch', 
-    label: 'Course Batch', 
-    minWidth: 150,
-    render: (row) => row.courseBatch?.name || 'N/A'
-  },
-  { 
-    id: 'major', 
-    label: 'Major', 
-    minWidth: 150,
-    render: (row) => row.major?.name || 'N/A'
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const AdministrativeClassList = () => {
+  const { t } = useTranslation(['admin', 'common']);
+
+  const columns = [
+    { id: 'name', label: t('administrativeClass.name'), minWidth: 200 },
+    { 
+      id: 'courseBatch', 
+      label: t('courseBatch'), 
+      minWidth: 150,
+      render: (row) => row.courseBatch?.name || 'N/A'
+    },
+    { 
+      id: 'major', 
+      label: t('major.name'), 
+      minWidth: 150,
+      render: (row) => row.major?.name || 'N/A'
+    },
+  ];
+
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -50,13 +53,13 @@ const AdministrativeClassList = () => {
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to fetch classes',
+        message: t('common:fetchError', { resource: t('administrativeClasses') }),
         severity: 'error',
       });
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, [page, pageSize, t]);
 
   useEffect(() => {
     fetchClasses();
@@ -92,14 +95,14 @@ const AdministrativeClassList = () => {
       await administrativeClassService.delete(selectedClass.id);
       setAlertInfo({
         open: true,
-        message: 'Administrative class deleted successfully',
+        message: t('administrativeClass.deleteSuccess'),
         severity: 'success',
       });
       fetchClasses();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: 'Failed to delete administrative class',
+        message: t('administrativeClass.deleteError'),
         severity: 'error',
       });
     } finally {
@@ -119,7 +122,7 @@ const AdministrativeClassList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          Administrative Classes
+          {t('administrativeClasses')}
         </Typography>
         <Button
           variant="contained"
@@ -127,7 +130,7 @@ const AdministrativeClassList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          Add Administrative Class
+          {t('administrativeClass.addAdministrativeClass')}
         </Button>
       </Box>
 
@@ -156,8 +159,8 @@ const AdministrativeClassList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Administrative Class"
-        message={`Are you sure you want to delete the administrative class "${selectedClass?.name}"?`}
+        title={t('administrativeClass.deleteAdministrativeClass')}
+        message={t('administrativeClass.deleteConfirmation', { name: selectedClass?.name })}
         loading={deleteLoading}
       />
 

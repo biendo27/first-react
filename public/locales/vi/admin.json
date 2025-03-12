@@ -4,9 +4,16 @@
   "subjects": "Môn Học",
   "majors": "Chuyên Ngành",
   "classes": "Lớp Học",
+  "administrativeClasses": "Lớp Hành Chính",
   "academicRecords": "Hồ Sơ Học Tập",
   "trainingPrograms": "Chương Trình Đào Tạo",
-  "trainingProgram": "Chương Trình Đào Tạo",
+  "trainingProgram": {
+    "editTrainingProgram": "Sửa Chương Trình Đào Tạo",
+    "semesterMin": "Học kỳ phải lớn hơn hoặc bằng {{min}}",
+    "semesterMax": "Học kỳ không được vượt quá {{max}}",
+    "academicYearMin": "Năm học phải lớn hơn hoặc bằng {{min}}",
+    "academicYearMax": "Năm học không được vượt quá {{max}}"
+  },
   "addTrainingProgram": "Thêm Chương Trình Đào Tạo",
   "subjectExemptions": "Miễn Học Phần",
   "exemptionsButton": "Miễn Học",
@@ -162,5 +169,14 @@
     "studentSaveError": "Không thể lưu sinh viên",
     "studentDetails": "Thông Tin Sinh Viên",
     "actions": "Thao Tác"
+  },
+  "administrativeClass": {
+    "name": "Tên",
+    "addAdministrativeClass": "Thêm Lớp Hành Chính",
+    "editAdministrativeClass": "Sửa Lớp Hành Chính",
+    "deleteAdministrativeClass": "Xóa Lớp Hành Chính",
+    "deleteConfirmation": "Bạn có chắc chắn muốn xóa lớp hành chính \"{{name}}\"?",
+    "deleteSuccess": "Đã xóa lớp hành chính thành công",
+    "deleteError": "Không thể xóa lớp hành chính"
   }
 } 
