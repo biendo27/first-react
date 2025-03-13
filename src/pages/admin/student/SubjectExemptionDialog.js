@@ -44,9 +44,15 @@ function TabPanel(props) {
       id={`exemption-tabpanel-${index}`}
       aria-labelledby={`exemption-tab-${index}`}
       {...other}
-      style={{ height: '100%', minHeight: '400px' }}
+      style={{ 
+        display: value === index ? 'flex' : 'none', 
+        flexDirection: 'column', 
+        height: '100%', 
+        minHeight: '400px',
+        overflow: 'hidden'
+      }}
     >
-      {value === index && <Box sx={{ pt: 2, height: '100%' }}>{children}</Box>}
+      {value === index && <Box sx={{ pt: 2, height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>{children}</Box>}
     </div>
   );
 }
@@ -56,8 +62,8 @@ const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExempti
   const { t } = useTranslation(['admin', 'common']);
   
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <TableContainer component={Paper} sx={{ minHeight: '300px', flexGrow: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+      <TableContainer component={Paper} sx={{ flexGrow: 1, overflow: 'auto' }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -107,7 +113,7 @@ const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExempti
           </TableBody>
         </Table>
       </TableContainer>
-      <Box sx={{ mt: 2 }}>
+      <Box sx={{ mt: 2, bgcolor: 'background.paper', borderRadius: 1, py: 1 }}>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
@@ -130,8 +136,8 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
   const { t } = useTranslation(['admin', 'common']);
   
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <TableContainer component={Paper} sx={{ minHeight: '300px', flexGrow: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+      <TableContainer component={Paper} sx={{ flexGrow: 1, overflow: 'auto' }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -183,7 +189,7 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
           </TableBody>
         </Table>
       </TableContainer>
-      <Box sx={{ mt: 2 }}>
+      <Box sx={{ mt: 2, bgcolor: 'background.paper', borderRadius: 1, py: 1 }}>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
@@ -436,14 +442,15 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     <Dialog 
       open={open} 
       onClose={onClose} 
-      maxWidth="md" 
+      maxWidth="lg" 
       fullWidth
       PaperProps={{
         sx: { 
-          height: '80vh', 
+          height: '85vh', 
           display: 'flex', 
           flexDirection: 'column',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          maxWidth: '90vw'
         }
       }}
     >
@@ -471,7 +478,8 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        p: 2
+        p: 2,
+        pb: 0
       }}>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -540,7 +548,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                   fullWidth
                   sx={{ height: '100%' }}
                 >
-                  {t('applyFilters')}
+                  {t('common:applyFilters')}
                 </Button>
               </Grid>
               <Grid item xs={3}>
@@ -550,22 +558,24 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
                   fullWidth
                   sx={{ height: '100%' }}
                 >
-                  {t('clearFilters')}
+                  {t('common:clearFilters')}
                 </Button>
               </Grid>
             </Grid>
           </Box>
           
-          <ExemptionsTable 
-            exemptions={exemptions}
-            exemptionsLoading={exemptionsLoading}
-            totalExemptions={totalExemptions}
-            handleEditExemption={handleEditExemption}
-            exemptionsPage={exemptionsPage}
-            exemptionsRowsPerPage={exemptionsRowsPerPage}
-            handleExemptionsChangePage={handleExemptionsChangePage}
-            handleExemptionsChangeRowsPerPage={handleExemptionsChangeRowsPerPage}
-          />
+          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <ExemptionsTable 
+              exemptions={exemptions}
+              exemptionsLoading={exemptionsLoading}
+              totalExemptions={totalExemptions}
+              handleEditExemption={handleEditExemption}
+              exemptionsPage={exemptionsPage}
+              exemptionsRowsPerPage={exemptionsRowsPerPage}
+              handleExemptionsChangePage={handleExemptionsChangePage}
+              handleExemptionsChangeRowsPerPage={handleExemptionsChangeRowsPerPage}
+            />
+          </Box>
         </TabPanel>
       </DialogContent>
       
