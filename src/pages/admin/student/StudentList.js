@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, IconButton, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SyncIcon from '@mui/icons-material/Sync';
 import EditIcon from '@mui/icons-material/Edit';
@@ -145,35 +145,35 @@ const StudentList = () => {
 
   const renderActions = (student) => (
     <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <Button 
-        size="small" 
-        variant="outlined" 
-        color="secondary"
-        onClick={() => handleExemptionClick(student)}
-        startIcon={<SyncIcon />}
-        sx={{ mr: 1 }}
-      >
-        {t('exemptionsButton')}
-      </Button>
-      <Button
-        size="small"
-        variant="outlined"
-        color="primary"
-        onClick={() => handleEdit(student)}
-        startIcon={<EditIcon />}
-        sx={{ mr: 1 }}
-      >
-        {t('student.editStudent')}
-      </Button>
-      <Button
-        size="small"
-        variant="outlined"
-        color="error"
-        onClick={() => handleDelete(student)}
-        startIcon={<DeleteIcon />}
-      >
-        {t('student.deleteStudent')}
-      </Button>
+      <Tooltip title={t('exemptionsButton')}>
+        <IconButton 
+          size="small" 
+          color="secondary"
+          onClick={() => handleExemptionClick(student)}
+          sx={{ mr: 1 }}
+        >
+          <SyncIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={t('student.editStudent')}>
+        <IconButton
+          size="small"
+          color="primary"
+          onClick={() => handleEdit(student)}
+          sx={{ mr: 1 }}
+        >
+          <EditIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={t('student.deleteStudent')}>
+        <IconButton
+          size="small"
+          color="error"
+          onClick={() => handleDelete(student)}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
     </Box>
   );
 
