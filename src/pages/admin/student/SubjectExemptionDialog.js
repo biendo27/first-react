@@ -146,14 +146,13 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
               <TableCell>{t('exemption.xScore')}</TableCell>
               <TableCell>{t('exemption.yScore')}</TableCell>
               <TableCell>{t('exemption.zScore')}</TableCell>
-              <TableCell>{t('exemption.result')}</TableCell>
               <TableCell align="right">{t('common:actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {exemptionsLoading ? (
               <TableRow>
-                <TableCell colSpan={7} align="center">
+                <TableCell colSpan={6} align="center">
                   <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
                     <CircularProgress size={30} />
                   </Box>
@@ -161,7 +160,7 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
               </TableRow>
             ) : exemptions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} align="center">
+                <TableCell colSpan={6} align="center">
                   <Box sx={{ py: 3 }}>{t('exemption.noExemptionsFound')}</Box>
                 </TableCell>
               </TableRow>
@@ -173,7 +172,6 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
                   <TableCell>{exemption.xScore.toFixed(2)}</TableCell>
                   <TableCell>{exemption.yScore.toFixed(2)}</TableCell>
                   <TableCell>{exemption.zScore.toFixed(2)}</TableCell>
-                  <TableCell>{t(`academicRecord.resultTypes.${exemption.resultType.toLowerCase()}`)}</TableCell>
                   <TableCell align="right">
                     <IconButton
                       size="small"
