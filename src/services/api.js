@@ -1,7 +1,9 @@
 import axios from 'axios';
+import { formatDateForApi } from '../utils/dateUtils';
 
-const API_URL = 'https://localhost:7269'; // Update with your actual API URL
-// const API_URL = 'https://bien-api.roz.io.vn'; // Update with your actual API URL
+// const API_URL = 'http://localhost:5166'; // Update with your actual API URL
+// const API_URL = 'http://192.168.2.181:7269'; // Update with your actual API URL
+const API_URL = 'https://timeschedule-api.nonamegogeto.click'; // Update with your actual API URL
 
 // Create axios instance with default config
 const api = axios.create({
@@ -11,19 +13,72 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor for adding auth token
+/**
+ * Recursively process an object and format any Date objects to ISO strings
+ * @param {Object} obj - The object to process
+ * @returns {Object} - The processed object with formatted dates
+ */
+const processObjectDates = (obj) => {
+  if (!obj || typeof obj !== 'object') return obj;
+  
+  // Don't process Date objects directly, they'll be handled within object properties
+  if (obj instanceof Date) return obj;
+  
+  // Handle arrays
+  if (Array.isArray(obj)) {
+    return obj.map(item => processObjectDates(item));
+  }
+  
+  // Process regular objects
+  const result = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      
+      // Check if it's a Date object or a date string
+      if (value instanceof Date || 
+         (typeof value === 'string' && !isNaN(Date.parse(value)) && 
+          /^\d{4}-\d{2}-\d{2}/.test(value))) {
+        result[key] = formatDateForApi(value);
+      }
+      // Recursively process nested objects
+      else if (value && typeof value === 'object') {
+        result[key] = processObjectDates(value);
+      }
+      // Otherwise just copy the value
+      else {
+        result[key] = value;
+      }
+    }
+  }
+  
+  return result;
+};
+
+// Add request interceptor for adding auth token and formatting dates
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Format dates in request body if it exists
+    if (config.data) {
+      config.data = processObjectDates(config.data);
+    }
+    
+    // Format dates in request params if they exist
+    if (config.params) {
+      config.params = processObjectDates(config.params);
+    }
+    
     console.log('Request to', config.url);
     console.log('Request headers:', config.headers);
     console.log('Request data:', config.data);
     console.log('Request params:', config.params);
     console.log('Request method:', config.method);
-    console.log('Request body:', config.data);
+    
     return config;
   },
   (error) => Promise.reject(error)

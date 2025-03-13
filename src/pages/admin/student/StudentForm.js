@@ -4,12 +4,20 @@ import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { studentService, administrativeClassService } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
+import { parseDateFromApi } from '../../../utils/dateUtils';
 
 const StudentForm = ({ open, onClose, student }) => {
   const { t } = useTranslation(['admin', 'common']);
   const [loading, setLoading] = useState(false);
   const [classes, setClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(false);
+  
+  // Format date for form display (YYYY-MM-DD for HTML date input)
+  const formatDateForForm = (dateValue) => {
+    if (!dateValue) return '';
+    const date = new Date(dateValue);
+    return date.toISOString().split('T')[0];
+  };
   
   const validationSchema = Yup.object({
     studentCode: Yup.string().required(t('common:fieldRequired', { field: t('student.studentCode') })),
@@ -32,7 +40,7 @@ const StudentForm = ({ open, onClose, student }) => {
     studentCode: student?.studentCode || '',
     firstName: student?.firstName || '',
     lastName: student?.lastName || '',
-    dateOfBirth: student?.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : '',
+    dateOfBirth: formatDateForForm(student?.dateOfBirth) || '',
     email: student?.email || '',
     phoneNumber: student?.phoneNumber || '',
     administrativeClassId: student?.administrativeClass?.id || '',

@@ -4,6 +4,7 @@ import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { courseBatchService } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
+import { parseDateFromApi } from '../../../utils/dateUtils';
 
 const CourseBatchForm = ({ open, onClose, courseBatch }) => {
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,13 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
   // Convert years to months for storage
   const yearsToMonths = (years) => {
     return years ? years * 12 : 0;
+  };
+
+  // Format date for form display (YYYY-MM-DD for HTML date input)
+  const formatDateForForm = (dateValue) => {
+    if (!dateValue) return '';
+    const date = new Date(dateValue);
+    return date.toISOString().split('T')[0];
   };
 
   const validationSchema = Yup.object({
@@ -34,9 +42,7 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
 
   const initialValues = {
     name: courseBatch?.name || '',
-    startTime: courseBatch?.startTime 
-      ? new Date(courseBatch.startTime).toISOString().split('T')[0]
-      : '',
+    startTime: formatDateForForm(courseBatch?.startTime) || '',
     regularProgramDuration: monthsToYears(courseBatch?.regularProgramDuration) || (courseBatch ? '' : 4),
     maximumProgramDuration: monthsToYears(courseBatch?.maximumProgramDuration) || (courseBatch ? '' : 6),
   };
@@ -46,7 +52,8 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
     try {
       const formattedValues = {
         ...values,
-        startTime: new Date(values.startTime).toISOString(),
+        // The API interceptor will handle ISO 8601 conversion
+        startTime: values.startTime,
         regularProgramDuration: yearsToMonths(parseFloat(values.regularProgramDuration)),
         maximumProgramDuration: yearsToMonths(parseFloat(values.maximumProgramDuration)),
       };

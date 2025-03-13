@@ -4,6 +4,7 @@ import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { academicRecordService, studentService, subjectService } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
+import { formatDateForDisplay, parseDateFromApi } from '../../../utils/dateUtils';
 
 const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
   const { t } = useTranslation(['admin', 'common']);
@@ -35,6 +36,13 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
     note: Yup.string(),
   });
 
+  // Format date for form display (YYYY-MM-DD for HTML date input)
+  const formatDateForForm = (dateValue) => {
+    if (!dateValue) return '';
+    const date = new Date(dateValue);
+    return date.toISOString().split('T')[0];
+  };
+
   const initialValues = {
     studentId: academicRecord?.student?.id || '',
     subjectId: academicRecord?.subject?.id || '',
@@ -42,9 +50,7 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
     yScore: academicRecord?.yScore || '',
     zScore: academicRecord?.zScore || '',
     academicYear: academicRecord?.academicYear || new Date().getFullYear(),
-    completionDate: academicRecord?.completionDate 
-      ? new Date(academicRecord.completionDate).toISOString().split('T')[0] 
-      : new Date().toISOString().split('T')[0],
+    completionDate: formatDateForForm(academicRecord?.completionDate) || formatDateForForm(new Date()),
     note: academicRecord?.note || '',
   };
 
@@ -78,7 +84,8 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
         yScore: Number(values.yScore),
         zScore: Number(values.zScore),
         academicYear: Number(values.academicYear),
-        completionDate: values.completionDate ? new Date(values.completionDate).toISOString() : null,
+        // The API interceptor will handle ISO 8601 conversion
+        completionDate: values.completionDate || null,
       };
 
       if (academicRecord) {
