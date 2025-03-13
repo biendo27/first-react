@@ -457,8 +457,8 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="exemption tabs">
-          <Tab label={t('exemption.availableSubjects')} id="exemption-tab-0" />
-          <Tab label={t('exemption.currentExemptions')} id="exemption-tab-1" />
+          <Tab label={t('exemption.subjects')} id="exemption-tab-0" />
+          <Tab label={t('exemption.exemptedSubjects')} id="exemption-tab-1" />
         </Tabs>
       </Box>
       

@@ -124,8 +124,8 @@
   "exemption": {
     "title": "Miễn Học Phần",
     "forStudent": "Miễn Học Phần - {{name}} ({{code}})",
-    "availableSubjects": "Môn Học Hiện Có",
-    "currentExemptions": "Miễn Học Phần Hiện Tại",
+    "subjects": "Danh Sách Môn Học",
+    "exemptedSubjects": "Danh Sách Bảo Lưu",
     "addExemption": "Thêm Miễn Học",
     "editExemption": "Sửa Miễn Học",
     "academicYear": "Năm Học",

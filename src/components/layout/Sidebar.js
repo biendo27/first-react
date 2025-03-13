@@ -1,10 +1,10 @@
 import React from 'react';
-import { 
-  Drawer, 
-  List, 
-  ListItem, 
-  ListItemIcon, 
-  ListItemText, 
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   Divider,
   Box,
   Typography,
@@ -24,48 +24,48 @@ const drawerWidth = 240;
 
 const Sidebar = ({ open, onClose, variant = 'permanent' }) => {
   const { t } = useTranslation('admin');
-  
+
   const navItems = [
-    { 
-      name: t('dashboard'), 
-      icon: <DashboardIcon />, 
-      path: '/admin/dashboard' 
+    {
+      name: t('dashboard'),
+      icon: <DashboardIcon />,
+      path: '/admin/dashboard'
     },
-    { 
-      name: t('students'), 
-      icon: <PeopleIcon />, 
-      path: '/admin/students' 
+    {
+      name: t('majors'),
+      icon: <SchoolIcon />,
+      path: '/admin/majors'
     },
-    { 
-      name: t('subjects'), 
-      icon: <SubjectIcon />, 
-      path: '/admin/subjects' 
+    {
+      name: t('courseBatches'),
+      icon: <AutoStoriesIcon />,
+      path: '/admin/course-batches'
     },
-    { 
-      name: t('classes'), 
-      icon: <ClassIcon />, 
-      path: '/admin/administrative-classes' 
+    {
+      name: t('administrativeClasses'),
+      icon: <ClassIcon />,
+      path: '/admin/administrative-classes'
     },
-    { 
-      name: t('courseBatches'), 
-      icon: <AutoStoriesIcon />, 
-      path: '/admin/course-batches' 
+    {
+      name: t('subjects'),
+      icon: <SubjectIcon />,
+      path: '/admin/subjects'
     },
-    { 
-      name: t('majors'), 
-      icon: <SchoolIcon />, 
-      path: '/admin/majors' 
+    {
+      name: t('trainingPrograms'),
+      icon: <MenuBookIcon />,
+      path: '/admin/training-programs'
     },
-    { 
-      name: t('academicRecords'), 
-      icon: <AssignmentIcon />, 
-      path: '/admin/academic-records' 
+    {
+      name: t('students'),
+      icon: <PeopleIcon />,
+      path: '/admin/students'
     },
-    { 
-      name: t('trainingPrograms'), 
-      icon: <MenuBookIcon />, 
-      path: '/admin/training-programs' 
-    }
+    {
+      name: t('academicRecords'),
+      icon: <AssignmentIcon />,
+      path: '/admin/academic-records'
+    },
   ];
 
   return (
@@ -91,8 +91,8 @@ const Sidebar = ({ open, onClose, variant = 'permanent' }) => {
       <Divider />
       <List sx={{ width: '100%' }}>
         {navItems.map((item) => (
-          <ListItem 
-            key={item.name} 
+          <ListItem
+            key={item.name}
             component={NavLink}
             to={item.path}
             sx={{
@@ -113,13 +113,13 @@ const Sidebar = ({ open, onClose, variant = 'permanent' }) => {
             }}
           >
             <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-            <ListItemText 
-              primary={item.name} 
-              primaryTypographyProps={{ 
+            <ListItemText
+              primary={item.name}
+              primaryTypographyProps={{
                 noWrap: true,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
-              }} 
+              }}
             />
           </ListItem>
         ))}

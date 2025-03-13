@@ -7,7 +7,6 @@
   "administrativeClasses": "Administrative Classes",
   "academicRecords": "Academic Records",
   "trainingPrograms": "Training Programs",
-  "trainingProgram": "Training Program",
   "addTrainingProgram": "Add Training Program",
   "subjectExemptions": "Subject Exemptions",
   "exemptionsButton": "Exemptions",
@@ -118,8 +117,8 @@
   "exemption": {
     "title": "Subject Exemptions",
     "forStudent": "Subject Exemptions - {{name}} ({{code}})",
-    "availableSubjects": "Available Subjects",
-    "currentExemptions": "Current Exemptions",
+    "subjects": "Subject List",
+    "exemptedSubjects": "Exempted Subject List",
     "addExemption": "Add Exemption",
     "editExemption": "Edit Exemption",
     "academicYear": "Academic Year",
