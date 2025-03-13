@@ -71,7 +71,7 @@ const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExempti
               <TableCell>{t('exemption.subjectName')}</TableCell>
               <TableCell>{t('exemption.credits')}</TableCell>
               <TableCell>{t('exemption.type')}</TableCell>
-              <TableCell align="right">{t('actions')}</TableCell>
+              <TableCell align="right">{t('common:actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -95,7 +95,7 @@ const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExempti
                   <TableCell>{subject.subjectCode}</TableCell>
                   <TableCell>{subject.name}</TableCell>
                   <TableCell>{subject.credit}</TableCell>
-                  <TableCell>{subject.type}</TableCell>
+                  <TableCell>{t(`subject.type${subject.type}`)}</TableCell>
                   <TableCell align="right">
                     <Button
                       size="small"
@@ -147,7 +147,7 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
               <TableCell>{t('exemption.yScore')}</TableCell>
               <TableCell>{t('exemption.zScore')}</TableCell>
               <TableCell>{t('exemption.result')}</TableCell>
-              <TableCell align="right">{t('actions')}</TableCell>
+              <TableCell align="right">{t('common:actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -173,7 +173,7 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
                   <TableCell>{exemption.xScore.toFixed(2)}</TableCell>
                   <TableCell>{exemption.yScore.toFixed(2)}</TableCell>
                   <TableCell>{exemption.zScore.toFixed(2)}</TableCell>
-                  <TableCell>{exemption.resultType}</TableCell>
+                  <TableCell>{t(`academicRecord.resultTypes.${exemption.resultType.toLowerCase()}`)}</TableCell>
                   <TableCell align="right">
                     <IconButton
                       size="small"

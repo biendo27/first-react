@@ -25,14 +25,6 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
   const isEditing = !!exemption;
 
   const validationSchema = Yup.object({
-    xScore: Yup.number()
-      .required(t('common:fieldRequired', { field: t('exemption.xScore') }))
-      .min(0, t('common:numberRange', { min: 0, max: 10 }))
-      .max(10, t('common:numberRange', { min: 0, max: 10 })),
-    yScore: Yup.number()
-      .required(t('common:fieldRequired', { field: t('exemption.yScore') }))
-      .min(0, t('common:numberRange', { min: 0, max: 10 }))
-      .max(10, t('common:numberRange', { min: 0, max: 10 })),
     zScore: Yup.number()
       .required(t('common:fieldRequired', { field: t('exemption.zScore') }))
       .min(0, t('common:numberRange', { min: 0, max: 10 }))
@@ -44,13 +36,16 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
     setLoading(true);
     setError(null);
     try {
+      // Set XScore and YScore equal to ZScore
+      const finalScore = values.zScore;
+      
       if (isEditing) {
         // Update existing exemption
         await subjectExemptionService.update(exemption.id, {
           id: exemption.id,
-          xScore: values.xScore,
-          yScore: values.yScore,
-          zScore: values.zScore,
+          xScore: finalScore,
+          yScore: finalScore,
+          zScore: finalScore,
           note: values.note,
         });
       } else {
@@ -58,9 +53,9 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
         await subjectExemptionService.create({
           studentCode: student.studentCode,
           subjectId: subject.id,
-          xScore: values.xScore,
-          yScore: values.yScore,
-          zScore: values.zScore,
+          xScore: finalScore,
+          yScore: finalScore,
+          zScore: finalScore,
           note: values.note,
         });
       }
@@ -84,8 +79,6 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
 
   const formik = useFormik({
     initialValues: {
-      xScore: exemption ? exemption.xScore : '',
-      yScore: exemption ? exemption.yScore : '',
       zScore: exemption ? exemption.zScore : '',
       note: exemption ? exemption.note || '' : '',
     },
@@ -117,44 +110,12 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
           </Box>
 
           <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <TextField
-                fullWidth
-                id="xScore"
-                name="xScore"
-                label={t('exemption.xScore')}
-                type="number"
-                inputProps={{ step: 0.1, min: 0, max: 10 }}
-                value={formik.values.xScore}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.xScore && Boolean(formik.errors.xScore)}
-                helperText={formik.touched.xScore && formik.errors.xScore}
-                required
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <TextField
-                fullWidth
-                id="yScore"
-                name="yScore"
-                label={t('exemption.yScore')}
-                type="number"
-                inputProps={{ step: 0.1, min: 0, max: 10 }}
-                value={formik.values.yScore}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.yScore && Boolean(formik.errors.yScore)}
-                helperText={formik.touched.yScore && formik.errors.yScore}
-                required
-              />
-            </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 id="zScore"
                 name="zScore"
-                label={t('exemption.zScore')}
+                label={t('exemption.finalScore', { defaultValue: 'Final Score' })}
                 type="number"
                 inputProps={{ step: 0.1, min: 0, max: 10 }}
                 value={formik.values.zScore}
