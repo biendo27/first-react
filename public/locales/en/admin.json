@@ -115,7 +115,7 @@
     "subjectCodeInteger": "Subject code must be an integer"
   },
   "exemption": {
-    "title": "Subject Exemptions",
+    "title": "Subject Exemption",
     "forStudent": "Subject Exemptions - {{name}} ({{code}})",
     "subjects": "Subject List",
     "exemptedSubjects": "Exempted Subject List",
@@ -133,13 +133,16 @@
     "zScore": "Z Score",
     "result": "Result",
     "note": "Note",
-    "noSubjectsFound": "No subjects found",
-    "noExemptionsFound": "No exemptions found",
+    "selectSubject": "Select Subject",
+    "select": "Select",
+    "noSubjectsFound": "No subjects found for this student",
+    "noExemptionsFound": "No exemptions found for this student",
     "failedToLoadSubjects": "Failed to load subjects: {{error}}",
     "failedToLoadExemptions": "Failed to load exemptions: {{error}}",
-    "applyFilters": "Apply Filters",
-    "clearFilters": "Clear Filters",
-    "filteringBy": "Filtering by"
+    "subjectInfo": "Subject Information",
+    "exemptionDetails": "Exemption Details",
+    "exemptionSaved": "Exemption saved successfully",
+    "exemptionError": "Error saving exemption"
   },
   "student": {
     "firstName": "First Name",

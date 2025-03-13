@@ -56,8 +56,8 @@ const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExempti
   const { t } = useTranslation(['admin', 'common']);
   
   return (
-    <>
-      <TableContainer component={Paper} sx={{ minHeight: '300px', maxHeight: '50vh' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <TableContainer component={Paper} sx={{ minHeight: '300px', flexGrow: 1 }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -107,20 +107,22 @@ const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExempti
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={totalSubjects}
-        rowsPerPage={rowsPerPage}
-        page={page - 1} // Adjust for MUI's 0-based pagination
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage={t('rowsPerPage')}
-        labelDisplayedRows={({ from, to, count }) => 
-          `${from}-${to} ${t('of')} ${count !== -1 ? count : `${t('more than')} ${to}`}`
-        }
-      />
-    </>
+      <Box sx={{ mt: 2 }}>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={totalSubjects}
+          rowsPerPage={rowsPerPage}
+          page={page - 1} // Adjust for MUI's 0-based pagination
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage={t('common:rowsPerPage')}
+          labelDisplayedRows={({ from, to, count }) => 
+            `${from}-${to} ${t('common:of')} ${count !== -1 ? count : `${t('common:moreThan')} ${to}`}`
+          }
+        />
+      </Box>
+    </Box>
   );
 });
 
@@ -128,8 +130,8 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
   const { t } = useTranslation(['admin', 'common']);
   
   return (
-    <>
-      <TableContainer component={Paper} sx={{ minHeight: '300px', maxHeight: '50vh' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <TableContainer component={Paper} sx={{ minHeight: '300px', flexGrow: 1 }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -181,20 +183,22 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={totalExemptions}
-        rowsPerPage={exemptionsRowsPerPage}
-        page={exemptionsPage - 1} // Adjust for MUI's 0-based pagination
-        onPageChange={handleExemptionsChangePage}
-        onRowsPerPageChange={handleExemptionsChangeRowsPerPage}
-        labelRowsPerPage={t('rowsPerPage')}
-        labelDisplayedRows={({ from, to, count }) => 
-          `${from}-${to} ${t('of')} ${count !== -1 ? count : `${t('more than')} ${to}`}`
-        }
-      />
-    </>
+      <Box sx={{ mt: 2 }}>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={totalExemptions}
+          rowsPerPage={exemptionsRowsPerPage}
+          page={exemptionsPage - 1} // Adjust for MUI's 0-based pagination
+          onPageChange={handleExemptionsChangePage}
+          onRowsPerPageChange={handleExemptionsChangeRowsPerPage}
+          labelRowsPerPage={t('common:rowsPerPage')}
+          labelDisplayedRows={({ from, to, count }) => 
+            `${from}-${to} ${t('common:of')} ${count !== -1 ? count : `${t('common:moreThan')} ${to}`}`
+          }
+        />
+      </Box>
+    </Box>
   );
 });
 
