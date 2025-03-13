@@ -15,8 +15,8 @@
     "academicYearMax": "Năm học không được vượt quá {{max}}"
   },
   "addTrainingProgram": "Thêm Chương Trình Đào Tạo",
-  "subjectExemptions": "Miễn Học Phần",
-  "exemptionsButton": "Miễn Học",
+  "subjectExemptions": "Bảo Lưu Học Phần",
+  "exemptionsButton": "Bảo Lưu",
   "semester": "Học Kỳ",
   "academicYear": "Năm Học",
   "courseBatch": "Khóa Học",
@@ -85,7 +85,7 @@
       "none": "Không có",
       "disqualification": "Không đạt",
       "passed": "Đạt",
-      "exempted": "Miễn học"
+      "exempted": "Bảo lưu"
     },
     "scoreValidation": {
       "required": "{{field}} là bắt buộc",
@@ -122,12 +122,12 @@
     "subjectCodeInteger": "Mã môn học phải là số nguyên"
   },
   "exemption": {
-    "title": "Miễn Học Phần",
-    "forStudent": "Miễn Học Phần - {{name}} ({{code}})",
+    "title": "Bảo Lưu Học Phần",
+    "forStudent": "Bảo Lưu Học Phần - {{name}} ({{code}})",
     "subjects": "Danh Sách Môn Học",
     "exemptedSubjects": "Danh Sách Bảo Lưu",
-    "addExemption": "Thêm Miễn Học",
-    "editExemption": "Sửa Miễn Học",
+    "addExemption": "Thêm Bảo Lưu",
+    "editExemption": "Sửa Bảo Lưu",
     "academicYear": "Năm Học",
     "semester": "Học Kỳ",
     "allSemesters": "Tất Cả Học Kỳ",
@@ -143,13 +143,13 @@
     "selectSubject": "Chọn Học Phần",
     "select": "Chọn",
     "noSubjectsFound": "Không tìm thấy học phần cho sinh viên này",
-    "noExemptionsFound": "Không tìm thấy miễn học phần cho sinh viên này",
+    "noExemptionsFound": "Không tìm thấy bảo lưu học phần cho sinh viên này",
     "failedToLoadSubjects": "Không thể tải danh sách học phần: {{error}}",
-    "failedToLoadExemptions": "Không thể tải danh sách miễn học phần: {{error}}",
+    "failedToLoadExemptions": "Không thể tải danh sách bảo lưu học phần: {{error}}",
     "subjectInfo": "Thông Tin Học Phần",
-    "exemptionDetails": "Chi Tiết Miễn Học",
-    "exemptionSaved": "Đã lưu miễn học phần thành công",
-    "exemptionError": "Lỗi khi lưu miễn học phần"
+    "exemptionDetails": "Chi Tiết Bảo Lưu",
+    "exemptionSaved": "Đã lưu bảo lưu học phần thành công",
+    "exemptionError": "Lỗi khi lưu bảo lưu học phần"
   },
   "student": {
     "firstName": "Tên",
