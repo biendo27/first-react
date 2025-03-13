@@ -68,21 +68,12 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
     } catch (err) {
       console.error('Error saving exemption:', err);
       
-      // Extract error message from response if available
+      // Extract only the detail field from the error response
       let errorMessage = t('common:saveError', { resource: t('exemption.title') });
       
-      if (err.response) {
-        // Check for specific error message from the server
-        const serverError = err.response.data;
-        
-        if (serverError && serverError.detail) {
-          if (serverError.detail === "Môn học đã được miễn") {
-            errorMessage = t('exemption.subjectAlreadyExempted', { defaultValue: 'This subject has already been exempted' });
-          } else {
-            // Use the server's error message directly
-            errorMessage = serverError.detail;
-          }
-        }
+      if (err.response && err.response.data && err.response.data.detail) {
+        // Just display the detail field directly
+        errorMessage = err.response.data.detail;
       }
       
       setError(errorMessage);
