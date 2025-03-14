@@ -2,7 +2,7 @@ import axios from 'axios';
 import { formatDateForApi } from '../utils/dateUtils';
 
 const API_URL = 'https://localhost:7269/'; // Update with your actual API URL
-// const API_URL = 'https://timeschedule-api.nonamegogeto.click'; // Update with your actual API URL
+// const API_URL = 'https://timeschedule-api.nonamegogeto.click';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -177,6 +177,7 @@ const createCrudService = (endpoint) => ({
 export const academicRecordService = createCrudService('academic-records');
 export const administrativeClassService = createCrudService('administrative-classes');
 export const courseBatchService = createCrudService('course-batches');
+export const educationModeService = createCrudService('education-modes');
 export const majorService = createCrudService('majors');
 export const studentService = createCrudService('students');
 export const subjectService = createCrudService('subjects');

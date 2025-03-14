@@ -54,5 +54,8 @@
   "saveError": "Failed to save {{resource}}",
   "saving": "Saving...",
   "numberRange": "Must be between {{min}} and {{max}}",
-  "maxLength": "{{field}} cannot exceed {{length}} characters"
+  "maxLength": "{{field}} cannot exceed {{length}} characters",
+  "mustBeNumber": "Must be a number",
+  "mustBePositive": "Must be positive",
+  "mustBeInteger": "Must be an integer"
 } 

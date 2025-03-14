@@ -3,6 +3,7 @@
   "students": "Students",
   "subjects": "Subjects",
   "majors": "Majors",
+  "educationModes": "Education Modes",
   "classes": "Classes",
   "administrativeClasses": "Administrative Classes",
   "academicRecords": "Academic Records",
@@ -181,5 +182,13 @@
     "deleteConfirmation": "Are you sure you want to delete the administrative class \"{{name}}\"?",
     "deleteSuccess": "Administrative class deleted successfully",
     "deleteError": "Failed to delete administrative class"
+  },
+  "educationMode": {
+    "addEducationMode": "Add Education Mode",
+    "editEducationMode": "Edit Education Mode",
+    "deleteEducationMode": "Delete Education Mode",
+    "deleteEducationModeConfirmation": "Are you sure you want to delete this education mode?",
+    "deleteSuccess": "Education mode deleted successfully",
+    "deleteError": "Failed to delete education mode"
   }
 } 

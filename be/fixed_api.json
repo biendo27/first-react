@@ -28,6 +28,13 @@
             }
           },
           {
+            "name": "StudentCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "AcademicYear",
             "in": "query",
             "schema": {
@@ -770,6 +777,236 @@
         ]
       }
     },
+    "/v1/education-modes": {
+      "get": {
+        "tags": [
+          "EducationMode"
+        ],
+        "parameters": [
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationModeDtoPagedResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "Admin"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "EducationMode"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEducationModeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "Admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/v1/education-modes/{id}": {
+      "get": {
+        "tags": [
+          "EducationMode"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationModeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "Admin"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "EducationMode"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEducationModeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "Admin"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "EducationMode"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "Admin"
+            ]
+          }
+        ]
+      }
+    },
     "/v1/majors": {
       "get": {
         "tags": [
@@ -781,6 +1018,14 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "EducationModeId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           },
           {
@@ -1592,7 +1837,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CourseExemptionDtoPagedResponse"
+                  "$ref": "#/components/schemas/SubjectExemptionDtoPagedResponse"
                 }
               }
             }
@@ -1620,7 +1865,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateCourseExemptionRequestDto"
+                "$ref": "#/components/schemas/CreateSubjectExemptionRequestDto"
               }
             }
           }
@@ -2198,85 +2443,6 @@
         },
         "additionalProperties": false
       },
-      "CourseExemptionDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "subjectCode": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subjectName": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "credit": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "type": {
-            "$ref": "#/components/schemas/SubjectType"
-          },
-          "xScore": {
-            "type": "number",
-            "format": "double"
-          },
-          "yScore": {
-            "type": "number",
-            "format": "double"
-          },
-          "zScore": {
-            "type": "number",
-            "format": "double"
-          },
-          "resultType": {
-            "$ref": "#/components/schemas/AcademicRecordType"
-          },
-          "note": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "additionalProperties": false
-      },
-      "CourseExemptionDtoPagedResponse": {
-        "type": "object",
-        "properties": {
-          "pageIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "data": {
-            "type": [
-              "null",
-              "array"
-            ],
-            "items": {
-              "$ref": "#/components/schemas/CourseExemptionDto"
-            }
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPage": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
       "CreateAcademicRecordRequestDto": {
         "type": "object",
         "properties": {
@@ -2368,45 +2534,10 @@
         },
         "additionalProperties": false
       },
-      "CreateCourseExemptionRequestDto": {
-        "required": [
-          "studentCode",
-          "subjectId",
-          "xScore",
-          "yScore",
-          "zScore"
-        ],
+      "CreateEducationModeRequestDto": {
         "type": "object",
         "properties": {
-          "studentCode": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "subjectId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "xScore": {
-            "maximum": 10,
-            "minimum": 0,
-            "type": "number",
-            "format": "double"
-          },
-          "yScore": {
-            "maximum": 10,
-            "minimum": 0,
-            "type": "number",
-            "format": "double"
-          },
-          "zScore": {
-            "maximum": 10,
-            "minimum": 0,
-            "type": "number",
-            "format": "double"
-          },
-          "note": {
-            "maxLength": 500,
-            "minLength": 0,
+          "name": {
             "type": [
               "null",
               "string"
@@ -2424,6 +2555,17 @@
           "name": {
             "minLength": 1,
             "type": "string"
+          },
+          "majorCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "educationModeId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -2480,6 +2622,53 @@
           },
           "status": {
             "$ref": "#/components/schemas/StudentStatusType"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateSubjectExemptionRequestDto": {
+        "required": [
+          "studentCode",
+          "subjectId",
+          "xScore",
+          "yScore",
+          "zScore"
+        ],
+        "type": "object",
+        "properties": {
+          "studentCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "xScore": {
+            "maximum": 10,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "yScore": {
+            "maximum": 10,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "zScore": {
+            "maximum": 10,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "note": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -2567,6 +2756,53 @@
         },
         "additionalProperties": false
       },
+      "EducationModeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "EducationModeDtoPagedResponse": {
+        "type": "object",
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/EducationModeDto"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "LoginRequestDto": {
         "required": [
           "password",
@@ -2635,9 +2871,12 @@
               "string"
             ]
           },
-          "createdDate": {
-            "type": "string",
-            "format": "date-time"
+          "majorCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "educationMode": {
+            "$ref": "#/components/schemas/EducationModeDto"
           }
         },
         "additionalProperties": false
@@ -2820,6 +3059,85 @@
             ],
             "items": {
               "$ref": "#/components/schemas/SubjectDto"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPage": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubjectExemptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subjectCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "credit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "$ref": "#/components/schemas/SubjectType"
+          },
+          "xScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "yScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "zScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "resultType": {
+            "$ref": "#/components/schemas/AcademicRecordType"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubjectExemptionDtoPagedResponse": {
+        "type": "object",
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/SubjectExemptionDto"
             }
           },
           "totalCount": {
@@ -3035,6 +3353,22 @@
         },
         "additionalProperties": false
       },
+      "UpdateEducationModeRequestDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
       "UpdateMajorRequestDto": {
         "required": [
           "name"
@@ -3044,6 +3378,17 @@
           "name": {
             "minLength": 1,
             "type": "string"
+          },
+          "majorCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "educationModeId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false

@@ -3,37 +3,24 @@ import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { majorService } from '../../../services/api';
-import MajorForm from './MajorForm';
+import { educationModeService } from '../../../services/api';
+import EducationModeForm from './EducationModeForm';
 import { useTranslation } from 'react-i18next';
 
-const MajorList = () => {
+const EducationModeList = () => {
   const { t } = useTranslation(['admin', 'common']);
   
   const columns = [
-    { id: 'name', label: t('major.name'), minWidth: 200 },
-    { id: 'majorCode', label: t('subject.subjectCode'), minWidth: 150 },
-    { 
-      id: 'educationMode', 
-      label: t('educationModes'), 
-      minWidth: 150,
-      render: (row) => row.educationMode?.name || 'N/A'
-    },
-    { 
-      id: 'createdDate', 
-      label: t('major.createdDate'), 
-      minWidth: 150,
-      render: (row) => new Date(row.createdDate).toLocaleDateString() 
-    },
+    { id: 'name', label: t('common:name'), minWidth: 200 },
   ];
   
-  const [majors, setMajors] = useState([]);
+  const [educationModes, setEducationModes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
-  const [selectedMajor, setSelectedMajor] = useState(null);
+  const [selectedEducationMode, setSelectedEducationMode] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
@@ -42,19 +29,19 @@ const MajorList = () => {
     severity: 'success',
   });
 
-  const fetchMajors = useCallback(async () => {
+  const fetchEducationModes = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await majorService.getAll({
+      const response = await educationModeService.getAll({
         PageIndex: page,
         PageSize: pageSize,
       });
-      setMajors(response.data || []);
+      setEducationModes(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: t('common:fetchError', { resource: t('majors') }),
+        message: t('common:fetchError', { resource: t('educationModes') }),
         severity: 'error',
       });
     } finally {
@@ -63,8 +50,8 @@ const MajorList = () => {
   }, [page, pageSize, t]);
 
   useEffect(() => {
-    fetchMajors();
-  }, [fetchMajors]);
+    fetchEducationModes();
+  }, [fetchEducationModes]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
@@ -76,34 +63,34 @@ const MajorList = () => {
   };
 
   const handleOpenForm = () => {
-    setSelectedMajor(null);
+    setSelectedEducationMode(null);
     setFormOpen(true);
   };
 
-  const handleEdit = (major) => {
-    setSelectedMajor(major);
+  const handleEdit = (educationMode) => {
+    setSelectedEducationMode(educationMode);
     setFormOpen(true);
   };
 
-  const handleDelete = (major) => {
-    setSelectedMajor(major);
+  const handleDelete = (educationMode) => {
+    setSelectedEducationMode(educationMode);
     setDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
     setDeleteLoading(true);
     try {
-      await majorService.delete(selectedMajor.id);
+      await educationModeService.delete(selectedEducationMode.id);
       setAlertInfo({
         open: true,
-        message: t('major.majorDeleteSuccess'),
+        message: t('educationMode.deleteSuccess'),
         severity: 'success',
       });
-      fetchMajors();
+      fetchEducationModes();
     } catch (error) {
       setAlertInfo({
         open: true,
-        message: t('major.majorDeleteError'),
+        message: t('educationMode.deleteError'),
         severity: 'error',
       });
     } finally {
@@ -115,7 +102,7 @@ const MajorList = () => {
   const handleFormClose = (refreshData) => {
     setFormOpen(false);
     if (refreshData) {
-      fetchMajors();
+      fetchEducationModes();
     }
   };
 
@@ -123,7 +110,7 @@ const MajorList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          {t('majors')}
+          {t('educationModes')}
         </Typography>
         <Button
           variant="contained"
@@ -131,13 +118,13 @@ const MajorList = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenForm}
         >
-          {t('major.addMajor')}
+          {t('educationMode.addEducationMode')}
         </Button>
       </Box>
 
       <DataTable
         columns={columns}
-        data={majors}
+        data={educationModes}
         totalCount={totalCount}
         page={page - 1}
         pageSize={pageSize}
@@ -149,10 +136,10 @@ const MajorList = () => {
       />
 
       {formOpen && (
-        <MajorForm
+        <EducationModeForm
           open={formOpen}
           onClose={handleFormClose}
-          major={selectedMajor}
+          educationMode={selectedEducationMode}
         />
       )}
 
@@ -160,8 +147,8 @@ const MajorList = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title={t('major.deleteMajor')}
-        message={t('major.deleteMajorConfirmation')}
+        title={t('educationMode.deleteEducationMode')}
+        message={t('educationMode.deleteEducationModeConfirmation')}
         loading={deleteLoading}
       />
 
@@ -181,4 +168,4 @@ const MajorList = () => {
   );
 };
 
-export default MajorList;
+export default EducationModeList; 

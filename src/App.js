@@ -12,6 +12,7 @@ import AcademicRecordList from './pages/admin/academic-record';
 import AdministrativeClassList from './pages/admin/administrative-class';
 import CourseBatchList from './pages/admin/course-batch';
 import TrainingProgramList from './pages/admin/training-program';
+import EducationModeList from './pages/admin/education-mode';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import './App.css';
@@ -64,6 +65,7 @@ function App() {
             >
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="majors" element={<MajorList />} />
+              <Route path="education-modes" element={<EducationModeList />} />
               <Route path="subjects" element={<SubjectList />} />
               <Route path="students" element={<StudentList />} />
               <Route path="academic-records" element={<AcademicRecordList />} />
