@@ -3,7 +3,7 @@
   "students": "Sinh Viên",
   "subjects": "Môn Học",
   "majors": "Chuyên Ngành",
-  "educationModes": "Hình Thức Đào Tạo",
+  "educationModes": "Hệ đào tạo",
   "classes": "Lớp Học",
   "administrativeClasses": "Lớp Hành Chính",
   "academicRecords": "Hồ Sơ Học Tập",
@@ -184,11 +184,11 @@
     "deleteError": "Không thể xóa lớp hành chính"
   },
   "educationMode": {
-    "addEducationMode": "Thêm Hình Thức Đào Tạo",
-    "editEducationMode": "Sửa Hình Thức Đào Tạo",
-    "deleteEducationMode": "Xóa Hình Thức Đào Tạo",
-    "deleteEducationModeConfirmation": "Bạn có chắc chắn muốn xóa hình thức đào tạo này?",
-    "deleteSuccess": "Đã xóa hình thức đào tạo thành công",
-    "deleteError": "Không thể xóa hình thức đào tạo"
+    "addEducationMode": "Thêm Hệ đào tạo",
+    "editEducationMode": "Sửa Hệ đào tạo",
+    "deleteEducationMode": "Xóa Hệ đào tạo",
+    "deleteEducationModeConfirmation": "Bạn có chắc chắn muốn xóa hệ đào tạo này?",
+    "deleteSuccess": "Đã xóa hệ đào tạo thành công",
+    "deleteError": "Không thể xóa hệ đào tạo"
   }
 } 
