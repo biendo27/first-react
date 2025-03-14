@@ -190,5 +190,12 @@
     "deleteEducationModeConfirmation": "Bạn có chắc chắn muốn xóa hệ đào tạo này?",
     "deleteSuccess": "Đã xóa hệ đào tạo thành công",
     "deleteError": "Không thể xóa hệ đào tạo"
+  },
+  "subjectCode": "Mã Môn Học",
+  "credit": "Tín Chỉ",
+  "subjectType": "Loại Môn Học",
+  "subjectTypes": {
+    "compulsory": "Bắt Buộc",
+    "elective": "Tự Chọn"
   }
 } 

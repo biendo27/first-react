@@ -8,6 +8,7 @@
   "administrativeClasses": "Administrative Classes",
   "academicRecords": "Academic Records",
   "trainingPrograms": "Training Programs",
+  "trainingProgram": "Training Program",
   "addTrainingProgram": "Add Training Program",
   "subjectExemptions": "Subject Exemptions",
   "exemptionsButton": "Exemptions",
@@ -15,6 +16,13 @@
   "academicYear": "Academic Year",
   "courseBatch": "Course Batch",
   "courseBatches": "Course Batches",
+  "subjectCode": "Subject Code",
+  "credit": "Credit",
+  "subjectType": "Subject Type",
+  "subjectTypes": {
+    "compulsory": "Compulsory",
+    "elective": "Elective"
+  },
   "addCourseBatch": "Add Course Batch",
   "editCourseBatch": "Edit Course Batch",
   "startDate": "Start Date",
