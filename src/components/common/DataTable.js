@@ -30,6 +30,7 @@ const DataTable = ({
   onEdit,
   onDelete,
   renderActions,
+  resourceName,
 }) => {
   const { t } = useTranslation('common');
 
@@ -82,7 +83,7 @@ const DataTable = ({
                     ) : (
                       <Box>
                         {onEdit && (
-                          <Tooltip title={t('edit')}>
+                          <Tooltip title={t('edit', { resource: resourceName || '' })}>
                             <IconButton
                               size="small"
                               onClick={() => onEdit(row)}
@@ -93,7 +94,7 @@ const DataTable = ({
                           </Tooltip>
                         )}
                         {onDelete && (
-                          <Tooltip title={t('delete')}>
+                          <Tooltip title={t('delete', { resource: resourceName || '' })}>
                             <IconButton
                               size="small"
                               onClick={() => onDelete(row)}
@@ -141,6 +142,7 @@ DataTable.propTypes = {
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,
   renderActions: PropTypes.func,
+  resourceName: PropTypes.string,
 };
 
 export default DataTable; 

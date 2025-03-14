@@ -7,7 +7,7 @@
   "actions": "Actions",
   "add": "Add {{resource}}",
   "edit": "Edit {{resource}}",
-  "delete": "Delete",
+  "delete": "Delete {{resource}}",
   "save": "Save",
   "cancel": "Cancel",
   "search": "Search",

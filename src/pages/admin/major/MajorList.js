@@ -18,13 +18,7 @@ const MajorList = () => {
       label: t('educationModes'), 
       minWidth: 150,
       render: (row) => row.educationMode?.name || 'N/A'
-    },
-    { 
-      id: 'createdDate', 
-      label: t('major.createdDate'), 
-      minWidth: 150,
-      render: (row) => new Date(row.createdDate).toLocaleDateString() 
-    },
+    }
   ];
   
   const [majors, setMajors] = useState([]);
@@ -146,6 +140,7 @@ const MajorList = () => {
         onPageSizeChange={handlePageSizeChange}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        resourceName="major"
       />
 
       {formOpen && (

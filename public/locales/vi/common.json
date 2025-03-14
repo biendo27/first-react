@@ -7,7 +7,7 @@
   "actions": "Thao tác",
   "add": "Thêm {{resource}}",
   "edit": "Sửa {{resource}}",
-  "delete": "Xóa",
+  "delete": "Xóa {{resource}}",
   "save": "Lưu",
   "saving": "Đang lưu...",
   "cancel": "Hủy",
