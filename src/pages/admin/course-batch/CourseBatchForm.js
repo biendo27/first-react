@@ -10,16 +10,6 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation(['admin', 'common']);
 
-  // Convert months to years for display
-  const monthsToYears = (months) => {
-    return months ? months / 12 : '';
-  };
-
-  // Convert years to months for storage
-  const yearsToMonths = (years) => {
-    return years ? years * 12 : 0;
-  };
-
   // Format date for form display (YYYY-MM-DD for HTML date input)
   const formatDateForForm = (dateValue) => {
     if (!dateValue) return '';
@@ -43,8 +33,8 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
   const initialValues = {
     name: courseBatch?.name || '',
     startTime: formatDateForForm(courseBatch?.startTime) || '',
-    regularProgramDuration: monthsToYears(courseBatch?.regularProgramDuration) || (courseBatch ? '' : 4),
-    maximumProgramDuration: monthsToYears(courseBatch?.maximumProgramDuration) || (courseBatch ? '' : 6),
+    regularProgramDuration: courseBatch?.regularProgramDuration || (courseBatch ? '' : 4),
+    maximumProgramDuration: courseBatch?.maximumProgramDuration || (courseBatch ? '' : 6),
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -54,8 +44,8 @@ const CourseBatchForm = ({ open, onClose, courseBatch }) => {
         ...values,
         // The API interceptor will handle ISO 8601 conversion
         startTime: values.startTime,
-        regularProgramDuration: yearsToMonths(parseFloat(values.regularProgramDuration)),
-        maximumProgramDuration: yearsToMonths(parseFloat(values.maximumProgramDuration)),
+        regularProgramDuration: parseFloat(values.regularProgramDuration),
+        maximumProgramDuration: parseFloat(values.maximumProgramDuration),
       };
 
       if (courseBatch) {

@@ -10,22 +10,22 @@ import { useTranslation } from 'react-i18next';
 const CourseBatchList = () => {
   const { t } = useTranslation(['admin', 'common']);
   
-  // Convert months to years for display with proper formatting
-  const formatYears = (months) => {
-    const years = months / 12;
+  // Format duration values for display
+  const formatDuration = (value) => {
+    if (value === undefined || value === null) return '';
     
-    // For exact years, show without decimal
-    if (years % 1 === 0) {
-      return years.toFixed(0);
+    // For exact values, show without decimal
+    if (value % 1 === 0) {
+      return value.toFixed(0);
     }
     
-    // For half years, show as x.5
-    if (years * 2 % 1 === 0) {
-      return years.toFixed(1);
+    // For half values, show as x.5
+    if (value * 2 % 1 === 0) {
+      return value.toFixed(1);
     }
     
     // Otherwise show with up to 2 decimal places
-    return years.toFixed(2);
+    return value.toFixed(2);
   };
   
   const columns = [
@@ -40,13 +40,13 @@ const CourseBatchList = () => {
       id: 'regularProgramDuration', 
       label: t('regularDuration', 'Regular Duration (years)'), 
       minWidth: 180,
-      render: (row) => formatYears(row.regularProgramDuration)
+      render: (row) => formatDuration(row.regularProgramDuration)
     },
     { 
       id: 'maximumProgramDuration', 
       label: t('maximumDuration', 'Maximum Duration (years)'), 
       minWidth: 180,
-      render: (row) => formatYears(row.maximumProgramDuration)
+      render: (row) => formatDuration(row.maximumProgramDuration)
     },
   ];
 

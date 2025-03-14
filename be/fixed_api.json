@@ -1964,11 +1964,19 @@
             }
           },
           {
-            "name": "AcademicYear",
+            "name": "MajorId",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "CourseBatchId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           },
           {
