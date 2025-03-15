@@ -43,6 +43,21 @@
             }
           },
           {
+            "name": "Semester",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ResultType",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/AcademicRecordType"
+            }
+          },
+          {
             "name": "PageIndex",
             "in": "query",
             "schema": {
@@ -1791,11 +1806,34 @@
         ],
         "parameters": [
           {
+            "name": "StudentId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "SubjectId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "StudentCode",
             "in": "query",
-            "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "AcademicYear",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           },
           {
@@ -1807,11 +1845,10 @@
             }
           },
           {
-            "name": "Year",
+            "name": "ResultType",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "$ref": "#/components/schemas/AcademicRecordType"
             }
           },
           {
@@ -1837,7 +1874,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubjectExemptionDtoPagedResponse"
+                  "$ref": "#/components/schemas/AcademicRecordDtoPagedResponse"
                 }
               }
             }
@@ -2277,6 +2314,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "semester": {
+            "type": "integer",
+            "format": "int32"
+          },
           "completionDate": {
             "type": "string",
             "format": "date-time"
@@ -2332,7 +2373,7 @@
       },
       "AcademicRecordType": {
         "enum": [
-          "None",
+          "All",
           "Disqualification",
           "Passed",
           "Exempted"
@@ -2475,6 +2516,10 @@
             "format": "double"
           },
           "academicYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "semester": {
             "type": "integer",
             "format": "int32"
           },
@@ -3080,85 +3125,6 @@
         },
         "additionalProperties": false
       },
-      "SubjectExemptionDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "subjectCode": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "subjectName": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "credit": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "type": {
-            "$ref": "#/components/schemas/SubjectType"
-          },
-          "xScore": {
-            "type": "number",
-            "format": "double"
-          },
-          "yScore": {
-            "type": "number",
-            "format": "double"
-          },
-          "zScore": {
-            "type": "number",
-            "format": "double"
-          },
-          "resultType": {
-            "$ref": "#/components/schemas/AcademicRecordType"
-          },
-          "note": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "additionalProperties": false
-      },
-      "SubjectExemptionDtoPagedResponse": {
-        "type": "object",
-        "properties": {
-          "pageIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "data": {
-            "type": [
-              "null",
-              "array"
-            ],
-            "items": {
-              "$ref": "#/components/schemas/SubjectExemptionDto"
-            }
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPage": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
       "SubjectType": {
         "enum": [
           "Compulsory",
@@ -3252,6 +3218,10 @@
             "format": "double"
           },
           "academicYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "semester": {
             "type": "integer",
             "format": "int32"
           },

@@ -68,11 +68,13 @@
     "yScore": "Y Score",
     "zScore": "Z Score",
     "academicYear": "Academic Year",
+    "semester": "Semester",
     "completionDate": "Completion Date",
     "resultType": "Result",
     "note": "Note",
     "search": "Search",
     "searchByStudent": "Search by student name or code",
+    "studentCode": "Student Code",
     "addAcademicRecord": "Add Academic Record",
     "editAcademicRecord": "Edit Academic Record",
     "deleteAcademicRecord": "Delete Academic Record",
@@ -96,9 +98,9 @@
       "max": "{{field}} must be at most {{max}}"
     },
     "yearValidation": {
-      "required": "Academic year is required",
-      "min": "Academic year must be at least {{min}}",
-      "integer": "Academic year must be an integer"
+      "required": "Academic Year is required",
+      "min": "Academic Year must be at least {{min}}",
+      "integer": "Academic Year must be an integer"
     }
   },
   "subject": {

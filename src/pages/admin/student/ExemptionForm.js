@@ -46,6 +46,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
           xScore: finalScore,
           yScore: finalScore,
           zScore: finalScore,
+          resultType: values.resultType,
           note: values.note,
         });
       } else {
@@ -56,6 +57,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
           xScore: finalScore,
           yScore: finalScore,
           zScore: finalScore,
+          resultType: values.resultType,
           note: values.note,
         });
       }
@@ -80,6 +82,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
   const formik = useFormik({
     initialValues: {
       zScore: exemption ? exemption.zScore : '',
+      resultType: exemption ? exemption.resultType : 'PASSED',
       note: exemption ? exemption.note || '' : '',
     },
     validationSchema,
@@ -104,13 +107,13 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
               {t('student.fullName')}: {student?.firstName} {student?.lastName} ({student?.studentCode})
             </Typography>
             <Typography variant="subtitle1" gutterBottom>
-              {t('subjects')}: {isEditing ? exemption?.subjectName : subject?.name} (
-              {isEditing ? exemption?.subjectCode : subject?.subjectCode})
+              {t('subjects')}: {isEditing ? exemption?.subject?.name : subject?.name} (
+              {isEditing ? exemption?.subject?.subjectCode : subject?.subjectCode})
             </Typography>
           </Box>
 
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 id="zScore"

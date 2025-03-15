@@ -19,6 +19,8 @@
   "clear": "Xóa",
   "applyFilters": "Áp Dụng Bộ Lọc",
   "clearFilters": "Xóa Bộ Lọc",
+  "showFilters": "Hiện Bộ Lọc",
+  "hideFilters": "Ẩn Bộ Lọc",
   "page": "Trang",
   "of": "của",
   "moreThan": "nhiều hơn",
@@ -28,6 +30,7 @@
   "logout": "Đăng Xuất",
   "openSettings": "Mở cài đặt",
   "comingSoon": "Sắp ra mắt...",
+  "onlyCode": "Nhập mã sinh viên",
   "login": {
     "title": "Đăng Nhập",
     "username": "Tên đăng nhập",

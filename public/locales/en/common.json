@@ -18,6 +18,8 @@
   "clear": "Clear",
   "applyFilters": "Apply Filters",
   "clearFilters": "Clear Filters",
+  "showFilters": "Show Filters",
+  "hideFilters": "Hide Filters",
   "page": "Page",
   "of": "of",
   "moreThan": "more than",
@@ -27,6 +29,7 @@
   "logout": "Logout",
   "openSettings": "Open settings",
   "comingSoon": "Coming soon...",
+  "onlyCode": "Enter student code only",
   "login": {
     "title": "Sign in",
     "username": "Username",

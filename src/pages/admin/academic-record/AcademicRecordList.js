@@ -1,7 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, TextField } from '@mui/material';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { Box, Button, Typography, Snackbar, Alert, TextField, Grid, MenuItem, FormControl, InputLabel, Select, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import ClearIcon from '@mui/icons-material/Clear';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { academicRecordService } from '../../../services/api';
@@ -9,9 +11,37 @@ import AcademicRecordForm from './AcademicRecordForm';
 import { useTranslation } from 'react-i18next';
 
 const AcademicRecordList = () => {
-  const { t } = useTranslation(['admin', 'common']);
+  const { t, i18n } = useTranslation(['admin', 'common']);
+  const currentLanguage = i18n.language;
+
+  // Direct translation mappings
+  const RESULT_TYPE_TRANSLATIONS = {
+    NONE: {
+      en: 'None',
+      vi: 'Không'
+    },
+    DISQUALIFICATION: {
+      en: 'Disqualification',
+      vi: 'Không đạt'
+    },
+    PASSED: {
+      en: 'Passed',
+      vi: 'Đạt'
+    },
+    EXEMPTED: {
+      en: 'Exempted',
+      vi: 'Miễn học'
+    }
+  };
+
+  // Function to directly get translations from the mapping
+  const getDirectTranslation = (type) => {
+    const lang = i18n.language === 'vi' ? 'vi' : 'en';
+    return RESULT_TYPE_TRANSLATIONS[type]?.[lang] || type;
+  };
   
-  const columns = [
+  // Memoize columns to prevent unnecessary re-renders
+  const columns = useMemo(() => [
     { 
       id: 'student', 
       label: t('academicRecord.student'), 
@@ -28,6 +58,7 @@ const AcademicRecordList = () => {
     { id: 'yScore', label: t('academicRecord.yScore'), minWidth: 100 },
     { id: 'zScore', label: t('academicRecord.zScore'), minWidth: 100 },
     { id: 'academicYear', label: t('academicRecord.academicYear'), minWidth: 150 },
+    { id: 'semester', label: t('academicRecord.semester'), minWidth: 100 },
     { 
       id: 'completionDate', 
       label: t('academicRecord.completionDate'), 
@@ -38,23 +69,9 @@ const AcademicRecordList = () => {
       id: 'resultType', 
       label: t('academicRecord.resultType'), 
       minWidth: 120,
-      render: (row) => {
-        const type = row.resultType;
-        switch (type) {
-          case 'None':
-            return t('academicRecord.resultTypes.none');
-          case 'Disqualification':
-            return t('academicRecord.resultTypes.disqualification');
-          case 'Passed':
-            return t('academicRecord.resultTypes.passed');
-          case 'Exempted':
-            return t('academicRecord.resultTypes.exempted');
-          default:
-            return type;
-        }
-      }
+      render: (row) => getDirectTranslation(row.resultType)
     },
-  ];
+  ], [t, i18n.language]);
 
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -65,18 +82,27 @@ const AcademicRecordList = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [searchInput, setSearchInput] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Filter states
+  const [studentCodeFilter, setStudentCodeFilter] = useState('');
+  const [academicYearFilter, setAcademicYearFilter] = useState('');
+  const [semesterFilter, setSemesterFilter] = useState('');
+  const [resultTypeFilter, setResultTypeFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     message: '',
     severity: 'success',
   });
 
-  // Initialize searchInput with searchQuery for consistency
-  useEffect(() => {
-    setSearchInput(searchQuery);
-  }, [searchQuery]);
+  // Memoize the resultTypeOptions to prevent unnecessary re-renders
+  const resultTypeOptions = useMemo(() => [
+    { value: '', label: t('common:all') },
+    { value: 'PASSED', label: getDirectTranslation('PASSED') },
+    { value: 'DISQUALIFICATION', label: getDirectTranslation('DISQUALIFICATION') },
+    { value: 'EXEMPTED', label: getDirectTranslation('EXEMPTED') },
+  ], [t, i18n.language]);
 
   const fetchRecords = useCallback(async () => {
     setLoading(true);
@@ -86,9 +112,10 @@ const AcademicRecordList = () => {
         PageSize: pageSize,
       };
       
-      if (searchQuery) {
-        params.StudentCode = searchQuery;
-      }
+      if (studentCodeFilter) params.StudentCode = studentCodeFilter;
+      if (academicYearFilter) params.AcademicYear = academicYearFilter;
+      if (semesterFilter) params.Semester = semesterFilter;
+      if (resultTypeFilter) params.ResultType = resultTypeFilter;
       
       const response = await academicRecordService.getAll(params);
       setRecords(response.data || []);
@@ -102,13 +129,12 @@ const AcademicRecordList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, searchQuery, t]);
+  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, t]);
 
-  // Replace with a single useEffect that calls fetchRecords when needed
+  // Fetch records when any filter or pagination changes
   useEffect(() => {
-    // This effect will run when page, pageSize, or searchQuery changes
     fetchRecords();
-  }, [page, pageSize, searchQuery, fetchRecords]);
+  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, fetchRecords]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
@@ -163,22 +189,48 @@ const AcademicRecordList = () => {
     }
   };
 
-  const handleFilterChange = (event) => {
-    setSearchInput(event.target.value);
-  };
-
-  const handleSearch = () => {
-    setSearchQuery(searchInput);
+  const handleStudentCodeChange = (event) => {
+    setStudentCodeFilter(event.target.value);
     setPage(1);
-    // We don't need to explicitly call fetchRecords here anymore
-    // The useEffect will handle that when searchQuery changes
   };
 
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
+  const handleAcademicYearChange = (event) => {
+    setAcademicYearFilter(event.target.value);
+    setPage(1);
   };
+
+  const handleSemesterChange = (event) => {
+    setSemesterFilter(event.target.value);
+    setPage(1);
+  };
+
+  const handleResultTypeChange = (event) => {
+    setResultTypeFilter(event.target.value);
+    setPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setStudentCodeFilter('');
+    setAcademicYearFilter('');
+    setSemesterFilter('');
+    setResultTypeFilter('');
+    setPage(1);
+  };
+
+  const handleToggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear; i >= currentYear - 10; i--) {
+      years.push(i);
+    }
+    return years;
+  };
+
+  const yearOptions = generateYearOptions();
 
   return (
     <Box>
@@ -186,35 +238,104 @@ const AcademicRecordList = () => {
         <Typography variant="h4" component="h1">
           {t('academicRecords')}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenForm}
-        >
-          {t('academicRecord.addAcademicRecord')}
-        </Button>
+        <Box>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<FilterAltIcon />}
+            onClick={handleToggleFilters}
+            sx={{ mr: 1 }}
+          >
+            {showFilters ? t('common:hideFilters') : t('common:showFilters')}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleOpenForm}
+          >
+            {t('academicRecord.addAcademicRecord')}
+          </Button>
+        </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', mb: 2 }}>
-        <TextField
-          label={t('academicRecord.searchByStudent')}
-          variant="outlined"
-          size="small"
-          value={searchInput}
-          onChange={handleFilterChange}
-          onKeyDown={handleKeyPress}
-          sx={{ mr: 1, flexGrow: 1 }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<SearchIcon />}
-          onClick={handleSearch}
-        >
-          {t('academicRecord.search')}
-        </Button>
-      </Box>
+      {showFilters && (
+        <Paper sx={{ p: 2, mb: 2 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label={t('academicRecord.studentCode')}
+                variant="outlined"
+                size="small"
+                value={studentCodeFilter}
+                onChange={handleStudentCodeChange}
+                placeholder={t('common:onlyCode')}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="academicYear-label">{t('academicRecord.academicYear')}</InputLabel>
+                <Select
+                  labelId="academicYear-label"
+                  id="academicYear"
+                  value={academicYearFilter}
+                  label={t('academicRecord.academicYear')}
+                  onChange={handleAcademicYearChange}
+                >
+                  <MenuItem value="">{t('common:all')}</MenuItem>
+                  {yearOptions.map((year) => (
+                    <MenuItem key={year} value={year}>{year}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="semester-label">{t('academicRecord.semester')}</InputLabel>
+                <Select
+                  labelId="semester-label"
+                  id="semester"
+                  value={semesterFilter}
+                  label={t('academicRecord.semester')}
+                  onChange={handleSemesterChange}
+                >
+                  <MenuItem value="">{t('common:all')}</MenuItem>
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
+                    <MenuItem key={semester} value={semester}>{semester}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <FormControl fullWidth size="small">
+                  <InputLabel id="resultType-label">{t('academicRecord.resultType')}</InputLabel>
+                  <Select
+                    labelId="resultType-label"
+                    id="resultType"
+                    value={resultTypeFilter}
+                    label={t('academicRecord.resultType')}
+                    onChange={handleResultTypeChange}
+                  >
+                    {resultTypeOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<ClearIcon />}
+                  onClick={handleClearFilters}
+                >
+                  {t('common:clear')}
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
+      )}
 
       <DataTable
         columns={columns}
@@ -249,11 +370,13 @@ const AcademicRecordList = () => {
       <Snackbar
         open={alertInfo.open}
         autoHideDuration={6000}
-        onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+        onClose={() => setAlertInfo(prev => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert
-          onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+          onClose={() => setAlertInfo(prev => ({ ...prev, open: false }))}
           severity={alertInfo.severity}
+          variant="filled"
         >
           {alertInfo.message}
         </Alert>

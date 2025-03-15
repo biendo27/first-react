@@ -167,8 +167,8 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
             ) : (
               exemptions.map((exemption) => (
                 <TableRow key={exemption.id}>
-                  <TableCell>{exemption.subjectCode}</TableCell>
-                  <TableCell>{exemption.subjectName}</TableCell>
+                  <TableCell>{exemption.subject?.subjectCode || '-'}</TableCell>
+                  <TableCell>{exemption.subject?.name || '-'}</TableCell>
                   <TableCell>{exemption.xScore.toFixed(2)}</TableCell>
                   <TableCell>{exemption.yScore.toFixed(2)}</TableCell>
                   <TableCell>{exemption.zScore.toFixed(2)}</TableCell>

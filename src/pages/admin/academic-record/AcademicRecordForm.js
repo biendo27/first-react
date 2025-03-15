@@ -31,6 +31,13 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
       .required(t('academicRecord.yearValidation.required'))
       .min(2000, t('academicRecord.yearValidation.min', { min: 2000 }))
       .integer(t('academicRecord.yearValidation.integer')),
+    semester: Yup.number()
+      .required(t('common:fieldRequired', { field: t('academicRecord.semester') }))
+      .min(1, t('common:numberRange', { min: 1, max: 8 }))
+      .max(8, t('common:numberRange', { min: 1, max: 8 }))
+      .integer(),
+    resultType: Yup.string()
+      .required(t('common:fieldRequired', { field: t('academicRecord.resultType') })),
     completionDate: Yup.date(),
     note: Yup.string(),
   });
@@ -49,6 +56,8 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
     yScore: academicRecord?.yScore || '',
     zScore: academicRecord?.zScore || '',
     academicYear: academicRecord?.academicYear || new Date().getFullYear(),
+    semester: academicRecord?.semester || 1,
+    resultType: academicRecord?.resultType || 'PASSED',
     completionDate: formatDateForForm(academicRecord?.completionDate) || formatDateForForm(new Date()),
     note: academicRecord?.note || '',
   };
@@ -83,6 +92,7 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
         yScore: Number(values.yScore),
         zScore: Number(values.zScore),
         academicYear: Number(values.academicYear),
+        semester: Number(values.semester),
         // The API interceptor will handle ISO 8601 conversion
         completionDate: values.completionDate || null,
       };
@@ -111,6 +121,17 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
     value: subject.id,
     label: `${subject.name} (${subject.subjectCode})`,
   }));
+
+  const semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8].map(semester => ({
+    value: semester,
+    label: `${t('academicRecord.semester')} ${semester}`,
+  }));
+
+  const resultTypeOptions = [
+    { value: 'PASSED', label: t('academicRecord.resultTypes.passed') },
+    { value: 'DISQUALIFICATION', label: t('academicRecord.resultTypes.disqualification') },
+    { value: 'EXEMPTED', label: t('academicRecord.resultTypes.exempted') },
+  ];
 
   return (
     <FormDialog
@@ -164,6 +185,21 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
         name="academicYear"
         label={t('academicRecord.academicYear')}
         type="number"
+        required
+        inputProps={{ min: "2000" }}
+      />
+      <FormField
+        name="semester"
+        label={t('academicRecord.semester')}
+        type="select"
+        options={semesterOptions}
+        required
+      />
+      <FormField
+        name="resultType"
+        label={t('academicRecord.resultType')}
+        type="select"
+        options={resultTypeOptions}
         required
       />
       <FormField
