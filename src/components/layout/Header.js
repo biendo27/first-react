@@ -8,6 +8,8 @@ import {
   MenuItem,
   Box,
   Avatar,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +22,8 @@ const Header = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -73,7 +77,7 @@ const Header = ({ onMenuClick }) => {
         </Typography>
         
         <Box sx={{ ml: 'auto' }}>
-          <LanguageSwitcher />
+          <LanguageSwitcher compact={isMobile} />
         </Box>
         
         <div>

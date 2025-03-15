@@ -48,6 +48,7 @@
   "dashboardDescription": "Bảng điều khiển này cung cấp các công cụ toàn diện để quản lý hồ sơ học tập, lớp hành chính, khóa học, chuyên ngành, sinh viên, môn học và chương trình đào tạo. Sử dụng menu điều hướng để truy cập các phần khác nhau của hệ thống.",
   "major": {
     "name": "Tên",
+    "majorCode": "Mã Chuyên Ngành",
     "createdDate": "Ngày Tạo",
     "addMajor": "Thêm Chuyên Ngành",
     "editMajor": "Sửa Chuyên Ngành",

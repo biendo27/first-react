@@ -12,7 +12,7 @@ const MajorList = () => {
   
   const columns = [
     { id: 'name', label: t('major.name'), minWidth: 200 },
-    { id: 'majorCode', label: t('subject.subjectCode'), minWidth: 150 },
+    { id: 'majorCode', label: t('major.majorCode'), minWidth: 150 },
     { 
       id: 'educationMode', 
       label: t('educationModes'), 

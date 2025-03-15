@@ -17,7 +17,7 @@ const MajorForm = ({ open, onClose, major }) => {
       .typeError(t('common:mustBeNumber'))
       .positive(t('common:mustBePositive'))
       .integer(t('common:mustBeInteger'))
-      .required(t('common:fieldRequired', { field: t('subject.subjectCode') })),
+      .required(t('common:fieldRequired', { field: t('major.majorCode') })),
     educationModeId: Yup.string().nullable(),
   });
 
@@ -85,7 +85,7 @@ const MajorForm = ({ open, onClose, major }) => {
       />
       <FormField
         name="majorCode"
-        label={t('subject.subjectCode')}
+        label={t('major.majorCode')}
         type="number"
         required
       />

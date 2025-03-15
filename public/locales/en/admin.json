@@ -49,6 +49,7 @@
   "dashboardDescription": "This dashboard provides comprehensive tools for managing academic records, administrative classes, course batches, majors, students, subjects, and training programs. Use the navigation menu to access different sections of the system.",
   "major": {
     "name": "Name",
+    "majorCode": "Major Code",
     "createdDate": "Created Date",
     "addMajor": "Add Major",
     "editMajor": "Edit Major",

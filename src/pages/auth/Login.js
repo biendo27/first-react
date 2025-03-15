@@ -7,6 +7,8 @@ import {
   Button,
   Alert,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/api';
@@ -26,6 +28,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
@@ -62,7 +66,7 @@ const Login = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-          <LanguageSwitcher />
+          <LanguageSwitcher compact={isMobile} />
         </Box>
         
         <Typography variant="h5" component="h1" gutterBottom align="center">
