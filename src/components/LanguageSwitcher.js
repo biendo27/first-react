@@ -7,10 +7,8 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  Box,
   IconButton,
 } from '@mui/material';
-import LanguageIcon from '@mui/icons-material/Language';
 import CheckIcon from '@mui/icons-material/Check';
 import ReactCountryFlag from 'react-country-flag';
 
@@ -30,7 +28,7 @@ const languages = [
 ];
 
 const LanguageSwitcher = ({ compact = false }) => {
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   

@@ -4,7 +4,6 @@ import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { academicRecordService, studentService, subjectService } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
-import { formatDateForDisplay, parseDateFromApi } from '../../../utils/dateUtils';
 
 const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
   const { t } = useTranslation(['admin', 'common']);

@@ -4,7 +4,6 @@ import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { courseBatchService } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
-import { parseDateFromApi } from '../../../utils/dateUtils';
 
 const CourseBatchForm = ({ open, onClose, courseBatch }) => {
   const [loading, setLoading] = useState(false);
