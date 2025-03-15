@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Box, Button, Typography, Snackbar, Alert, TextField, Grid, MenuItem, FormControl, InputLabel, Select, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import DataTable from '../../../components/common/DataTable';
@@ -11,35 +10,8 @@ import AcademicRecordForm from './AcademicRecordForm';
 import { useTranslation } from 'react-i18next';
 
 const AcademicRecordList = () => {
-  const { t, i18n } = useTranslation(['admin', 'common']);
-  const currentLanguage = i18n.language;
+  const { t } = useTranslation(['admin', 'common']);
 
-  // Direct translation mappings
-  const RESULT_TYPE_TRANSLATIONS = {
-    NONE: {
-      en: 'None',
-      vi: 'Không'
-    },
-    DISQUALIFICATION: {
-      en: 'Disqualification',
-      vi: 'Không đạt'
-    },
-    PASSED: {
-      en: 'Passed',
-      vi: 'Đạt'
-    },
-    EXEMPTED: {
-      en: 'Exempted',
-      vi: 'Miễn học'
-    }
-  };
-
-  // Function to directly get translations from the mapping
-  const getDirectTranslation = (type) => {
-    const lang = i18n.language === 'vi' ? 'vi' : 'en';
-    return RESULT_TYPE_TRANSLATIONS[type]?.[lang] || type;
-  };
-  
   // Memoize columns to prevent unnecessary re-renders
   const columns = useMemo(() => [
     { 
@@ -69,9 +41,9 @@ const AcademicRecordList = () => {
       id: 'resultType', 
       label: t('academicRecord.resultType'), 
       minWidth: 120,
-      render: (row) => getDirectTranslation(row.resultType)
+      render: (row) => row.resultType ? t(`academicRecord.resultTypes.${row.resultType.toLowerCase()}`) : t('common:noData')
     },
-  ], [t, i18n.language]);
+  ], [t]);
 
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -96,13 +68,13 @@ const AcademicRecordList = () => {
     severity: 'success',
   });
 
-  // Memoize the resultTypeOptions to prevent unnecessary re-renders
+  // Update resultTypeOptions to use the same direct translation approach
   const resultTypeOptions = useMemo(() => [
     { value: '', label: t('common:all') },
-    { value: 'PASSED', label: getDirectTranslation('PASSED') },
-    { value: 'DISQUALIFICATION', label: getDirectTranslation('DISQUALIFICATION') },
-    { value: 'EXEMPTED', label: getDirectTranslation('EXEMPTED') },
-  ], [t, i18n.language]);
+    { value: 'PASSED', label: t('academicRecord.resultTypes.passed') },
+    { value: 'DISQUALIFICATION', label: t('academicRecord.resultTypes.disqualification') },
+    { value: 'EXEMPTED', label: t('academicRecord.resultTypes.exempted') },
+  ], [t]);
 
   const fetchRecords = useCallback(async () => {
     setLoading(true);
