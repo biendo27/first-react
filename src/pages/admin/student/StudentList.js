@@ -30,7 +30,12 @@ const StudentList = () => {
     },
     { id: 'email', label: t('student.email'), minWidth: 200 },
     { id: 'phoneNumber', label: t('student.phoneNumber'), minWidth: 150 },
-    { id: 'status', label: t('student.status'), minWidth: 120 },
+    { 
+      id: 'status', 
+      label: t('student.status'), 
+      minWidth: 120,
+      render: (row) => row.status ? t(`student.statusTypes.${row.status.toLowerCase()}`) : t('common:noData')
+    },
     { 
       id: 'administrativeClass',
       label: t('student.class'),

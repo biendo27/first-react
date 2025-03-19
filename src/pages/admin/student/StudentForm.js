@@ -30,9 +30,9 @@ const StudentForm = ({ open, onClose, student }) => {
   });
 
   const studentStatusTypes = [
-    { value: 'Active', label: t('common:statusActive') },
-    { value: 'Graduated', label: t('common:statusGraduated') },
-    { value: 'Suspended', label: t('common:statusSuspended') },
+    { value: 'Active', label: t('student.statusTypes.active') },
+    { value: 'Graduated', label: t('student.statusTypes.graduated') },
+    { value: 'Suspended', label: t('student.statusTypes.suspended') },
   ];
 
   const initialValues = {

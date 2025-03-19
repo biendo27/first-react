@@ -156,14 +156,19 @@
     "exemptionError": "Lỗi khi lưu bảo lưu học phần"
   },
   "student": {
+    "studentCode": "Mã sinh viên",
+    "fullName": "Họ và tên",
     "firstName": "Tên",
     "lastName": "Họ",
-    "fullName": "Họ và Tên",
-    "studentCode": "Mã Sinh Viên",
+    "dateOfBirth": "Ngày sinh",
     "email": "Email",
-    "dateOfBirth": "Ngày Sinh",
-    "phoneNumber": "Số Điện Thoại",
-    "status": "Trạng Thái",
+    "phoneNumber": "Số điện thoại",
+    "status": "Trạng thái",
+    "statusTypes": {
+      "active": "Đang học",
+      "graduated": "Đã tốt nghiệp",
+      "suspended": "Bị đình chỉ"
+    },
     "class": "Lớp",
     "major": "Chuyên Ngành",
     "addStudent": "Thêm Sinh Viên",
@@ -175,7 +180,7 @@
     "studentSaveSuccess": "Đã lưu sinh viên thành công",
     "studentSaveError": "Không thể lưu sinh viên",
     "studentDetails": "Thông Tin Sinh Viên",
-    "actions": "Thao Tác"
+    "actions": "Thao tác"
   },
   "administrativeClass": {
     "name": "Tên",

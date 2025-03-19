@@ -157,14 +157,19 @@
     "exemptionError": "Error saving exemption"
   },
   "student": {
+    "studentCode": "Student Code",
+    "fullName": "Full Name",
     "firstName": "First Name",
     "lastName": "Last Name",
-    "fullName": "Full Name",
-    "studentCode": "Student Code",
-    "email": "Email",
     "dateOfBirth": "Date of Birth",
+    "email": "Email",
     "phoneNumber": "Phone Number",
     "status": "Status",
+    "statusTypes": {
+      "active": "Active",
+      "graduated": "Graduated",
+      "suspended": "Suspended"
+    },
     "class": "Class",
     "major": "Major",
     "addStudent": "Add Student",

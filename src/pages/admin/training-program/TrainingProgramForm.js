@@ -17,8 +17,8 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
       .required(t('common:fieldRequired', { field: t('academicYear') }))
       .min(2000, t('trainingProgram.academicYearMin', { min: 2000 }))
       .max(2100, t('trainingProgram.academicYearMax', { max: 2100 })),
-    subjectId: Yup.string().required(t('common:fieldRequired', { field: t('subject.name') })),
-    majorId: Yup.string().required(t('common:fieldRequired', { field: t('major.name') })),
+    subjectId: Yup.string().required(t('common:fieldRequired', { field: t('subjects') })),
+    majorId: Yup.string().required(t('common:fieldRequired', { field: t('majors') })),
     courseBatchId: Yup.string().required(t('common:fieldRequired', { field: t('courseBatch') })),
   });
 
@@ -124,7 +124,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
           />
           <FormField
             name="subjectId"
-            label={t('subject.name')}
+            label={t('subjects')}
             type="select"
             options={subjectOptions}
             required
@@ -132,7 +132,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
           />
           <FormField
             name="majorId"
-            label={t('major.name')}
+            label={t('majors')}
             type="select"
             options={majorOptions}
             required
