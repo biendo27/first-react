@@ -16,6 +16,7 @@
     "academicYearMax": "Năm học không được vượt quá {{max}}"
   },
   "addTrainingProgram": "Thêm Chương Trình Đào Tạo",
+  "order": "Thứ tự",
   "subjectExemptions": "Bảo Lưu Học Phần",
   "exemptionsButton": "Bảo Lưu",
   "semester": "Học Kỳ",
