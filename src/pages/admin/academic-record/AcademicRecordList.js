@@ -26,8 +26,6 @@ const AcademicRecordList = () => {
       minWidth: 200,
       render: (row) => `${row.subject?.name} (${row.subject?.subjectCode})`
     },
-    { id: 'xScore', label: t('academicRecord.xScore'), minWidth: 100 },
-    { id: 'yScore', label: t('academicRecord.yScore'), minWidth: 100 },
     { id: 'zScore', label: t('academicRecord.zScore'), minWidth: 100 },
     { id: 'academicYear', label: t('academicRecord.academicYear'), minWidth: 150 },
     { id: 'semester', label: t('academicRecord.semester'), minWidth: 100 },

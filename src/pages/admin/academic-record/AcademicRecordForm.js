@@ -15,14 +15,6 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
   const validationSchema = Yup.object({
     studentId: Yup.string().required(t('common:fieldRequired', { field: t('academicRecord.student') })),
     subjectId: Yup.string().required(t('common:fieldRequired', { field: t('academicRecord.subject') })),
-    xScore: Yup.number()
-      .required(t('academicRecord.scoreValidation.required', { field: t('academicRecord.xScore') }))
-      .min(0, t('academicRecord.scoreValidation.min', { field: t('academicRecord.xScore'), min: 0 }))
-      .max(10, t('academicRecord.scoreValidation.max', { field: t('academicRecord.xScore'), max: 10 })),
-    yScore: Yup.number()
-      .required(t('academicRecord.scoreValidation.required', { field: t('academicRecord.yScore') }))
-      .min(0, t('academicRecord.scoreValidation.min', { field: t('academicRecord.yScore'), min: 0 }))
-      .max(10, t('academicRecord.scoreValidation.max', { field: t('academicRecord.yScore'), max: 10 })),
     zScore: Yup.number()
       .required(t('academicRecord.scoreValidation.required', { field: t('academicRecord.zScore') }))
       .min(0, t('academicRecord.scoreValidation.min', { field: t('academicRecord.zScore'), min: 0 }))
@@ -52,8 +44,6 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
   const initialValues = {
     studentId: academicRecord?.student?.id || '',
     subjectId: academicRecord?.subject?.id || '',
-    xScore: academicRecord?.xScore || '',
-    yScore: academicRecord?.yScore || '',
     zScore: academicRecord?.zScore || '',
     academicYear: academicRecord?.academicYear || new Date().getFullYear(),
     semester: academicRecord?.semester || 1,
@@ -88,8 +78,9 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
     try {
       const formattedValues = {
         ...values,
-        xScore: Number(values.xScore),
-        yScore: Number(values.yScore),
+        // Set xScore and yScore to be the same as zScore
+        xScore: Number(values.zScore),
+        yScore: Number(values.zScore),
         zScore: Number(values.zScore),
         academicYear: Number(values.academicYear),
         semester: Number(values.semester),
@@ -159,20 +150,6 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
         options={subjectOptions}
         required
         disabled={fetchLoading}
-      />
-      <FormField
-        name="xScore"
-        label={t('academicRecord.xScore')}
-        type="number"
-        required
-        inputProps={{ step: "0.1", min: "0", max: "10" }}
-      />
-      <FormField
-        name="yScore"
-        label={t('academicRecord.yScore')}
-        type="number"
-        required
-        inputProps={{ step: "0.1", min: "0", max: "10" }}
       />
       <FormField
         name="zScore"
