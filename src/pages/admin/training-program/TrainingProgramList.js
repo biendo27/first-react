@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Button, Typography, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import { trainingProgramService, courseBatchService, majorService } from '../../../services/api';
 import TrainingProgramForm from './TrainingProgramForm';
+import DuplicateTrainingProgramDialog from './DuplicateTrainingProgramDialog';
 import { useTranslation } from 'react-i18next';
 
 const TrainingProgramList = () => {
@@ -48,6 +50,7 @@ const TrainingProgramList = () => {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     message: '',
@@ -179,20 +182,48 @@ const TrainingProgramList = () => {
     setPage(1); // Reset to first page when filter changes
   };
 
+  const handleDuplicate = () => {
+    setDuplicateDialogOpen(true);
+  };
+
+  const handleDuplicateClose = (refreshData) => {
+    setDuplicateDialogOpen(false);
+    if (refreshData) {
+      setAlertInfo({
+        open: true,
+        message: t('trainingProgramDuplicateSuccess', 'Training program duplicated successfully'),
+        severity: 'success',
+      });
+      fetchPrograms();
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
           {t('admin:trainingPrograms')}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenForm}
-        >
-          {t('admin:addTrainingProgram')}
-        </Button>
+        <Box>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<ContentCopyIcon />}
+            onClick={handleDuplicate}
+            sx={{ mr: 2 }}
+            disabled={!selectedCourseBatchId}
+          >
+            {t('admin:duplicateTrainingProgram', 'Duplicate')}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleOpenForm}
+          >
+            {t('admin:addTrainingProgram')}
+          </Button>
+        </Box>
       </Box>
 
       {/* Filters section */}
@@ -280,6 +311,14 @@ const TrainingProgramList = () => {
         message={t('deleteConfirmation', 'Are you sure you want to delete this training program?')}
         loading={deleteLoading}
       />
+
+      {duplicateDialogOpen && (
+        <DuplicateTrainingProgramDialog
+          open={duplicateDialogOpen}
+          onClose={handleDuplicateClose}
+          sourceBatchId={selectedCourseBatchId}
+        />
+      )}
 
       <Snackbar
         open={alertInfo.open}

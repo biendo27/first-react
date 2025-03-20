@@ -16,6 +16,13 @@
     "academicYearMax": "Năm học không được vượt quá {{max}}"
   },
   "addTrainingProgram": "Thêm Chương Trình Đào Tạo",
+  "duplicateTrainingProgram": "Sao Chép",
+  "duplicateDescription": "Sao chép tất cả các mục chương trình đào tạo từ khóa đã chọn sang khóa khác.",
+  "destinationCourseBatch": "Khóa Đích",
+  "selectDestinationCourseBatch": "Vui lòng chọn khóa đích",
+  "duplicateError": "Không thể sao chép chương trình đào tạo",
+  "duplicating": "Đang sao chép...",
+  "trainingProgramDuplicateSuccess": "Đã sao chép chương trình đào tạo thành công",
   "order": "Thứ tự",
   "subjectExemptions": "Bảo Lưu Học Phần",
   "exemptionsButton": "Bảo Lưu",

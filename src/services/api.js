@@ -181,7 +181,16 @@ export const educationModeService = createCrudService('education-modes');
 export const majorService = createCrudService('majors');
 export const studentService = createCrudService('students');
 export const subjectService = createCrudService('subjects');
-export const trainingProgramService = createCrudService('training-programs');
+export const trainingProgramService = {
+  ...createCrudService('training-programs'),
+  duplicate: async (courseBatchSourceId, courseBatchDestinationId) => {
+    const response = await api.post('/v1/training-programs/duplicate', {
+      courseBatchSourceId,
+      courseBatchDestinationId
+    });
+    return response.data;
+  }
+};
 
 // Special services with custom endpoints
 export const subjectExemptionService = {

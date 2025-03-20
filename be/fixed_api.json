@@ -2443,6 +2443,47 @@
         ]
       }
     },
+    "/v1/training-programs/duplicate": {
+      "post": {
+        "tags": [
+          "TrainingProgram"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DuplicateTrainingProgramDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "Admin"
+            ]
+          }
+        ]
+      }
+    },
     "/v1/training-programs/import": {
       "post": {
         "tags": [
@@ -3049,6 +3090,24 @@
               "null",
               "string"
             ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "DuplicateTrainingProgramDto": {
+        "required": [
+          "courseBatchDestinationId",
+          "courseBatchSourceId"
+        ],
+        "type": "object",
+        "properties": {
+          "courseBatchSourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "courseBatchDestinationId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "additionalProperties": false
