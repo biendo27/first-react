@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as Yup from 'yup';
 import { Snackbar, Alert } from '@mui/material';
 import FormDialog from '../../../components/common/FormDialog';
@@ -48,15 +48,14 @@ const StudentForm = ({ open, onClose, student }) => {
     status: student?.status || 'Active',
   };
 
-  const fetchClasses = async () => {
+  const fetchClasses = useCallback(async () => {
     setClassesLoading(true);
     try {
-      const response = await administrativeClassService.getAll({
-        PageSize: 100,  // Get a large number to populate dropdown
-      });
-      setClasses(response.data || []);
+      const res = await administrativeClassService.getAll({ PageSize: 100 });
+      setClasses(res.data || []);
     } catch (error) {
       const formattedError = handleApiError(error, t('common:error.loading'));
+      console.error('Error fetching classes:', formattedError);
       setError({
         show: true,
         message: formattedError.message
@@ -64,11 +63,11 @@ const StudentForm = ({ open, onClose, student }) => {
     } finally {
       setClassesLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchClasses();
-  }, []);
+  }, [fetchClasses]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);

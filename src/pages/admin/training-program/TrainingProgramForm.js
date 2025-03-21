@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as Yup from 'yup';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
@@ -42,7 +42,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
     courseBatchId: program?.courseBatch?.id || '',
   };
 
-  const fetchDependencies = async () => {
+  const fetchDependencies = useCallback(async () => {
     setDependenciesLoading(true);
     setError(null);
     try {
@@ -62,13 +62,13 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
     } finally {
       setDependenciesLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     if (open) {
       fetchDependencies();
     }
-  }, [open]);
+  }, [open, fetchDependencies]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);

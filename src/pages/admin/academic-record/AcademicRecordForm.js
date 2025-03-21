@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
-import { Box, Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert } from '@mui/material';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
 import { academicRecordService, studentService, subjectService, handleApiError } from '../../../services/api';
