@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
+import { Snackbar, Alert } from '@mui/material';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
-import { studentService, administrativeClassService } from '../../../services/api';
+import { studentService, administrativeClassService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const StudentForm = ({ open, onClose, student }) => {
@@ -10,6 +11,7 @@ const StudentForm = ({ open, onClose, student }) => {
   const [loading, setLoading] = useState(false);
   const [classes, setClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(false);
+  const [error, setError] = useState({ show: false, message: '' });
   
   // Format date for form display (YYYY-MM-DD for HTML date input)
   const formatDateForForm = (dateValue) => {
@@ -54,7 +56,11 @@ const StudentForm = ({ open, onClose, student }) => {
       });
       setClasses(response.data || []);
     } catch (error) {
-      console.error('Error fetching classes:', error);
+      const formattedError = handleApiError(error, t('common:error.loading'));
+      setError({
+        show: true,
+        message: formattedError.message
+      });
     } finally {
       setClassesLoading(false);
     }
@@ -78,7 +84,11 @@ const StudentForm = ({ open, onClose, student }) => {
       resetForm();
       onClose(true);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      const formattedError = handleApiError(error, t('student.submitError'));
+      setError({
+        show: true,
+        message: formattedError.message
+      });
     } finally {
       setLoading(false);
       setSubmitting(false);
@@ -91,70 +101,87 @@ const StudentForm = ({ open, onClose, student }) => {
   }));
 
   return (
-    <FormDialog
-      open={open}
-      onClose={() => onClose(false)}
-      title={student ? t('student.editStudent') : t('student.addStudent')}
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-      loading={loading || classesLoading}
-      maxWidth="md"
-    >
-      {() => (
-        <>
-          <FormField
-            name="studentCode"
-            label={t('student.studentCode')}
-            required
-          />
-          <FormField
-            name="firstName"
-            label={t('student.firstName')}
-            required
-          />
-          <FormField
-            name="lastName"
-            label={t('student.lastName')}
-            required
-          />
-          <FormField
-            name="dateOfBirth"
-            label={t('student.dateOfBirth')}
-            type="date"
-            required
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <FormField
-            name="email"
-            label={t('student.email')}
-            type="email"
-            required
-          />
-          <FormField
-            name="phoneNumber"
-            label={t('student.phoneNumber')}
-          />
-          <FormField
-            name="administrativeClassId"
-            label={t('student.class')}
-            type="select"
-            options={classOptions}
-            required
-            disabled={classesLoading}
-          />
-          <FormField
-            name="status"
-            label={t('student.status')}
-            type="select"
-            options={studentStatusTypes}
-            required
-          />
-        </>
-      )}
-    </FormDialog>
+    <>
+      <FormDialog
+        open={open}
+        onClose={() => onClose(false)}
+        title={student ? t('student.editStudent') : t('student.addStudent')}
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+        loading={loading || classesLoading}
+        maxWidth="md"
+      >
+        {() => (
+          <>
+            <FormField
+              name="studentCode"
+              label={t('student.studentCode')}
+              required
+            />
+            <FormField
+              name="firstName"
+              label={t('student.firstName')}
+              required
+            />
+            <FormField
+              name="lastName"
+              label={t('student.lastName')}
+              required
+            />
+            <FormField
+              name="dateOfBirth"
+              label={t('student.dateOfBirth')}
+              type="date"
+              required
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <FormField
+              name="email"
+              label={t('student.email')}
+              type="email"
+              required
+            />
+            <FormField
+              name="phoneNumber"
+              label={t('student.phoneNumber')}
+            />
+            <FormField
+              name="administrativeClassId"
+              label={t('student.class')}
+              type="select"
+              options={classOptions}
+              required
+              disabled={classesLoading}
+            />
+            <FormField
+              name="status"
+              label={t('student.status')}
+              type="select"
+              options={studentStatusTypes}
+              required
+            />
+          </>
+        )}
+      </FormDialog>
+
+      <Snackbar
+        open={error.show}
+        autoHideDuration={6000}
+        onClose={() => setError({ ...error, show: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setError({ ...error, show: false })}
+          severity="error"
+          variant="filled"
+        >
+          {error.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

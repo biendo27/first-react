@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { subjectExemptionService } from '../../../services/api';
+import { subjectExemptionService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
@@ -63,17 +63,8 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
       }
       onClose(true); // Refresh data after successful submission
     } catch (err) {
-      console.error('Error saving exemption:', err);
-      
-      // Extract only the detail field from the error response
-      let errorMessage = t('common:saveError', { resource: t('exemption.title') });
-      
-      if (err.response && err.response.data && err.response.data.detail) {
-        // Just display the detail field directly
-        errorMessage = err.response.data.detail;
-      }
-      
-      setError(errorMessage);
+      const formattedError = handleApiError(err, t('common:saveError', { resource: t('exemption.title') }));
+      setError(formattedError.message);
     } finally {
       setLoading(false);
     }

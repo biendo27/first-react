@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
+import { Box, Snackbar, Alert } from '@mui/material';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
-import { academicRecordService, studentService, subjectService } from '../../../services/api';
+import { academicRecordService, studentService, subjectService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
@@ -11,6 +12,7 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
   const [students, setStudents] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
+  const [error, setError] = useState({ show: false, message: '' });
 
   const validationSchema = Yup.object({
     studentId: Yup.string().required(t('common:fieldRequired', { field: t('academicRecord.student') })),
@@ -96,7 +98,11 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
       resetForm();
       onClose(true);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      const formattedError = handleApiError(error, t('academicRecord.createError'));
+      setError({
+        show: true,
+        message: formattedError.message
+      });
     } finally {
       setLoading(false);
       setSubmitting(false);
@@ -125,75 +131,92 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
   ];
 
   return (
-    <FormDialog
-      open={open}
-      onClose={() => onClose(false)}
-      title={academicRecord ? t('academicRecord.editAcademicRecord') : t('academicRecord.addAcademicRecord')}
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-      loading={loading || fetchLoading}
-      maxWidth="md"
-    >
-      <FormField
-        name="studentId"
-        label={t('academicRecord.student')}
-        type="select"
-        options={studentOptions}
-        required
-        disabled={fetchLoading}
-      />
-      <FormField
-        name="subjectId"
-        label={t('academicRecord.subject')}
-        type="select"
-        options={subjectOptions}
-        required
-        disabled={fetchLoading}
-      />
-      <FormField
-        name="zScore"
-        label={t('academicRecord.zScore')}
-        type="number"
-        required
-        inputProps={{ step: "0.1", min: "0", max: "10" }}
-      />
-      <FormField
-        name="academicYear"
-        label={t('academicRecord.academicYear')}
-        type="number"
-        required
-        inputProps={{ min: "2000" }}
-      />
-      <FormField
-        name="semester"
-        label={t('academicRecord.semester')}
-        type="select"
-        options={semesterOptions}
-        required
-      />
-      <FormField
-        name="resultType"
-        label={t('academicRecord.resultType')}
-        type="select"
-        options={resultTypeOptions}
-        required
-      />
-      <FormField
-        name="completionDate"
-        label={t('academicRecord.completionDate')}
-        type="date"
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
-      <FormField
-        name="note"
-        label={t('academicRecord.note')}
-        multiline
-        rows={3}
-      />
-    </FormDialog>
+    <>
+      <FormDialog
+        open={open}
+        onClose={() => onClose(false)}
+        title={academicRecord ? t('academicRecord.editAcademicRecord') : t('academicRecord.addAcademicRecord')}
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+        loading={loading || fetchLoading}
+        maxWidth="md"
+      >
+        <FormField
+          name="studentId"
+          label={t('academicRecord.student')}
+          type="select"
+          options={studentOptions}
+          required
+          disabled={fetchLoading}
+        />
+        <FormField
+          name="subjectId"
+          label={t('academicRecord.subject')}
+          type="select"
+          options={subjectOptions}
+          required
+          disabled={fetchLoading}
+        />
+        <FormField
+          name="zScore"
+          label={t('academicRecord.zScore')}
+          type="number"
+          required
+          inputProps={{ step: "0.1", min: "0", max: "10" }}
+        />
+        <FormField
+          name="academicYear"
+          label={t('academicRecord.academicYear')}
+          type="number"
+          required
+          inputProps={{ min: "2000" }}
+        />
+        <FormField
+          name="semester"
+          label={t('academicRecord.semester')}
+          type="select"
+          options={semesterOptions}
+          required
+        />
+        <FormField
+          name="resultType"
+          label={t('academicRecord.resultType')}
+          type="select"
+          options={resultTypeOptions}
+          required
+        />
+        <FormField
+          name="completionDate"
+          label={t('academicRecord.completionDate')}
+          type="date"
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+        <FormField
+          name="note"
+          label={t('academicRecord.note')}
+          multiline
+          rows={3}
+        />
+      </FormDialog>
+
+      <Snackbar
+        open={error.show}
+        autoHideDuration={6000}
+        onClose={() => setError({ ...error, show: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setError({ ...error, show: false })}
+          severity="error"
+          variant="filled"
+        >
+          {error.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

@@ -5,7 +5,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { academicRecordService } from '../../../services/api';
+import { academicRecordService, handleApiError } from '../../../services/api';
 import AcademicRecordForm from './AcademicRecordForm';
 import { useTranslation } from 'react-i18next';
 
@@ -91,9 +91,10 @@ const AcademicRecordList = () => {
       setRecords(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
+      const formattedError = handleApiError(error, t('common:fetchError', { resource: t('academicRecords') }));
       setAlertInfo({
         open: true,
-        message: t('common:fetchError', { resource: t('academicRecords') }),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -141,9 +142,10 @@ const AcademicRecordList = () => {
       });
       fetchRecords();
     } catch (error) {
+      const formattedError = handleApiError(error, t('academicRecord.deleteError'));
       setAlertInfo({
         open: true,
-        message: t('academicRecord.deleteError'),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {

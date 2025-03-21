@@ -31,7 +31,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
-import { subjectExemptionService } from '../../../services/api';
+import { subjectExemptionService, handleApiError } from '../../../services/api';
 import ExemptionForm from './ExemptionForm';
 
 function TabPanel(props) {
@@ -278,8 +278,8 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       setSubjects(response.data || []);
       setTotalSubjects(response.totalCount || 0);
     } catch (err) {
-      setError(t('exemption.failedToLoadSubjects', { error: err.message || t('error.generic') }));
-      console.error('Error loading subjects:', err);
+      const formattedError = handleApiError(err, t('exemption.failedToLoadSubjects'));
+      setError(formattedError.message);
     } finally {
       setLoading(false);
     }
@@ -311,8 +311,8 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       setExemptions(response.data || []);
       setTotalExemptions(response.totalCount || 0);
     } catch (err) {
-      setError(t('exemption.failedToLoadExemptions', { error: err.message || t('error.generic') }));
-      console.error('Error loading exemptions:', err);
+      const formattedError = handleApiError(err, t('exemption.failedToLoadExemptions'));
+      setError(formattedError.message);
     } finally {
       setExemptionsLoading(false);
     }
@@ -372,19 +372,28 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
   };
 
   const handleEditExemption = (exemption) => {
-    setSelectedSubject(null);
     setSelectedExemption(exemption);
+    setSelectedSubject(null);
     setFormOpen(true);
   };
 
-  const handleFormClose = (refresh = false) => {
+  const handleFormClose = useCallback((refreshData) => {
     setFormOpen(false);
-    if (refresh && tabValue === 1) {
-      actionRef.current.type = 'formClose';
-      // Don't change the filter state on form close
-      fetchExemptions();
+    setSelectedSubject(null);
+    setSelectedExemption(null);
+    
+    if (refreshData) {
+      // Reset error state when form closes with success
+      setError('');
+      
+      // Refresh data based on active tab
+      if (tabValue === 0) {
+        fetchSubjects();
+      } else {
+        fetchExemptions();
+      }
     }
-  };
+  }, [tabValue, fetchSubjects, fetchExemptions]);
 
   // Update only the pending state, not the actual filters
   const handleYearChange = (event) => {

@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { studentService } from '../../../services/api';
+import { studentService, handleApiError } from '../../../services/api';
 import StudentForm from './StudentForm';
 import SubjectExemptionDialog from './SubjectExemptionDialog';
 import { useTranslation } from 'react-i18next';
@@ -71,9 +71,10 @@ const StudentList = () => {
       setStudents(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
+      const formattedError = handleApiError(error, t('common:fetchError', { resource: t('students') }));
       setAlertInfo({
         open: true,
-        message: t('common:fetchError', { resource: t('students') }),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -130,9 +131,10 @@ const StudentList = () => {
       });
       fetchStudents();
     } catch (error) {
+      const formattedError = handleApiError(error, t('student.studentDeleteError'));
       setAlertInfo({
         open: true,
-        message: t('student.studentDeleteError'),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {

@@ -13,6 +13,22 @@ const api = axios.create({
 });
 
 /**
+ * Helper function to handle API errors consistently across the application
+ * @param {Error} error - The error caught in the catch block
+ * @param {string} defaultMessage - Default message to display if no error message is found
+ * @returns {Object} - Formatted error object
+ */
+export const handleApiError = (error, defaultMessage = 'An error occurred') => {
+  console.error('API Error:', error);
+  // Return the error message from our intercepted error, or a default message
+  return {
+    message: error.message || defaultMessage,
+    status: error.status || 500,
+    data: error.data || {}
+  };
+};
+
+/**
  * Recursively process an object and format any Date objects to ISO strings
  * @param {Object} obj - The object to process
  * @returns {Object} - The processed object with formatted dates
@@ -90,7 +106,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     
     // If error is 401 and we haven't tried to refresh token yet
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       
       try {
@@ -124,13 +140,25 @@ api.interceptors.response.use(
       }
     }
 
-    console.log('Response status:', error.response.status);
-    console.log('Response data:', error.response.data);
-    console.log('Response headers:', error.response.headers);
-    console.log('Response config:', error.response.config);
-    console.log('Response request:', error.response.request);
+    console.log('Response status:', error.response?.status);
+    console.log('Response data:', error.response?.data);
+    console.log('Response headers:', error.response?.headers);
+    console.log('Response config:', error.response?.config);
+    console.log('Response request:', error.response?.request);
     
-    return Promise.reject(error);
+    // Extract error details to make them available to components
+    const errorResponse = {
+      status: error.response?.status,
+      message: error.response?.data?.detail || 
+               error.response?.data?.message || 
+               error.response?.data?.title ||
+               error.message || 
+               'An unknown error occurred',
+      data: error.response?.data || {},
+      originalError: error
+    };
+    
+    return Promise.reject(errorResponse);
   }
 );
 
