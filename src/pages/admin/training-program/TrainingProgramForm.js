@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
-import { trainingProgramService, majorService, subjectService, courseBatchService } from '../../../services/api';
+import { trainingProgramService, majorService, subjectService, courseBatchService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const TrainingProgramForm = ({ open, onClose, program }) => {
@@ -31,6 +31,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
   const [subjects, setSubjects] = useState([]);
   const [courseBatches, setCourseBatches] = useState([]);
   const [dependenciesLoading, setDependenciesLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const initialValues = {
     order: program?.order || 1,
@@ -43,6 +44,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
 
   const fetchDependencies = async () => {
     setDependenciesLoading(true);
+    setError(null);
     try {
       const [majorsRes, subjectsRes, courseBatchesRes] = await Promise.all([
         majorService.getAll({ PageSize: 100 }),
@@ -54,7 +56,9 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
       setSubjects(subjectsRes.data || []);
       setCourseBatches(courseBatchesRes.data || []);
     } catch (error) {
-      console.error('Error fetching dependencies:', error);
+      const formattedError = handleApiError(error, t('common:error.loading'));
+      console.error('Error fetching dependencies:', formattedError);
+      setError(formattedError.message);
     } finally {
       setDependenciesLoading(false);
     }
@@ -68,6 +72,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);
+    setError(null);
     try {
       if (program) {
         await trainingProgramService.update(program.id, {
@@ -80,10 +85,12 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
       resetForm();
       onClose(true);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      const formattedError = handleApiError(error, t('common:saveError', { resource: t('admin:trainingProgram') }));
+      console.error('Error submitting training program form:', formattedError);
+      setError(formattedError.message);
+      setSubmitting(false);
     } finally {
       setLoading(false);
-      setSubmitting(false);
     }
   };
 
@@ -112,6 +119,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
       onSubmit={handleSubmit}
       loading={loading || dependenciesLoading}
       maxWidth="md"
+      error={error}
     >
       {() => (
         <>

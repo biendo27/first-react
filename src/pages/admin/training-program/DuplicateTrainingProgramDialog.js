@@ -11,9 +11,10 @@ import {
   MenuItem, 
   Typography,
   CircularProgress,
-  Box
+  Box,
+  Alert
 } from '@mui/material';
-import { courseBatchService, trainingProgramService } from '../../../services/api';
+import { courseBatchService, trainingProgramService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const DuplicateTrainingProgramDialog = ({ open, onClose, sourceBatchId }) => {
@@ -30,8 +31,9 @@ const DuplicateTrainingProgramDialog = ({ open, onClose, sourceBatchId }) => {
       const response = await courseBatchService.getAll({ PageSize: 100 });
       setCourseBatches(response.data || []);
     } catch (error) {
-      console.error('Error fetching course batches:', error);
-      setError(t('common:error.loading'));
+      const formattedError = handleApiError(error, t('common:error.loading'));
+      console.error('Error fetching course batches:', formattedError);
+      setError(formattedError.message);
     } finally {
       setLoading(false);
     }
@@ -56,8 +58,9 @@ const DuplicateTrainingProgramDialog = ({ open, onClose, sourceBatchId }) => {
       await trainingProgramService.duplicate(sourceBatchId, destinationBatchId);
       onClose(true);
     } catch (error) {
-      console.error('Error duplicating training program:', error);
-      setError(t('duplicateError', 'Failed to duplicate training program'));
+      const formattedError = handleApiError(error, t('duplicateError', 'Failed to duplicate training program'));
+      console.error('Error duplicating training program:', formattedError);
+      setError(formattedError.message);
     } finally {
       setSubmitting(false);
     }
@@ -79,9 +82,9 @@ const DuplicateTrainingProgramDialog = ({ open, onClose, sourceBatchId }) => {
         </Box>
         
         {error && (
-          <Typography color="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
-          </Typography>
+          </Alert>
         )}
 
         <FormControl fullWidth sx={{ mt: 2 }} disabled={loading || submitting}>

@@ -7,6 +7,8 @@ import {
   Button,
   CircularProgress,
   IconButton,
+  Alert,
+  Box,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Formik, Form } from 'formik';
@@ -21,6 +23,7 @@ const FormDialog = ({
   children,
   loading,
   maxWidth = 'sm',
+  error,
 }) => {
   return (
     <Dialog
@@ -55,6 +58,11 @@ const FormDialog = ({
         {(formikProps) => (
           <Form>
             <DialogContent dividers>
+              {error && (
+                <Box sx={{ mb: 2 }}>
+                  <Alert severity="error">{error}</Alert>
+                </Box>
+              )}
               {typeof children === 'function'
                 ? children(formikProps)
                 : children}

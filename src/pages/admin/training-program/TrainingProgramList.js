@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { trainingProgramService, courseBatchService, majorService } from '../../../services/api';
+import { trainingProgramService, courseBatchService, majorService, handleApiError } from '../../../services/api';
 import TrainingProgramForm from './TrainingProgramForm';
 import DuplicateTrainingProgramDialog from './DuplicateTrainingProgramDialog';
 import { useTranslation } from 'react-i18next';
@@ -75,11 +75,17 @@ const TrainingProgramList = () => {
       setMajors(majorsRes.data || []);
       setCourseBatches(courseBatchesRes.data || []);
     } catch (error) {
-      console.error('Error fetching filter options:', error);
+      const formattedError = handleApiError(error, t('common:error.loading'));
+      console.error('Error fetching filter options:', formattedError);
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
     } finally {
       setFiltersLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const fetchPrograms = useCallback(async () => {
     setLoading(true);
@@ -101,9 +107,11 @@ const TrainingProgramList = () => {
       setPrograms(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
+      const formattedError = handleApiError(error, t('common:fetchError', { resource: t('admin:trainingPrograms') }));
+      console.error('Error fetching programs:', formattedError);
       setAlertInfo({
         open: true,
-        message: t('common:error.loading'),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -154,9 +162,10 @@ const TrainingProgramList = () => {
       });
       fetchPrograms();
     } catch (error) {
+      const formattedError = handleApiError(error, t('trainingProgramDeleteError', 'Failed to delete training program'));
       setAlertInfo({
         open: true,
-        message: t('trainingProgramDeleteError', 'Failed to delete training program'),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -324,10 +333,13 @@ const TrainingProgramList = () => {
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert
           onClose={() => setAlertInfo({ ...alertInfo, open: false })}
           severity={alertInfo.severity}
+          variant="filled"
+          elevation={6}
         >
           {alertInfo.message}
         </Alert>
