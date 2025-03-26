@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { subjectService } from '../../../services/api';
+import FileImportDialog from '../../../components/common/FileImportDialog';
+import { subjectService, handleApiError } from '../../../services/api';
 import SubjectForm from './SubjectForm';
 import { useTranslation } from 'react-i18next';
 
@@ -11,21 +13,19 @@ const SubjectList = () => {
   const { t } = useTranslation(['admin', 'common']);
   
   const columns = [
-    { id: 'name', label: t('subject.name'), minWidth: 200 },
-    { id: 'subjectCode', label: t('subject.subjectCode'), minWidth: 150 },
-    { id: 'credit', label: t('subject.credit'), minWidth: 100 },
+    { id: 'subjectCode', label: t('subject.subjectCode', 'Subject Code'), minWidth: 120 },
+    { id: 'name', label: t('subject.name', 'Name'), minWidth: 200 },
+    { 
+      id: 'credit', 
+      label: t('subject.credit', 'Credits'), 
+      minWidth: 120,
+      render: (row) => row.credit || 'N/A'
+    },
     { 
       id: 'type', 
-      label: t('subject.type'), 
+      label: t('subject.type', 'Loại môn học'), 
       minWidth: 150,
-      render: (row) => {
-        if (row.type === 'Compulsory') {
-          return t('subject.typeCompulsory');
-        } else if (row.type === 'Elective') {
-          return t('subject.typeElective');
-        }
-        return row.type;
-      }
+      render: (row) => t(`subject.type${row.type}`, row.type || 'N/A')
     },
   ];
   
@@ -35,9 +35,11 @@ const SubjectList = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     message: '',
@@ -54,9 +56,10 @@ const SubjectList = () => {
       setSubjects(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
+      const formattedError = handleApiError(error, t('common:fetchError', { resource: t('subjects') }));
       setAlertInfo({
         open: true,
-        message: t('common:fetchError', { resource: t('subjects') }),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -82,6 +85,10 @@ const SubjectList = () => {
     setFormOpen(true);
   };
 
+  const handleOpenImportDialog = () => {
+    setImportDialogOpen(true);
+  };
+
   const handleEdit = (subject) => {
     setSelectedSubject(subject);
     setFormOpen(true);
@@ -103,9 +110,10 @@ const SubjectList = () => {
       });
       fetchSubjects();
     } catch (error) {
+      const formattedError = handleApiError(error, t('subject.subjectDeleteError'));
       setAlertInfo({
         open: true,
-        message: t('subject.subjectDeleteError'),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -121,20 +129,63 @@ const SubjectList = () => {
     }
   };
 
+  const handleImportClose = () => {
+    setImportDialogOpen(false);
+  };
+
+  const handleImportFile = async (file) => {
+    try {
+      console.log('Starting file import for subjects:', file.name);
+      const result = await subjectService.importFile(file);
+      console.log('Import successful:', result);
+      
+      setAlertInfo({
+        open: true,
+        message: result.message || t('subject.importSuccess'),
+        severity: 'success',
+      });
+      
+      // Refresh data after successful import
+      fetchSubjects();
+      
+      return result;
+    } catch (error) {
+      console.error('Import error:', error);
+      const formattedError = handleApiError(error, t('subject.importError'));
+      
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+      throw formattedError;
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
           {t('subjects')}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenForm}
-        >
-          {t('subject.addSubject')}
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<UploadFileIcon />}
+            onClick={handleOpenImportDialog}
+          >
+            {t('common:fileImport.import')}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleOpenForm}
+          >
+            {t('subject.addSubject')}
+          </Button>
+        </Stack>
       </Box>
 
       <DataTable
@@ -158,6 +209,16 @@ const SubjectList = () => {
         />
       )}
 
+      <FileImportDialog
+        open={importDialogOpen}
+        onClose={handleImportClose}
+        onImport={handleImportFile}
+        title={t('subject.importSubjects', 'Import Subjects')}
+        description={t('subject.importSubjectsDescription', 'Upload an Excel file (.xlsx, .xls) containing subject data. Maximum file size is 5MB.')}
+        acceptedFileTypes=".xlsx, .xls"
+        maxSize={5}
+      />
+
       <ConfirmDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -171,10 +232,12 @@ const SubjectList = () => {
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setAlertInfo({ ...alertInfo, open: false })}
           severity={alertInfo.severity}
+          variant="filled"
         >
           {alertInfo.message}
         </Alert>
