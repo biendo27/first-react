@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { administrativeClassService } from '../../../services/api';
+import FileImportDialog from '../../../components/common/FileImportDialog';
+import { administrativeClassService, handleApiError } from '../../../services/api';
 import AdministrativeClassForm from './AdministrativeClassForm';
 import { useTranslation } from 'react-i18next';
 
@@ -38,6 +40,7 @@ const AdministrativeClassList = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -57,9 +60,10 @@ const AdministrativeClassList = () => {
       setClasses(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
+      const formattedError = handleApiError(error, t('common:fetchError', { resource: t('administrativeClasses') }));
       setAlertInfo({
         open: true,
-        message: t('common:fetchError', { resource: t('administrativeClasses') }),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -85,6 +89,10 @@ const AdministrativeClassList = () => {
     setFormOpen(true);
   };
 
+  const handleOpenImportDialog = () => {
+    setImportDialogOpen(true);
+  };
+
   const handleEdit = (administrativeClass) => {
     setSelectedClass(administrativeClass);
     setFormOpen(true);
@@ -106,9 +114,10 @@ const AdministrativeClassList = () => {
       });
       fetchClasses();
     } catch (error) {
+      const formattedError = handleApiError(error, t('administrativeClass.deleteError'));
       setAlertInfo({
         open: true,
-        message: t('administrativeClass.deleteError'),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -124,20 +133,63 @@ const AdministrativeClassList = () => {
     }
   };
 
+  const handleImportClose = () => {
+    setImportDialogOpen(false);
+  };
+
+  const handleImportFile = async (file) => {
+    try {
+      console.log('Starting file import for administrative classes:', file.name);
+      const result = await administrativeClassService.importFile(file);
+      console.log('Import successful:', result);
+      
+      setAlertInfo({
+        open: true,
+        message: result.message || t('administrativeClass.importSuccess'),
+        severity: 'success',
+      });
+      
+      // Refresh data after successful import
+      fetchClasses();
+      
+      return result;
+    } catch (error) {
+      console.error('Import error:', error);
+      const formattedError = handleApiError(error, t('administrativeClass.importError'));
+      
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+      throw formattedError;
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
           {t('administrativeClasses')}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenForm}
-        >
-          {t('administrativeClass.addAdministrativeClass')}
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<UploadFileIcon />}
+            onClick={handleOpenImportDialog}
+          >
+            {t('common:fileImport.import')}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleOpenForm}
+          >
+            {t('administrativeClass.addAdministrativeClass')}
+          </Button>
+        </Stack>
       </Box>
 
       <DataTable
@@ -161,6 +213,16 @@ const AdministrativeClassList = () => {
         />
       )}
 
+      <FileImportDialog
+        open={importDialogOpen}
+        onClose={handleImportClose}
+        onImport={handleImportFile}
+        title={t('administrativeClass.importAdministrativeClasses', 'Import Administrative Classes')}
+        description={t('administrativeClass.importAdministrativeClassesDescription', 'Upload an Excel file (.xlsx, .xls) containing administrative class data. Maximum file size is 5MB.')}
+        acceptedFileTypes=".xlsx, .xls"
+        maxSize={5}
+      />
+
       <ConfirmDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -174,10 +236,12 @@ const AdministrativeClassList = () => {
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setAlertInfo({ ...alertInfo, open: false })}
           severity={alertInfo.severity}
+          variant="filled"
         >
           {alertInfo.message}
         </Alert>

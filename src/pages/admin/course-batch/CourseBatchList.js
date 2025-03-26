@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { courseBatchService } from '../../../services/api';
+import FileImportDialog from '../../../components/common/FileImportDialog';
+import { courseBatchService, handleApiError } from '../../../services/api';
 import CourseBatchForm from './CourseBatchForm';
 import { useTranslation } from 'react-i18next';
 
@@ -34,7 +36,7 @@ const CourseBatchList = () => {
       id: 'startTime', 
       label: t('startDate', 'Start Date'), 
       minWidth: 150,
-      render: (row) => new Date(row.startTime).toLocaleDateString()
+      render: (row) => row.startTime ? new Date(row.startTime).toLocaleDateString() : 'N/A'
     },
     { 
       id: 'regularProgramDuration', 
@@ -50,13 +52,14 @@ const CourseBatchList = () => {
     },
   ];
 
-  const [courseBatches, setCourseBatches] = useState([]);
+  const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
-  const [selectedCourseBatch, setSelectedCourseBatch] = useState(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
@@ -72,12 +75,13 @@ const CourseBatchList = () => {
         PageIndex: page,
         PageSize: pageSize,
       });
-      setCourseBatches(response.data || []);
+      setBatches(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
+      const formattedError = handleApiError(error, t('common:fetchError', { resource: t('courseBatches') }));
       setAlertInfo({
         open: true,
-        message: t('common:error.loading'),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -99,34 +103,39 @@ const CourseBatchList = () => {
   };
 
   const handleOpenForm = () => {
-    setSelectedCourseBatch(null);
+    setSelectedBatch(null);
     setFormOpen(true);
   };
 
-  const handleEdit = (courseBatch) => {
-    setSelectedCourseBatch(courseBatch);
+  const handleOpenImportDialog = () => {
+    setImportDialogOpen(true);
+  };
+
+  const handleEdit = (batch) => {
+    setSelectedBatch(batch);
     setFormOpen(true);
   };
 
-  const handleDelete = (courseBatch) => {
-    setSelectedCourseBatch(courseBatch);
+  const handleDelete = (batch) => {
+    setSelectedBatch(batch);
     setDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
     setDeleteLoading(true);
     try {
-      await courseBatchService.delete(selectedCourseBatch.id);
+      await courseBatchService.delete(selectedBatch.id);
       setAlertInfo({
         open: true,
-        message: t('courseBatchDeleteSuccess', 'Course batch deleted successfully'),
+        message: t('deleteCourseBatchSuccess'),
         severity: 'success',
       });
       fetchCourseBatches();
     } catch (error) {
+      const formattedError = handleApiError(error, t('deleteCourseBatchError'));
       setAlertInfo({
         open: true,
-        message: t('courseBatchDeleteError', 'Failed to delete course batch'),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -142,25 +151,68 @@ const CourseBatchList = () => {
     }
   };
 
+  const handleImportClose = () => {
+    setImportDialogOpen(false);
+  };
+
+  const handleImportFile = async (file) => {
+    try {
+      console.log('Starting file import for course batches:', file.name);
+      const result = await courseBatchService.importFile(file);
+      console.log('Import successful:', result);
+      
+      setAlertInfo({
+        open: true,
+        message: result.message || t('courseBatch.importSuccess'),
+        severity: 'success',
+      });
+      
+      // Refresh data after successful import
+      fetchCourseBatches();
+      
+      return result;
+    } catch (error) {
+      console.error('Import error:', error);
+      const formattedError = handleApiError(error, t('courseBatch.importError'));
+      
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+      throw formattedError;
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          {t('admin:courseBatches', 'Course Batches')}
+          {t('courseBatches')}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenForm}
-        >
-          {t('admin:addCourseBatch', 'Add Course Batch')}
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<UploadFileIcon />}
+            onClick={handleOpenImportDialog}
+          >
+            {t('common:fileImport.import')}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleOpenForm}
+          >
+            {t('addCourseBatch')}
+          </Button>
+        </Stack>
       </Box>
 
       <DataTable
         columns={columns}
-        data={courseBatches}
+        data={batches}
         totalCount={totalCount}
         page={page - 1}
         pageSize={pageSize}
@@ -175,16 +227,26 @@ const CourseBatchList = () => {
         <CourseBatchForm
           open={formOpen}
           onClose={handleFormClose}
-          courseBatch={selectedCourseBatch}
+          courseBatch={selectedBatch}
         />
       )}
+
+      <FileImportDialog
+        open={importDialogOpen}
+        onClose={handleImportClose}
+        onImport={handleImportFile}
+        title={t('courseBatch.importCourseBatches', 'Import Course Batches')}
+        description={t('courseBatch.importCourseBatchesDescription', 'Upload an Excel file (.xlsx, .xls) containing course batch data. Maximum file size is 5MB.')}
+        acceptedFileTypes=".xlsx, .xls"
+        maxSize={5}
+      />
 
       <ConfirmDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        title={t('deleteCourseBatchTitle', 'Delete Course Batch')}
-        message={t('deleteCourseBatchConfirmation', 'Are you sure you want to delete this course batch?')}
+        title={t('deleteCourseBatchTitle')}
+        message={t('deleteCourseBatchConfirmation')}
         loading={deleteLoading}
       />
 
@@ -192,10 +254,12 @@ const CourseBatchList = () => {
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setAlertInfo({ ...alertInfo, open: false })}
           severity={alertInfo.severity}
+          variant="filled"
         >
           {alertInfo.message}
         </Alert>

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, IconButton, Tooltip } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Grid, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import SyncIcon from '@mui/icons-material/Sync';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import ClearIcon from '@mui/icons-material/Clear';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
+import FileImportDialog from '../../../components/common/FileImportDialog';
 import { studentService, handleApiError } from '../../../services/api';
 import StudentForm from './StudentForm';
 import SubjectExemptionDialog from './SubjectExemptionDialog';
@@ -17,44 +18,71 @@ const StudentList = () => {
   const columns = [
     { id: 'studentCode', label: t('student.studentCode'), minWidth: 120 },
     { 
-      id: 'name', 
+      id: 'fullName', 
       label: t('student.fullName'), 
       minWidth: 200,
-      render: (row) => `${row.firstName} ${row.lastName}` 
+      render: (row) => `${row.firstName} ${row.lastName}`
     },
     { 
       id: 'dateOfBirth', 
       label: t('student.dateOfBirth'), 
-      minWidth: 150,
-      render: (row) => new Date(row.dateOfBirth).toLocaleDateString() 
+      minWidth: 120,
+      render: (row) => new Date(row.dateOfBirth).toLocaleDateString()
     },
-    { id: 'email', label: t('student.email'), minWidth: 200 },
-    { id: 'phoneNumber', label: t('student.phoneNumber'), minWidth: 150 },
+    { id: 'email', label: t('student.email'), minWidth: 180 },
     { 
       id: 'status', 
       label: t('student.status'), 
       minWidth: 120,
-      render: (row) => row.status ? t(`student.statusTypes.${row.status.toLowerCase()}`) : t('common:noData')
+      render: (row) => t(`student.statusTypes.${row.status.toLowerCase()}`)
     },
     { 
-      id: 'administrativeClass',
-      label: t('student.class'),
+      id: 'class', 
+      label: t('student.class'), 
       minWidth: 150,
       render: (row) => row.administrativeClass?.name || 'N/A'
     },
+    { 
+      id: 'exemption', 
+      label: t('exemptionsButton'), 
+      minWidth: 120,
+      renderAction: true,
+      render: (row) => (
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenExemptionDialog(row);
+          }}
+        >
+          {t('exemptionsButton')}
+        </Button>
+      )
+    },
   ];
-
+  
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [exemptionDialogOpen, setExemptionDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [exemptionDialogOpen, setExemptionDialogOpen] = useState(false);
-  const [selectedStudentForExemption, setSelectedStudentForExemption] = useState(null);
+  
+  // Filter states
+  const [filters, setFilters] = useState({
+    FirstName: '',
+    LastName: '',
+    StudentCode: '',
+    AdministrativeClass: '',
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     message: '',
@@ -67,6 +95,7 @@ const StudentList = () => {
       const response = await studentService.getAll({
         PageIndex: page,
         PageSize: pageSize,
+        ...filters
       });
       setStudents(response.data || []);
       setTotalCount(response.totalCount || 0);
@@ -80,7 +109,7 @@ const StudentList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, t]);
+  }, [page, pageSize, filters, t]);
 
   useEffect(() => {
     fetchStudents();
@@ -100,6 +129,15 @@ const StudentList = () => {
     setFormOpen(true);
   };
 
+  const handleOpenImportDialog = () => {
+    setImportDialogOpen(true);
+  };
+
+  const handleOpenExemptionDialog = (student) => {
+    setSelectedStudent(student);
+    setExemptionDialogOpen(true);
+  };
+
   const handleEdit = (student) => {
     setSelectedStudent(student);
     setFormOpen(true);
@@ -108,16 +146,6 @@ const StudentList = () => {
   const handleDelete = (student) => {
     setSelectedStudent(student);
     setDeleteDialogOpen(true);
-  };
-
-  const handleExemptionClick = (student) => {
-    setSelectedStudentForExemption(student);
-    setExemptionDialogOpen(true);
-  };
-
-  const handleExemptionDialogClose = () => {
-    setExemptionDialogOpen(false);
-    setSelectedStudentForExemption(null);
   };
 
   const confirmDelete = async () => {
@@ -150,39 +178,63 @@ const StudentList = () => {
     }
   };
 
-  const renderActions = (student) => (
-    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <Tooltip title={t('exemptionsButton')}>
-        <IconButton 
-          size="small" 
-          color="secondary"
-          onClick={() => handleExemptionClick(student)}
-          sx={{ mr: 1 }}
-        >
-          <SyncIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title={t('student.editStudent')}>
-        <IconButton
-          size="small"
-          color="primary"
-          onClick={() => handleEdit(student)}
-          sx={{ mr: 1 }}
-        >
-          <EditIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title={t('student.deleteStudent')}>
-        <IconButton
-          size="small"
-          color="error"
-          onClick={() => handleDelete(student)}
-        >
-          <DeleteIcon />
-        </IconButton>
-      </Tooltip>
-    </Box>
-  );
+  const handleExemptionDialogClose = () => {
+    setExemptionDialogOpen(false);
+  };
+
+  const handleImportClose = () => {
+    setImportDialogOpen(false);
+  };
+
+  const handleImportFile = async (file) => {
+    try {
+      console.log('Starting file import for students:', file.name);
+      const result = await studentService.importFile(file);
+      console.log('Import successful:', result);
+      
+      setAlertInfo({
+        open: true,
+        message: result.message || t('student.importSuccess'),
+        severity: 'success',
+      });
+      
+      // Refresh data after successful import
+      fetchStudents();
+      
+      return result;
+    } catch (error) {
+      console.error('Import error:', error);
+      const formattedError = handleApiError(error, t('student.importError'));
+      
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+      throw formattedError;
+    }
+  };
+
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      FirstName: '',
+      LastName: '',
+      StudentCode: '',
+      AdministrativeClass: ''
+    });
+  };
+
+  const handleToggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
 
   return (
     <Box>
@@ -190,15 +242,94 @@ const StudentList = () => {
         <Typography variant="h4" component="h1">
           {t('students')}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenForm}
-        >
-          {t('student.addStudent')}
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<FilterAltIcon />}
+            onClick={handleToggleFilters}
+          >
+            {showFilters ? t('common:hideFilters') : t('common:showFilters')}
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<UploadFileIcon />}
+            onClick={handleOpenImportDialog}
+          >
+            {t('common:fileImport.import')}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleOpenForm}
+          >
+            {t('student.addStudent')}
+          </Button>
+        </Stack>
       </Box>
+
+      {showFilters && (
+        <Paper sx={{ p: 2, mb: 2 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                name="StudentCode"
+                label={t('student.studentCode')}
+                variant="outlined"
+                size="small"
+                value={filters.StudentCode}
+                onChange={handleFilterChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                name="FirstName"
+                label={t('student.firstName')}
+                variant="outlined"
+                size="small"
+                value={filters.FirstName}
+                onChange={handleFilterChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                name="LastName"
+                label={t('student.lastName')}
+                variant="outlined"
+                size="small"
+                value={filters.LastName}
+                onChange={handleFilterChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                name="AdministrativeClass"
+                label={t('student.class')}
+                variant="outlined"
+                size="small"
+                value={filters.AdministrativeClass}
+                onChange={handleFilterChange}
+              />
+            </Grid>
+            <Grid item xs={12} display="flex" justifyContent="flex-end">
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<ClearIcon />}
+                onClick={handleClearFilters}
+              >
+                {t('common:clearFilters')}
+              </Button>
+            </Grid>
+          </Grid>
+        </Paper>
+      )}
 
       <DataTable
         columns={columns}
@@ -209,13 +340,32 @@ const StudentList = () => {
         loading={loading}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
-        renderActions={renderActions}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       {formOpen && (
         <StudentForm
           open={formOpen}
           onClose={handleFormClose}
+          student={selectedStudent}
+        />
+      )}
+
+      <FileImportDialog
+        open={importDialogOpen}
+        onClose={handleImportClose}
+        onImport={handleImportFile}
+        title={t('student.importStudents', 'Import Students')}
+        description={t('student.importStudentsDescription', 'Upload an Excel file (.xlsx, .xls) containing student data. Maximum file size is 5MB.')}
+        acceptedFileTypes=".xlsx, .xls"
+        maxSize={5}
+      />
+
+      {exemptionDialogOpen && selectedStudent && (
+        <SubjectExemptionDialog
+          open={exemptionDialogOpen}
+          onClose={handleExemptionDialogClose}
           student={selectedStudent}
         />
       )}
@@ -229,22 +379,16 @@ const StudentList = () => {
         loading={deleteLoading}
       />
 
-      {exemptionDialogOpen && selectedStudentForExemption && (
-        <SubjectExemptionDialog
-          open={exemptionDialogOpen}
-          onClose={handleExemptionDialogClose}
-          student={selectedStudentForExemption}
-        />
-      )}
-
       <Snackbar
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setAlertInfo({ ...alertInfo, open: false })}
           severity={alertInfo.severity}
+          variant="filled"
         >
           {alertInfo.message}
         </Alert>

@@ -2,8 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Button, Typography, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
+import FileImportDialog from '../../../components/common/FileImportDialog';
 import { trainingProgramService, courseBatchService, majorService, handleApiError } from '../../../services/api';
 import TrainingProgramForm from './TrainingProgramForm';
 import DuplicateTrainingProgramDialog from './DuplicateTrainingProgramDialog';
@@ -63,6 +65,8 @@ const TrainingProgramList = () => {
   const [selectedMajorId, setSelectedMajorId] = useState('');
   const [selectedCourseBatchId, setSelectedCourseBatchId] = useState('');
   const [filtersLoading, setFiltersLoading] = useState(false);
+
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   // Fetch filter options
   const fetchFilterOptions = useCallback(async () => {
@@ -207,6 +211,43 @@ const TrainingProgramList = () => {
     }
   };
 
+  const handleOpenImportDialog = () => {
+    setImportDialogOpen(true);
+  };
+
+  const handleImportClose = () => {
+    setImportDialogOpen(false);
+  };
+
+  const handleImportFile = async (file) => {
+    try {
+      console.log('Starting file import for training programs:', file.name);
+      const result = await trainingProgramService.importFile(file);
+      console.log('Import successful:', result);
+      
+      setAlertInfo({
+        open: true,
+        message: result.message || t('admin:trainingProgramImportSuccess', 'Training programs imported successfully'),
+        severity: 'success',
+      });
+      
+      // Refresh data after successful import
+      fetchPrograms();
+      
+      return result;
+    } catch (error) {
+      console.error('Import error:', error);
+      const formattedError = handleApiError(error, t('admin:trainingProgramImportError', 'Failed to import training programs'));
+      
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+      throw formattedError;
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -214,6 +255,15 @@ const TrainingProgramList = () => {
           {t('admin:trainingPrograms')}
         </Typography>
         <Box>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<UploadFileIcon />}
+            onClick={handleOpenImportDialog}
+            sx={{ mr: 2 }}
+          >
+            {t('common:fileImport.import')}
+          </Button>
           <Button
             variant="outlined"
             color="primary"
@@ -328,6 +378,16 @@ const TrainingProgramList = () => {
           sourceBatchId={selectedCourseBatchId}
         />
       )}
+
+      <FileImportDialog
+        open={importDialogOpen}
+        onClose={handleImportClose}
+        onImport={handleImportFile}
+        title={t('admin:importTrainingPrograms', 'Import Training Programs')}
+        description={t('admin:importTrainingProgramsDescription', 'Upload an Excel file (.xlsx, .xls) containing training program data.')}
+        acceptedFileTypes=".xlsx, .xls"
+        maxSize={5}
+      />
 
       <Snackbar
         open={alertInfo.open}

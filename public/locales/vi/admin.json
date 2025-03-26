@@ -66,7 +66,11 @@
     "majorDeleteError": "Không thể xóa chuyên ngành",
     "majorSaveSuccess": "Đã lưu chuyên ngành thành công",
     "majorSaveError": "Không thể lưu chuyên ngành",
-    "majorDetails": "Thông Tin Chuyên Ngành"
+    "majorDetails": "Thông Tin Chuyên Ngành",
+    "importMajors": "Nhập Chuyên Ngành",
+    "importMajorsDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu chuyên ngành. Kích thước tệp tối đa là 5MB.",
+    "importSuccess": "Đã nhập chuyên ngành thành công",
+    "importError": "Không thể nhập chuyên ngành"
   },
   "academicRecord": {
     "student": "Sinh viên",
@@ -114,6 +118,9 @@
     "name": "Tên",
     "subjectCode": "Mã Môn Học",
     "credit": "Số Tín Chỉ",
+    "credits": "Số Tín Chỉ",
+    "category": "Danh Mục",
+    "description": "Mô Tả",
     "type": "Loại",
     "addSubject": "Thêm Môn Học",
     "editSubject": "Sửa Môn Học",
@@ -131,7 +138,11 @@
     "creditInteger": "Số tín chỉ phải là số nguyên",
     "subjectCodeRequired": "Mã môn học là bắt buộc",
     "subjectCodePositive": "Mã môn học phải là số dương",
-    "subjectCodeInteger": "Mã môn học phải là số nguyên"
+    "subjectCodeInteger": "Mã môn học phải là số nguyên",
+    "importSubjects": "Nhập Môn Học",
+    "importSubjectsDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu môn học. Kích thước tệp tối đa là 5MB.",
+    "importSuccess": "Đã nhập môn học thành công",
+    "importError": "Không thể nhập môn học"
   },
   "exemption": {
     "title": "Bảo Lưu Học Phần",
@@ -188,7 +199,11 @@
     "studentSaveSuccess": "Đã lưu sinh viên thành công",
     "studentSaveError": "Không thể lưu sinh viên",
     "studentDetails": "Thông Tin Sinh Viên",
-    "actions": "Thao tác"
+    "actions": "Thao tác",
+    "importStudents": "Nhập Sinh Viên",
+    "importStudentsDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu sinh viên. Kích thước tệp tối đa là 5MB.",
+    "importSuccess": "Đã nhập sinh viên thành công",
+    "importError": "Không thể nhập sinh viên"
   },
   "administrativeClass": {
     "name": "Tên",
@@ -197,7 +212,11 @@
     "deleteAdministrativeClass": "Xóa Lớp Hành Chính",
     "deleteConfirmation": "Bạn có chắc chắn muốn xóa lớp hành chính \"{{name}}\"?",
     "deleteSuccess": "Đã xóa lớp hành chính thành công",
-    "deleteError": "Không thể xóa lớp hành chính"
+    "deleteError": "Không thể xóa lớp hành chính",
+    "importAdministrativeClasses": "Nhập Lớp Hành Chính",
+    "importAdministrativeClassesDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu lớp hành chính. Kích thước tệp tối đa là 5MB.",
+    "importSuccess": "Đã nhập lớp hành chính thành công",
+    "importError": "Không thể nhập lớp hành chính"
   },
   "educationMode": {
     "addEducationMode": "Thêm Hệ đào tạo",
@@ -217,5 +236,15 @@
   "subjectTypes": {
     "compulsory": "Bắt Buộc",
     "elective": "Tự Chọn"
+  },
+  "importTrainingPrograms": "Nhập Chương Trình Đào Tạo",
+  "importTrainingProgramsDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu chương trình đào tạo. Kích thước tệp tối đa là 5MB.",
+  "trainingProgramImportSuccess": "Đã nhập chương trình đào tạo thành công",
+  "trainingProgramImportError": "Không thể nhập chương trình đào tạo",
+  "courseBatch": {
+    "importCourseBatches": "Nhập Khóa Học",
+    "importCourseBatchesDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu khóa học. Kích thước tệp tối đa là 5MB.",
+    "importSuccess": "Đã nhập khóa học thành công", 
+    "importError": "Không thể nhập khóa học"
   }
 } 
