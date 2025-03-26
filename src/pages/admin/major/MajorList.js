@@ -13,12 +13,6 @@ const MajorList = () => {
   const columns = [
     { id: 'name', label: t('major.name'), minWidth: 200 },
     { id: 'majorCode', label: t('major.majorCode'), minWidth: 150 },
-    { 
-      id: 'educationMode', 
-      label: t('educationModes'), 
-      minWidth: 150,
-      render: (row) => row.educationMode?.name || 'N/A'
-    }
   ];
   
   const [majors, setMajors] = useState([]);

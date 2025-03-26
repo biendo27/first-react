@@ -24,6 +24,12 @@ const AdministrativeClassList = () => {
       minWidth: 150,
       render: (row) => row.major?.name || 'N/A'
     },
+    { 
+      id: 'educationMode', 
+      label: t('educationModes'), 
+      minWidth: 150,
+      render: (row) => row.educationMode?.name || 'N/A'
+    }
   ];
 
   const [classes, setClasses] = useState([]);

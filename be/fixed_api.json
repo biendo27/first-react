@@ -288,6 +288,14 @@
             }
           },
           {
+            "name": "EducationModeId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "PageIndex",
             "in": "query",
             "schema": {
@@ -1162,14 +1170,6 @@
             }
           },
           {
-            "name": "EducationModeId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
             "name": "PageIndex",
             "in": "query",
             "schema": {
@@ -1428,6 +1428,25 @@
         }
       }
     },
+    "/v1/seeding": {
+      "post": {
+        "tags": [
+          "Seeding"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/students": {
       "get": {
         "tags": [
@@ -1450,6 +1469,13 @@
           },
           {
             "name": "StudentCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AdministrativeClass",
             "in": "query",
             "schema": {
               "type": "string"
@@ -1672,6 +1698,48 @@
         ]
       }
     },
+    "/v1/students/import": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "File"
+                ],
+                "type": "object",
+                "properties": {
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "File": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/student-subjects": {
       "get": {
         "tags": [
@@ -1680,6 +1748,21 @@
         "parameters": [
           {
             "name": "StudentCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SubjectCode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SubjectName",
             "in": "query",
             "schema": {
               "type": "string"
@@ -2678,6 +2761,9 @@
           },
           "major": {
             "$ref": "#/components/schemas/MajorDto"
+          },
+          "educationMode": {
+            "$ref": "#/components/schemas/EducationModeDto"
           }
         },
         "additionalProperties": false
@@ -2775,14 +2861,6 @@
       "CreateAcademicRecordRequestDto": {
         "type": "object",
         "properties": {
-          "studentId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "subjectId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "xScore": {
             "type": "number",
             "format": "double"
@@ -2807,6 +2885,17 @@
             "type": "string",
             "format": "date-time"
           },
+          "resultType": {
+            "$ref": "#/components/schemas/AcademicRecordType"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "note": {
             "type": [
               "null",
@@ -2819,6 +2908,7 @@
       "CreateAdministrativeClassRequestDto": {
         "required": [
           "courseBatchId",
+          "educationModeId",
           "majorId",
           "name"
         ],
@@ -2833,6 +2923,10 @@
             "format": "uuid"
           },
           "majorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "educationModeId": {
             "type": "string",
             "format": "uuid"
           }
@@ -2892,13 +2986,6 @@
           "majorCode": {
             "type": "integer",
             "format": "int32"
-          },
-          "educationModeId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -2948,6 +3035,9 @@
               "string"
             ],
             "format": "tel"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/GenderType"
           },
           "administrativeClassId": {
             "type": "string",
@@ -3159,6 +3249,13 @@
         },
         "additionalProperties": false
       },
+      "GenderType": {
+        "enum": [
+          "Male",
+          "Female"
+        ],
+        "type": "string"
+      },
       "LoginRequestDto": {
         "required": [
           "password",
@@ -3230,9 +3327,6 @@
           "majorCode": {
             "type": "integer",
             "format": "int32"
-          },
-          "educationMode": {
-            "$ref": "#/components/schemas/EducationModeDto"
           }
         },
         "additionalProperties": false
@@ -3321,6 +3415,9 @@
               "null",
               "string"
             ]
+          },
+          "gender": {
+            "$ref": "#/components/schemas/GenderType"
           },
           "status": {
             "$ref": "#/components/schemas/StudentStatusType"
@@ -3548,6 +3645,7 @@
       "UpdateAdministrativeClassRequestDto": {
         "required": [
           "courseBatchId",
+          "educationModeId",
           "majorId",
           "name"
         ],
@@ -3562,6 +3660,10 @@
             "format": "uuid"
           },
           "majorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "educationModeId": {
             "type": "string",
             "format": "uuid"
           }
@@ -3656,6 +3758,7 @@
       },
       "UpdateMajorRequestDto": {
         "required": [
+          "majorCode",
           "name"
         ],
         "type": "object",
@@ -3667,13 +3770,6 @@
           "majorCode": {
             "type": "integer",
             "format": "int32"
-          },
-          "educationModeId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -3728,6 +3824,9 @@
               "string"
             ],
             "format": "tel"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/GenderType"
           },
           "administrativeClassId": {
             "type": "string",
