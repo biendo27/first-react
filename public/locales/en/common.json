@@ -62,5 +62,19 @@
   "maxLength": "{{field}} cannot exceed {{length}} characters",
   "mustBeNumber": "Must be a number",
   "mustBePositive": "Must be positive",
-  "mustBeInteger": "Must be an integer"
+  "mustBeInteger": "Must be an integer",
+  "fileImport": {
+    "importData": "Import Data",
+    "import": "Import",
+    "importing": "Importing...",
+    "selectFile": "Select File",
+    "selectedFile": "Selected file",
+    "acceptedFormats": "Accepted formats",
+    "maxFileSize": "Maximum file size",
+    "noFileSelected": "No file selected",
+    "fileTooLarge": "File is too large (max {{maxSize}} MB)",
+    "invalidFileType": "Invalid file type. Accepted types: {{acceptedTypes}}",
+    "importSuccess": "Data imported successfully",
+    "importError": "Failed to import data"
+  }
 } 

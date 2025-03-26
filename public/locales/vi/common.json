@@ -62,5 +62,19 @@
   "fetchError": "Không thể tải {{resource}}",
   "saveSuccess": "Đã lưu {{resource}} thành công",
   "saveError": "Không thể lưu {{resource}}",
-  "name": "Tên"
+  "name": "Tên",
+  "fileImport": {
+    "importData": "Nhập Dữ Liệu",
+    "import": "Nhập",
+    "importing": "Đang nhập...",
+    "selectFile": "Chọn Tệp",
+    "selectedFile": "Tệp đã chọn",
+    "acceptedFormats": "Định dạng được chấp nhận",
+    "maxFileSize": "Kích thước tệp tối đa",
+    "noFileSelected": "Chưa chọn tệp",
+    "fileTooLarge": "Tệp quá lớn (tối đa {{maxSize}} MB)",
+    "invalidFileType": "Định dạng tệp không hợp lệ. Định dạng được chấp nhận: {{acceptedTypes}}",
+    "importSuccess": "Nhập dữ liệu thành công",
+    "importError": "Không thể nhập dữ liệu"
+  }
 } 

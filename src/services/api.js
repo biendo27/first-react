@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { formatDateForApi } from '../utils/dateUtils';
 
-const API_URL = 'https://localhost:7269/'; // Update with your actual API URL
+const API_URL = 'https://localhost:7269'; // Update with your actual API URL
 // const API_URL = 'https://timeschedule-api.nonamegogeto.click';
 
 // Create axios instance with default config
@@ -78,6 +78,36 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
+    // Skip data processing if it's FormData (for file uploads)
+    const isFormData = config.data instanceof FormData;
+    
+    // If it's a file upload request, add special handling
+    if (isFormData) {
+      // For file uploads, don't process anything - use data as is
+      // This ensures FormData object is properly sent to the server
+      
+      // Log FormData entries without exposing the full file contents
+      const formDataEntries = Array.from(config.data.entries()).map(([key, value]) => {
+        if (value instanceof File) {
+          return [key, `File(${value.name}, ${value.size} bytes, ${value.type})`];
+        }
+        return [key, value];
+      });
+      
+      console.log('File upload request to:', config.url);
+      console.log('Request headers:', config.headers);
+      console.log('FormData entries:', formDataEntries);
+      console.log('Request method:', config.method);
+      
+      // Prevent any further transforms for FormData
+      if (!config.transformRequest) {
+        config.transformRequest = [(data) => data];
+      }
+      
+      return config;
+    }
+    
+    // For non-FormData requests, continue with normal processing
     // Format dates in request body if it exists
     if (config.data) {
       config.data = processObjectDates(config.data);
@@ -198,6 +228,41 @@ const createCrudService = (endpoint) => ({
   delete: async (id) => {
     const response = await api.delete(`/v1/${endpoint}/${id}`);
     return response.data;
+  },
+  // Add a generic import function for file uploads
+  importFile: async (file) => {
+    // Create a new FormData instance for each request
+    const formData = new FormData();
+    
+    // Explicitly add the file with the exact name 'File' as required by the API
+    // Do NOT use lowercase 'file' - it must match the API's expected parameter name
+    formData.append('File', file);
+    
+    console.log(`Uploading file to /${endpoint}/import:`, file.name, file.type, `${(file.size / 1024).toFixed(2)} KB`);
+    
+    try {
+      // Use a direct fetch call to bypass any Axios transformations
+      const response = await fetch(`${API_URL}/v1/${endpoint}/import`, {
+        method: 'POST',
+        headers: {
+          // Don't set Content-Type header for multipart/form-data
+          // Let the browser set it with the correct boundary
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: formData
+      });
+      
+      // Handle response
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('File upload error:', error);
+      throw error;
+    }
   },
 });
 

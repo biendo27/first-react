@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
+import FileImportDialog from '../../../components/common/FileImportDialog';
 import { educationModeService } from '../../../services/api';
 import EducationModeForm from './EducationModeForm';
 import { useTranslation } from 'react-i18next';
+import { handleApiError } from '../../../services/api';
 
 const EducationModeList = () => {
   const { t } = useTranslation(['admin', 'common']);
@@ -20,6 +23,7 @@ const EducationModeList = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [selectedEducationMode, setSelectedEducationMode] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -39,9 +43,10 @@ const EducationModeList = () => {
       setEducationModes(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
+      const formattedError = handleApiError(error, t('common:fetchError', { resource: t('educationModes') }));
       setAlertInfo({
         open: true,
-        message: t('common:fetchError', { resource: t('educationModes') }),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -67,6 +72,10 @@ const EducationModeList = () => {
     setFormOpen(true);
   };
 
+  const handleOpenImportDialog = () => {
+    setImportDialogOpen(true);
+  };
+
   const handleEdit = (educationMode) => {
     setSelectedEducationMode(educationMode);
     setFormOpen(true);
@@ -88,9 +97,10 @@ const EducationModeList = () => {
       });
       fetchEducationModes();
     } catch (error) {
+      const formattedError = handleApiError(error, t('educationMode.deleteError'));
       setAlertInfo({
         open: true,
-        message: t('educationMode.deleteError'),
+        message: formattedError.message,
         severity: 'error',
       });
     } finally {
@@ -106,20 +116,79 @@ const EducationModeList = () => {
     }
   };
 
+  const handleImportClose = () => {
+    setImportDialogOpen(false);
+  };
+
+  const handleImportFile = async (file) => {
+    try {
+      console.log('Starting file import in EducationModeList:', file);
+      
+      // Check if file is valid
+      if (!file || !(file instanceof File)) {
+        throw new Error('Invalid file object');
+      }
+      
+      // Log file details for debugging
+      console.log('File details:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: new Date(file.lastModified).toISOString()
+      });
+      
+      const result = await educationModeService.importFile(file);
+      console.log('Import API response:', result);
+      
+      setAlertInfo({
+        open: true,
+        message: result.message || t('educationMode.importSuccess'),
+        severity: 'success',
+      });
+      
+      // Refresh data after successful import
+      fetchEducationModes();
+      
+      return result;
+    } catch (error) {
+      console.error('Import error in EducationModeList:', error);
+      
+      const formattedError = handleApiError(error, t('educationMode.importError'));
+      console.log('Formatted error:', formattedError);
+      
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+      throw formattedError;
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
           {t('educationModes')}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenForm}
-        >
-          {t('educationMode.addEducationMode')}
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<UploadFileIcon />}
+            onClick={handleOpenImportDialog}
+          >
+            {t('common:fileImport.import')}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleOpenForm}
+          >
+            {t('educationMode.addEducationMode')}
+          </Button>
+        </Stack>
       </Box>
 
       <DataTable
@@ -143,6 +212,16 @@ const EducationModeList = () => {
         />
       )}
 
+      <FileImportDialog
+        open={importDialogOpen}
+        onClose={handleImportClose}
+        onImport={handleImportFile}
+        title={t('educationMode.importEducationModes')}
+        description={t('educationMode.importEducationModesDescription')}
+        acceptedFileTypes=".xlsx, .xls"
+        maxSize={5}
+      />
+
       <ConfirmDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -156,10 +235,12 @@ const EducationModeList = () => {
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setAlertInfo({ ...alertInfo, open: false })}
           severity={alertInfo.severity}
+          variant="filled"
         >
           {alertInfo.message}
         </Alert>

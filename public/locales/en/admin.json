@@ -214,6 +214,10 @@
     "deleteEducationMode": "Delete Education Mode",
     "deleteEducationModeConfirmation": "Are you sure you want to delete this education mode?",
     "deleteSuccess": "Education mode deleted successfully",
-    "deleteError": "Failed to delete education mode"
+    "deleteError": "Failed to delete education mode",
+    "importEducationModes": "Import Education Modes",
+    "importEducationModesDescription": "Upload an Excel file containing education modes data. The file should have columns for education mode names.",
+    "importSuccess": "Education modes imported successfully",
+    "importError": "Failed to import education modes"
   }
 } 

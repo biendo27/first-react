@@ -205,7 +205,11 @@
     "deleteEducationMode": "Xóa Hệ đào tạo",
     "deleteEducationModeConfirmation": "Bạn có chắc chắn muốn xóa hệ đào tạo này?",
     "deleteSuccess": "Đã xóa hệ đào tạo thành công",
-    "deleteError": "Không thể xóa hệ đào tạo"
+    "deleteError": "Không thể xóa hệ đào tạo",
+    "importEducationModes": "Nhập Hệ đào tạo",
+    "importEducationModesDescription": "Tải lên tệp Excel chứa dữ liệu hệ đào tạo. Tệp nên có cột cho tên hệ đào tạo.",
+    "importSuccess": "Đã nhập hệ đào tạo thành công",
+    "importError": "Không thể nhập hệ đào tạo"
   },
   "subjectCode": "Mã Môn Học",
   "credit": "Tín Chỉ",
