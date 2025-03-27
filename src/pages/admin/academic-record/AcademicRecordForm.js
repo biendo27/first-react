@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import { Snackbar, Alert } from '@mui/material';
 import FormDialog from '../../../components/common/FormDialog';
 import FormField from '../../../components/common/FormField';
-import { academicRecordService, studentService, subjectService, handleApiError } from '../../../services/api';
+import { academicRecordService, studentService, subjectService, subjectExemptionService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
@@ -57,15 +57,36 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
   const fetchDependencies = async () => {
     setFetchLoading(true);
     try {
-      const [studentsResponse, subjectsResponse] = await Promise.all([
-        studentService.getAll({ PageSize: 100 }),
-        subjectService.getAll({ PageSize: 100 }),
-      ]);
-
+      // Only fetch students initially
+      const studentsResponse = await studentService.getAll({ PageSize: 100 });
       setStudents(studentsResponse.data || []);
-      setSubjects(subjectsResponse.data || []);
     } catch (error) {
       console.error('Error fetching dependencies:', error);
+    } finally {
+      setFetchLoading(false);
+    }
+  };
+
+  const fetchSubjectsForStudent = async (studentId) => {
+    if (!studentId) return;
+    
+    setFetchLoading(true);
+    try {
+      // Find the student code from the selected student
+      const selectedStudent = students.find(s => s.id === studentId);
+      if (selectedStudent) {
+        const response = await subjectExemptionService.getStudentSubjects({
+          StudentCode: selectedStudent.studentCode,
+          PageSize: 100
+        });
+        setSubjects(response.data || []);
+      } else {
+        // Fallback to all subjects if student not found
+        const response = await subjectService.getAll({ PageSize: 100 });
+        setSubjects(response.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching subjects for student:', error);
     } finally {
       setFetchLoading(false);
     }
@@ -74,6 +95,20 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
   useEffect(() => {
     fetchDependencies();
   }, []);
+
+  // Fetch subjects when student selection changes
+  useEffect(() => {
+    const studentId = initialValues.studentId;
+    if (studentId) {
+      fetchSubjectsForStudent(studentId);
+    }
+  }, [initialValues.studentId]);
+
+  // Add handler for student selection change
+  const handleStudentChange = (event) => {
+    const studentId = event.target.value;
+    fetchSubjectsForStudent(studentId);
+  };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);
@@ -149,6 +184,10 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
           options={studentOptions}
           required
           disabled={fetchLoading}
+          onChange={(e) => {
+            // This will be called along with Formik's onChange
+            handleStudentChange(e);
+          }}
         />
         <FormField
           name="subjectId"

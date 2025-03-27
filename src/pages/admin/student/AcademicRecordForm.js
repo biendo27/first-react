@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { academicRecordService, subjectService, handleApiError } from '../../../services/api';
+import { academicRecordService, subjectService, subjectExemptionService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
@@ -61,11 +61,14 @@ const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
 
   useEffect(() => {
     const fetchSubjects = async () => {
-      if (!open) return;
+      if (!open || !student) return;
       
       setLoadingSubjects(true);
       try {
-        const response = await subjectService.getAll({ PageSize: 100 });
+        const response = await subjectExemptionService.getStudentSubjects({
+          StudentCode: student.studentCode,
+          PageSize: 100
+        });
         setSubjects(response.data || []);
       } catch (err) {
         const formattedError = handleApiError(err, t('academicRecord.failedToLoadSubjects'));
@@ -76,7 +79,7 @@ const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
     };
 
     fetchSubjects();
-  }, [open, t]);
+  }, [open, student, t]);
 
   const handleSubmit = async (values) => {
     setLoading(true);
