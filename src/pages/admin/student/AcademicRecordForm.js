@@ -34,6 +34,11 @@ const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
     return date.toISOString().split('T')[0];
   };
 
+  // Get today's date formatted for input
+  const getTodayFormatted = () => {
+    return formatDateForInput(new Date());
+  };
+
   const validationSchema = Yup.object({
     subjectId: Yup.string().required(t('common:fieldRequired', { field: t('academicRecord.subject') })),
     zScore: Yup.number()
@@ -122,7 +127,7 @@ const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
       academicYear: academicRecord?.academicYear || new Date().getFullYear(),
       semester: academicRecord?.semester || 1,
       resultType: academicRecord?.resultType || 'Passed',
-      completionDate: formatDateForInput(academicRecord?.completionDate) || formatDateForInput(new Date()),
+      completionDate: academicRecord ? formatDateForInput(academicRecord.completionDate) : getTodayFormatted(),
       note: academicRecord?.note || '',
     },
     validationSchema,
@@ -255,24 +260,26 @@ const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
                 <MenuItem value="Exempted">{t('academicRecord.resultTypes.exempted')}</MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="completionDate"
-                name="completionDate"
-                label={t('academicRecord.completionDate')}
-                type="date"
-                value={formik.values.completionDate}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.completionDate && Boolean(formik.errors.completionDate)}
-                helperText={formik.touched.completionDate && formik.errors.completionDate}
-                disabled={loading}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </Grid>
+            {isEditing && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  id="completionDate"
+                  name="completionDate"
+                  label={t('academicRecord.completionDate')}
+                  type="date"
+                  value={formik.values.completionDate}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.completionDate && Boolean(formik.errors.completionDate)}
+                  helperText={formik.touched.completionDate && formik.errors.completionDate}
+                  disabled={loading}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
+            )}
             <Grid item xs={12}>
               <TextField
                 fullWidth

@@ -121,7 +121,7 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
 
   const semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8].map(semester => ({
     value: semester,
-    label: `${t('academicRecord.semester')} ${semester}`,
+    label: t('academicRecord.semesterNumber', { number: semester }),
   }));
 
   const resultTypeOptions = [
@@ -186,14 +186,16 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
           options={resultTypeOptions}
           required
         />
-        <FormField
-          name="completionDate"
-          label={t('academicRecord.completionDate')}
-          type="date"
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
+        {academicRecord && (
+          <FormField
+            name="completionDate"
+            label={t('academicRecord.completionDate')}
+            type="date"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        )}
         <FormField
           name="note"
           label={t('academicRecord.note')}
