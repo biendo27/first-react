@@ -1,0 +1,20 @@
+{
+  "academicRecordsButton": "View Academic Records",
+  "academicRecord": {
+    "studentRecords": "Academic Records - {{name}} ({{code}})",
+    "subject": "Subject",
+    "zScore": "Z Score",
+    "academicYear": "Academic Year",
+    "semester": "Semester",
+    "resultType": "Result Type",
+    "completionDate": "Completion Date",
+    "noRecordsFound": "No academic records found",
+    "failedToLoad": "Failed to load academic records",
+    "resultTypes": {
+      "all": "All",
+      "disqualification": "Disqualification",
+      "passed": "Passed",
+      "exempted": "Exempted"
+    }
+  }
+} 

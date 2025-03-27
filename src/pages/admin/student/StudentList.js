@@ -4,14 +4,16 @@ import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
+import SchoolIcon from '@mui/icons-material/School';
+import GradeIcon from '@mui/icons-material/Grade';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import FileImportDialog from '../../../components/common/FileImportDialog';
 import { studentService, handleApiError } from '../../../services/api';
 import StudentForm from './StudentForm';
 import SubjectExemptionDialog from './SubjectExemptionDialog';
+import StudentAcademicRecordDialog from './StudentAcademicRecordDialog';
 import { useTranslation } from 'react-i18next';
-import SchoolIcon from '@mui/icons-material/School';
 
 const StudentList = () => {
   const { t } = useTranslation(['admin', 'common']);
@@ -56,6 +58,7 @@ const StudentList = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [academicRecordDialogOpen, setAcademicRecordDialogOpen] = useState(false);
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -224,6 +227,17 @@ const StudentList = () => {
     handleOpenExemptionDialog(student);
   };
 
+  const handleAcademicRecordButtonClick = (e, student) => {
+    e.stopPropagation();
+    setSelectedStudent(student);
+    setAcademicRecordDialogOpen(true);
+  };
+
+  const handleAcademicRecordDialogClose = () => {
+    setAcademicRecordDialogOpen(false);
+    setSelectedStudent(null);
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -331,15 +345,26 @@ const StudentList = () => {
         onEdit={handleEdit}
         onDelete={handleDelete}
         customActions={(row) => (
-          <Tooltip title={t('exemptionsButton')}>
-            <IconButton
-              size="small"
-              onClick={(e) => handleExemptionButtonClick(e, row)}
-              color="primary"
-            >
-              <SchoolIcon />
-            </IconButton>
-          </Tooltip>
+          <>
+            <Tooltip title={t('exemptionsButton')}>
+              <IconButton
+                size="small"
+                onClick={(e) => handleExemptionButtonClick(e, row)}
+                color="primary"
+              >
+                <SchoolIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={t('academicRecordsButton')}>
+              <IconButton
+                size="small"
+                onClick={(e) => handleAcademicRecordButtonClick(e, row)}
+                color="primary"
+              >
+                <GradeIcon />
+              </IconButton>
+            </Tooltip>
+          </>
         )}
       />
 
@@ -365,6 +390,14 @@ const StudentList = () => {
         <SubjectExemptionDialog
           open={exemptionDialogOpen}
           onClose={handleExemptionDialogClose}
+          student={selectedStudent}
+        />
+      )}
+
+      {academicRecordDialogOpen && selectedStudent && (
+        <StudentAcademicRecordDialog
+          open={academicRecordDialogOpen}
+          onClose={handleAcademicRecordDialogClose}
           student={selectedStudent}
         />
       )}

@@ -36,8 +36,8 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
     setLoading(true);
     setError(null);
     try {
-      // Set XScore and YScore equal to ZScore
-      const finalScore = values.zScore;
+      // Set XScore and YScore equal to ZScore internally
+      const finalScore = Number(values.zScore);
       
       if (isEditing) {
         // Update existing exemption
@@ -109,7 +109,7 @@ const ExemptionForm = ({ open, onClose, student, subject, exemption }) => {
                 fullWidth
                 id="zScore"
                 name="zScore"
-                label={t('exemption.finalScore', { defaultValue: 'Final Score' })}
+                label={t('exemption.zScore')}
                 type="number"
                 inputProps={{ step: 0.1, min: 0, max: 10 }}
                 value={formik.values.zScore}

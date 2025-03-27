@@ -143,8 +143,6 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
             <TableRow>
               <TableCell>{t('exemption.subjectCode')}</TableCell>
               <TableCell>{t('exemption.subjectName')}</TableCell>
-              <TableCell>{t('exemption.xScore')}</TableCell>
-              <TableCell>{t('exemption.yScore')}</TableCell>
               <TableCell>{t('exemption.zScore')}</TableCell>
               <TableCell align="right">{t('common:actions')}</TableCell>
             </TableRow>
@@ -152,7 +150,7 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
           <TableBody>
             {exemptionsLoading ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={4} align="center">
                   <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
                     <CircularProgress size={30} />
                   </Box>
@@ -160,7 +158,7 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
               </TableRow>
             ) : exemptions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={4} align="center">
                   <Box sx={{ py: 3 }}>{t('exemption.noExemptionsFound')}</Box>
                 </TableCell>
               </TableRow>
@@ -169,8 +167,6 @@ const ExemptionsTable = memo(({ exemptions, exemptionsLoading, totalExemptions, 
                 <TableRow key={exemption.id}>
                   <TableCell>{exemption.subject?.subjectCode || '-'}</TableCell>
                   <TableCell>{exemption.subject?.name || '-'}</TableCell>
-                  <TableCell>{exemption.xScore.toFixed(2)}</TableCell>
-                  <TableCell>{exemption.yScore.toFixed(2)}</TableCell>
                   <TableCell>{exemption.zScore.toFixed(2)}</TableCell>
                   <TableCell align="right">
                     <IconButton
