@@ -29,10 +29,20 @@ const DataTable = ({
   onPageSizeChange,
   onEdit,
   onDelete,
-  renderActions,
-  resourceName,
+  disableActions,
+  emptyMessage,
 }) => {
   const { t } = useTranslation('common');
+  
+  // Check if the columns array already includes an actions column
+  const hasActionsColumn = columns.some(col => col.id === 'actions');
+  
+  // Only show the default actions column if there isn't already an actions column
+  // and actions are needed (onEdit or onDelete provided and not disabled)
+  const showDefaultActions = !hasActionsColumn && !disableActions && (onEdit || onDelete);
+  
+  // Total columns including potential default actions column
+  const totalColumns = showDefaultActions ? columns.length + 1 : columns.length;
 
   return (
     <Paper>
@@ -44,24 +54,27 @@ const DataTable = ({
                 <TableCell
                   key={column.id}
                   style={{ minWidth: column.minWidth }}
+                  align={column.align}
                 >
                   {column.label}
                 </TableCell>
               ))}
-              <TableCell>{t('actions')}</TableCell>
+              {showDefaultActions && (
+                <TableCell align="center">{t('actions')}</TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={columns.length + 1} align="center">
+                <TableCell colSpan={totalColumns} align="center">
                   <CircularProgress />
                 </TableCell>
               </TableRow>
             ) : data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length + 1} align="center">
-                  {t('noData')}
+                <TableCell colSpan={totalColumns} align="center">
+                  {emptyMessage || t('noData')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -72,18 +85,16 @@ const DataTable = ({
                       ? column.render(row)
                       : row[column.id];
                     return (
-                      <TableCell key={column.id}>
+                      <TableCell key={column.id} align={column.align}>
                         {value}
                       </TableCell>
                     );
                   })}
-                  <TableCell>
-                    {renderActions ? (
-                      renderActions(row)
-                    ) : (
+                  {showDefaultActions && (
+                    <TableCell align="center">
                       <Box>
                         {onEdit && (
-                          <Tooltip title={t('edit', { resource: resourceName || '' })}>
+                          <Tooltip title={t('edit', { resource: '' })}>
                             <IconButton
                               size="small"
                               onClick={() => onEdit(row)}
@@ -94,7 +105,7 @@ const DataTable = ({
                           </Tooltip>
                         )}
                         {onDelete && (
-                          <Tooltip title={t('delete', { resource: resourceName || '' })}>
+                          <Tooltip title={t('delete', { resource: '' })}>
                             <IconButton
                               size="small"
                               onClick={() => onDelete(row)}
@@ -105,8 +116,8 @@ const DataTable = ({
                           </Tooltip>
                         )}
                       </Box>
-                    )}
-                  </TableCell>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             )}
@@ -141,8 +152,8 @@ DataTable.propTypes = {
   onPageSizeChange: PropTypes.func.isRequired,
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,
-  renderActions: PropTypes.func,
-  resourceName: PropTypes.string,
+  disableActions: PropTypes.bool,
+  emptyMessage: PropTypes.string,
 };
 
 export default DataTable; 

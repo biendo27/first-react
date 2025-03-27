@@ -5,12 +5,16 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
+import PeopleIcon from '@mui/icons-material/People';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import FileImportDialog from '../../../components/common/FileImportDialog';
 import { administrativeClassService, handleApiError } from '../../../services/api';
 import AdministrativeClassForm from './AdministrativeClassForm';
 import { useTranslation } from 'react-i18next';
+import StudentListDialog from './StudentListDialog';
 
 const AdministrativeClassList = () => {
   const { t } = useTranslation(['admin', 'common']);
@@ -34,6 +38,52 @@ const AdministrativeClassList = () => {
       label: t('admin:educationModes', 'Hệ đào tạo'), 
       minWidth: 150,
       render: (row) => row.educationMode?.name || 'N/A'
+    },
+    {
+      id: 'actions',
+      label: t('common:actions'),
+      minWidth: 150,
+      align: 'center',
+      render: (row) => (
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <IconButton
+            color="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewStudents(row);
+            }}
+            title={t('administrativeClass.viewStudents', 'View Students')}
+            size="small"
+            sx={{ mx: 0.5 }}
+          >
+            <PeopleIcon />
+          </IconButton>
+          <IconButton
+            color="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(row);
+            }}
+            title={t('common:edit')}
+            size="small"
+            sx={{ mx: 0.5 }}
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            color="error"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(row);
+            }}
+            title={t('common:delete')}
+            size="small"
+            sx={{ mx: 0.5 }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Box>
+      )
     }
   ];
 
@@ -47,6 +97,9 @@ const AdministrativeClassList = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  
+  // Student list dialog state
+  const [studentListOpen, setStudentListOpen] = useState(false);
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -112,6 +165,12 @@ const AdministrativeClassList = () => {
   const handleDelete = (administrativeClass) => {
     setSelectedClass(administrativeClass);
     setDeleteDialogOpen(true);
+  };
+
+  // Function to handle viewing students of a class
+  const handleViewStudents = (administrativeClass) => {
+    setSelectedClass(administrativeClass);
+    setStudentListOpen(true);
   };
 
   const confirmDelete = async () => {
@@ -295,6 +354,14 @@ const AdministrativeClassList = () => {
         <AdministrativeClassForm
           open={formOpen}
           onClose={handleFormClose}
+          administrativeClass={selectedClass}
+        />
+      )}
+
+      {studentListOpen && selectedClass && (
+        <StudentListDialog
+          open={studentListOpen}
+          onClose={() => setStudentListOpen(false)}
           administrativeClass={selectedClass}
         />
       )}
