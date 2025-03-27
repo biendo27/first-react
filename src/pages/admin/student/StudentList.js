@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Grid, Paper } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Grid, Paper, IconButton, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -11,6 +11,7 @@ import { studentService, handleApiError } from '../../../services/api';
 import StudentForm from './StudentForm';
 import SubjectExemptionDialog from './SubjectExemptionDialog';
 import { useTranslation } from 'react-i18next';
+import SchoolIcon from '@mui/icons-material/School';
 
 const StudentList = () => {
   const { t } = useTranslation(['admin', 'common']);
@@ -41,24 +42,6 @@ const StudentList = () => {
       label: t('student.class'), 
       minWidth: 150,
       render: (row) => row.administrativeClass?.name || 'N/A'
-    },
-    { 
-      id: 'exemption', 
-      label: t('exemptionsButton'), 
-      minWidth: 120,
-      renderAction: true,
-      render: (row) => (
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleOpenExemptionDialog(row);
-          }}
-        >
-          {t('exemptionsButton')}
-        </Button>
-      )
     },
   ];
   
@@ -236,6 +219,11 @@ const StudentList = () => {
     setShowFilters(!showFilters);
   };
 
+  const handleExemptionButtonClick = (e, student) => {
+    e.stopPropagation();
+    handleOpenExemptionDialog(student);
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -342,6 +330,17 @@ const StudentList = () => {
         onPageSizeChange={handlePageSizeChange}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        customActions={(row) => (
+          <Tooltip title={t('exemptionsButton')}>
+            <IconButton
+              size="small"
+              onClick={(e) => handleExemptionButtonClick(e, row)}
+              color="primary"
+            >
+              <SchoolIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       />
 
       {formOpen && (

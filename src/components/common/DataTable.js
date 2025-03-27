@@ -31,6 +31,7 @@ const DataTable = ({
   onDelete,
   disableActions,
   emptyMessage,
+  customActions,
 }) => {
   const { t } = useTranslation('common');
   
@@ -39,7 +40,7 @@ const DataTable = ({
   
   // Only show the default actions column if there isn't already an actions column
   // and actions are needed (onEdit or onDelete provided and not disabled)
-  const showDefaultActions = !hasActionsColumn && !disableActions && (onEdit || onDelete);
+  const showDefaultActions = !hasActionsColumn && !disableActions && (onEdit || onDelete || customActions);
   
   // Total columns including potential default actions column
   const totalColumns = showDefaultActions ? columns.length + 1 : columns.length;
@@ -93,6 +94,7 @@ const DataTable = ({
                   {showDefaultActions && (
                     <TableCell align="center">
                       <Box>
+                        {customActions && customActions(row)}
                         {onEdit && (
                           <Tooltip title={t('edit')}>
                             <IconButton
@@ -154,6 +156,7 @@ DataTable.propTypes = {
   onDelete: PropTypes.func,
   disableActions: PropTypes.bool,
   emptyMessage: PropTypes.string,
+  customActions: PropTypes.func,
 };
 
 export default DataTable; 
