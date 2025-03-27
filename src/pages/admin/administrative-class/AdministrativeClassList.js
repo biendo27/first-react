@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Paper, InputAdornment, IconButton } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Paper, InputAdornment, IconButton, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -46,42 +46,45 @@ const AdministrativeClassList = () => {
       align: 'center',
       render: (row) => (
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <IconButton
-            color="primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleViewStudents(row);
-            }}
-            title={t('administrativeClass.viewStudents', 'View Students')}
-            size="small"
-            sx={{ mx: 0.5 }}
-          >
-            <PeopleIcon />
-          </IconButton>
-          <IconButton
-            color="primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(row);
-            }}
-            title={t('common:edit')}
-            size="small"
-            sx={{ mx: 0.5 }}
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            color="error"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(row);
-            }}
-            title={t('common:delete')}
-            size="small"
-            sx={{ mx: 0.5 }}
-          >
-            <DeleteIcon />
-          </IconButton>
+          <Tooltip title={t('common:viewStudents')}>
+            <IconButton
+              color="primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewStudents(row);
+              }}
+              size="small"
+              sx={{ mx: 0.5 }}
+            >
+              <PeopleIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('common:edit')}>
+            <IconButton
+              color="primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(row);
+              }}
+              size="small"
+              sx={{ mx: 0.5 }}
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('common:delete')}>
+            <IconButton
+              color="error"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(row);
+              }}
+              size="small"
+              sx={{ mx: 0.5 }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
         </Box>
       )
     }

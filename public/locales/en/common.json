@@ -8,6 +8,7 @@
   "add": "Add {{resource}}",
   "edit": "Edit {{resource}}",
   "delete": "Delete {{resource}}",
+  "viewStudents": "View Students",
   "save": "Save",
   "cancel": "Cancel",
   "search": "Search",

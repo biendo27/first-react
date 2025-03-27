@@ -8,6 +8,7 @@
   "add": "Thêm {{resource}}",
   "edit": "Sửa {{resource}}",
   "delete": "Xóa {{resource}}",
+  "viewStudents": "Xem Sinh Viên",
   "save": "Lưu",
   "saving": "Đang lưu...",
   "cancel": "Hủy",

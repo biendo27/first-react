@@ -94,7 +94,7 @@ const DataTable = ({
                     <TableCell align="center">
                       <Box>
                         {onEdit && (
-                          <Tooltip title={t('edit', { resource: '' })}>
+                          <Tooltip title={t('edit')}>
                             <IconButton
                               size="small"
                               onClick={() => onEdit(row)}
@@ -105,7 +105,7 @@ const DataTable = ({
                           </Tooltip>
                         )}
                         {onDelete && (
-                          <Tooltip title={t('delete', { resource: '' })}>
+                          <Tooltip title={t('delete')}>
                             <IconButton
                               size="small"
                               onClick={() => onDelete(row)}

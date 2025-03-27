@@ -190,7 +190,10 @@
     "studentSaveSuccess": "Student saved successfully",
     "studentSaveError": "Failed to save student",
     "studentDetails": "Student Details",
-    "actions": "Actions"
+    "actions": "Actions",
+    "searchByNameOrCode": "Search by name or student code",
+    "noStudentsFound": "No students found",
+    "failedToLoadStudents": "Failed to load students"
   },
   "trainingProgram": {
     "editTrainingProgram": "Edit Training Program",
@@ -206,7 +209,8 @@
     "deleteAdministrativeClass": "Delete Administrative Class",
     "deleteConfirmation": "Are you sure you want to delete the administrative class \"{{name}}\"?",
     "deleteSuccess": "Administrative class deleted successfully",
-    "deleteError": "Failed to delete administrative class"
+    "deleteError": "Failed to delete administrative class",
+    "studentsInClass": "Students in Class"
   },
   "educationMode": {
     "addEducationMode": "Add Education Mode",

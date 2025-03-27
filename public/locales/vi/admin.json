@@ -176,8 +176,8 @@
   "student": {
     "studentCode": "Mã sinh viên",
     "fullName": "Họ và tên",
-    "firstName": "Tên",
-    "lastName": "Họ",
+    "firstName": "Họ",
+    "lastName": "Tên",
     "dateOfBirth": "Ngày sinh",
     "email": "Email",
     "phoneNumber": "Số điện thoại",
@@ -202,7 +202,10 @@
     "importStudents": "Nhập Sinh Viên",
     "importStudentsDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu sinh viên. Kích thước tệp tối đa là 5MB.",
     "importSuccess": "Đã nhập sinh viên thành công",
-    "importError": "Không thể nhập sinh viên"
+    "importError": "Không thể nhập sinh viên",
+    "searchByNameOrCode": "Tìm theo tên hoặc mã sinh viên",
+    "noStudentsFound": "Không tìm thấy sinh viên nào",
+    "failedToLoadStudents": "Không thể tải danh sách sinh viên"
   },
   "administrativeClass": {
     "name": "Tên",
@@ -215,7 +218,8 @@
     "importAdministrativeClasses": "Nhập Lớp Hành Chính",
     "importAdministrativeClassesDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu lớp hành chính. Kích thước tệp tối đa là 5MB.",
     "importSuccess": "Đã nhập lớp hành chính thành công",
-    "importError": "Không thể nhập lớp hành chính"
+    "importError": "Không thể nhập lớp hành chính",
+    "studentsInClass": "Danh Sách Sinh Viên Trong Lớp"
   },
   "educationMode": {
     "addEducationMode": "Thêm Hệ đào tạo",
