@@ -320,12 +320,12 @@ const TrainingProgramList = () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <FormControl fullWidth size="small">
-              <InputLabel id="course-batch-filter-label">{t('admin:courseBatch')}</InputLabel>
+              <InputLabel id="course-batch-filter-label">{t('admin:courseBatch.displayName')}</InputLabel>
               <Select
                 labelId="course-batch-filter-label"
                 value={selectedCourseBatchId}
                 onChange={handleCourseBatchChange}
-                label={t('admin:courseBatch')}
+                label={t('admin:courseBatch.displayName')}
                 disabled={filtersLoading}
               >
                 <MenuItem value="">{t('common:all')}</MenuItem>

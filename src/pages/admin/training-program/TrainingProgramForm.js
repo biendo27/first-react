@@ -159,7 +159,7 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
           />
           <FormField
             name="courseBatchId"
-            label={t('courseBatch')}
+            label={t('admin:courseBatch.displayName')}
             type="select"
             options={courseBatchOptions}
             required

@@ -28,7 +28,6 @@
   "exemptionsButton": "Bảo Lưu",
   "semester": "Học Kỳ",
   "academicYear": "Năm Học",
-  "courseBatch": "Khóa Học",
   "courseBatches": "Danh Sách Khóa Học",
   "addCourseBatch": "Thêm Khóa Học",
   "editCourseBatch": "Sửa Khóa Học",
@@ -242,6 +241,7 @@
   "trainingProgramImportSuccess": "Đã nhập chương trình đào tạo thành công",
   "trainingProgramImportError": "Không thể nhập chương trình đào tạo",
   "courseBatch": {
+    "displayName": "Khóa Học",
     "importCourseBatches": "Nhập Khóa Học",
     "importCourseBatchesDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu khóa học. Kích thước tệp tối đa là 5MB.",
     "importSuccess": "Đã nhập khóa học thành công", 

@@ -19,7 +19,7 @@ const AdministrativeClassList = () => {
     { id: 'name', label: t('administrativeClass.name', 'Tên'), minWidth: 200 },
     { 
       id: 'courseBatch', 
-      label: 'Course Batch', 
+      label: t('admin:courseBatch.displayName', 'Khóa Học'), 
       minWidth: 150,
       render: (row) => row.courseBatch?.name || 'N/A'
     },
@@ -31,7 +31,7 @@ const AdministrativeClassList = () => {
     },
     { 
       id: 'educationMode', 
-      label: 'Education Mode', 
+      label: t('admin:educationModes', 'Hệ đào tạo'), 
       minWidth: 150,
       render: (row) => row.educationMode?.name || 'N/A'
     }
