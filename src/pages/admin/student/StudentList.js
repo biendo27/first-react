@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Grid, Paper, IconButton, Tooltip } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Grid, Paper, IconButton, Tooltip, FormControl, InputLabel, Select, MenuItem, InputAdornment, CircularProgress } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import SchoolIcon from '@mui/icons-material/School';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import FileImportDialog from '../../../components/common/FileImportDialog';
-import { studentService, handleApiError } from '../../../services/api';
+import { studentService, handleApiError, administrativeClassService } from '../../../services/api';
 import StudentForm from './StudentForm';
 import SubjectExemptionDialog from './SubjectExemptionDialog';
 import AcademicRecordDialog from './AcademicRecordDialog';
@@ -65,15 +66,36 @@ const StudentList = () => {
     FirstName: '',
     LastName: '',
     StudentCode: '',
-    AdministrativeClass: '',
+    AdministrativeClassId: ''
   });
   const [showFilters, setShowFilters] = useState(false);
+  
+  // State for administrative classes
+  const [administrativeClasses, setAdministrativeClasses] = useState([]);
+  const [classesLoading, setClassesLoading] = useState(false);
   
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     message: '',
     severity: 'success',
   });
+
+  // Fetch administrative classes
+  const fetchAdministrativeClasses = useCallback(async () => {
+    setClassesLoading(true);
+    try {
+      const response = await administrativeClassService.getAll({ PageSize: 100 });
+      setAdministrativeClasses(response.data || []);
+    } catch (error) {
+      console.error('Error fetching administrative classes:', error);
+    } finally {
+      setClassesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAdministrativeClasses();
+  }, [fetchAdministrativeClasses]);
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -211,10 +233,9 @@ const StudentList = () => {
 
   const handleClearFilters = () => {
     setFilters({
-      FirstName: '',
       LastName: '',
       StudentCode: '',
-      AdministrativeClass: ''
+      AdministrativeClassId: ''
     });
   };
 
@@ -276,9 +297,17 @@ const StudentList = () => {
       </Box>
 
       {showFilters && (
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={3}>
+        <Paper 
+          elevation={2} 
+          sx={{ 
+            p: 3, 
+            mb: 3, 
+            borderRadius: 2,
+            backgroundColor: theme => theme.palette.background.default
+          }}
+        >
+          <Grid container spacing={3} alignItems="flex-start">
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
                 name="StudentCode"
@@ -289,18 +318,7 @@ const StudentList = () => {
                 onChange={handleFilterChange}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                name="FirstName"
-                label={t('student.firstName')}
-                variant="outlined"
-                size="small"
-                value={filters.FirstName}
-                onChange={handleFilterChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
                 name="LastName"
@@ -311,23 +329,48 @@ const StudentList = () => {
                 onChange={handleFilterChange}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                name="AdministrativeClass"
-                label={t('student.class')}
-                variant="outlined"
-                size="small"
-                value={filters.AdministrativeClass}
-                onChange={handleFilterChange}
-              />
+            <Grid item xs={12} md={4}>
+              <FormControl fullWidth size="small" variant="outlined">
+                <InputLabel id="administrative-class-label">{t('student.class')}</InputLabel>
+                <Select
+                  labelId="administrative-class-label"
+                  id="AdministrativeClassId"
+                  name="AdministrativeClassId"
+                  value={filters.AdministrativeClassId}
+                  onChange={handleFilterChange}
+                  label={t('student.class')}
+                  disabled={classesLoading}
+                >
+                  <MenuItem value="">{t('common:all')}</MenuItem>
+                  {administrativeClasses.map((adminClass) => (
+                    <MenuItem key={adminClass.id} value={adminClass.id}>
+                      {adminClass.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {classesLoading && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', ml: 1, mt: 1 }}>
+                    <CircularProgress size={16} />
+                    <Typography variant="caption" sx={{ ml: 1 }}>
+                      {t('common:loading')}
+                    </Typography>
+                  </Box>
+                )}
+              </FormControl>
             </Grid>
-            <Grid item xs={12} display="flex" justifyContent="flex-end">
+            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
               <Button
                 variant="outlined"
                 color="primary"
                 startIcon={<ClearIcon />}
                 onClick={handleClearFilters}
+                size="medium"
+                sx={{ 
+                  borderRadius: 1.5,
+                  px: 3,
+                  py: 1,
+                  fontWeight: 500
+                }}
               >
                 {t('common:clearFilters')}
               </Button>

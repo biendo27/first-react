@@ -1475,10 +1475,11 @@
             }
           },
           {
-            "name": "AdministrativeClass",
+            "name": "AdministrativeClassId",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           },
           {
