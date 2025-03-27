@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem, Grid, Paper, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import ClearIcon from '@mui/icons-material/Clear';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import FileImportDialog from '../../../components/common/FileImportDialog';
@@ -65,6 +67,7 @@ const TrainingProgramList = () => {
   const [selectedMajorId, setSelectedMajorId] = useState('');
   const [selectedCourseBatchId, setSelectedCourseBatchId] = useState('');
   const [filtersLoading, setFiltersLoading] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const [importDialogOpen, setImportDialogOpen] = useState(false);
 
@@ -195,6 +198,16 @@ const TrainingProgramList = () => {
     setPage(1); // Reset to first page when filter changes
   };
 
+  const handleToggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedMajorId('');
+    setSelectedCourseBatchId('');
+    setPage(1);
+  };
+
   const handleDuplicate = () => {
     setDuplicateDialogOpen(true);
   };
@@ -254,22 +267,28 @@ const TrainingProgramList = () => {
         <Typography variant="h4" component="h1">
           {t('admin:trainingPrograms')}
         </Typography>
-        <Box>
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<FilterAltIcon />}
+            onClick={handleToggleFilters}
+          >
+            {showFilters ? t('common:hideFilters') : t('common:showFilters')}
+          </Button>
           <Button
             variant="outlined"
             color="primary"
             startIcon={<UploadFileIcon />}
             onClick={handleOpenImportDialog}
-            sx={{ mr: 2 }}
           >
-            {t('common:fileImport.import')}
+            {t('common:import')}
           </Button>
           <Button
             variant="outlined"
             color="primary"
             startIcon={<ContentCopyIcon />}
             onClick={handleDuplicate}
-            sx={{ mr: 2 }}
             disabled={!selectedCourseBatchId}
           >
             {t('admin:duplicateTrainingProgram', 'Duplicate')}
@@ -282,63 +301,75 @@ const TrainingProgramList = () => {
           >
             {t('admin:addTrainingProgram')}
           </Button>
-        </Box>
+        </Stack>
       </Box>
 
       {/* Filters section */}
-      <Box 
-        sx={{ 
-          mb: 3, 
-          p: 2, 
-          backgroundColor: 'white', 
-          borderRadius: 1,
-          boxShadow: 1
-        }}
-      >
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          {t('common:filters')}
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="major-filter-label">{t('admin:majors')}</InputLabel>
-              <Select
-                labelId="major-filter-label"
-                value={selectedMajorId}
-                onChange={handleMajorChange}
-                label={t('admin:majors')}
-                disabled={filtersLoading}
+      {showFilters && (
+        <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={5}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="major-filter-label">{t('admin:majors')}</InputLabel>
+                <Select
+                  labelId="major-filter-label"
+                  value={selectedMajorId}
+                  onChange={handleMajorChange}
+                  label={t('admin:majors')}
+                  disabled={filtersLoading}
+                  sx={{ 
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 1.5
+                    }
+                  }}
+                >
+                  <MenuItem value="">{t('common:all')}</MenuItem>
+                  {majors.map((major) => (
+                    <MenuItem key={major.id} value={major.id}>
+                      {major.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="course-batch-filter-label">{t('admin:courseBatch.displayName')}</InputLabel>
+                <Select
+                  labelId="course-batch-filter-label"
+                  value={selectedCourseBatchId}
+                  onChange={handleCourseBatchChange}
+                  label={t('admin:courseBatch.displayName')}
+                  disabled={filtersLoading}
+                  sx={{ 
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 1.5
+                    }
+                  }}
+                >
+                  <MenuItem value="">{t('common:all')}</MenuItem>
+                  {courseBatches.map((batch) => (
+                    <MenuItem key={batch.id} value={batch.id}>
+                      {batch.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={2} display="flex" justifyContent="flex-end">
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<ClearIcon />}
+                onClick={handleClearFilters}
+                sx={{ mt: { xs: 1, md: 0 } }}
               >
-                <MenuItem value="">{t('common:all')}</MenuItem>
-                {majors.map((major) => (
-                  <MenuItem key={major.id} value={major.id}>
-                    {major.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                {t('common:clearFilters')}
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="course-batch-filter-label">{t('admin:courseBatch.displayName')}</InputLabel>
-              <Select
-                labelId="course-batch-filter-label"
-                value={selectedCourseBatchId}
-                onChange={handleCourseBatchChange}
-                label={t('admin:courseBatch.displayName')}
-                disabled={filtersLoading}
-              >
-                <MenuItem value="">{t('common:all')}</MenuItem>
-                {courseBatches.map((batch) => (
-                  <MenuItem key={batch.id} value={batch.id}>
-                    {batch.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-      </Box>
+        </Paper>
+      )}
 
       <DataTable
         columns={columns}

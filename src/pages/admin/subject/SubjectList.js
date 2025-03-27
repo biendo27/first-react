@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, Stack } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Paper, InputAdornment, IconButton, Grid } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import ClearIcon from '@mui/icons-material/Clear';
+import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import FileImportDialog from '../../../components/common/FileImportDialog';
@@ -40,6 +43,13 @@ const SubjectList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   
+  // Filter states
+  const [filters, setFilters] = useState({
+    Name: '',
+    SubjectCode: ''
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     message: '',
@@ -52,6 +62,7 @@ const SubjectList = () => {
       const response = await subjectService.getAll({
         PageIndex: page,
         PageSize: pageSize,
+        ...filters
       });
       setSubjects(response.data || []);
       setTotalCount(response.totalCount || 0);
@@ -65,7 +76,7 @@ const SubjectList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, t]);
+  }, [page, pageSize, filters, t]);
 
   useEffect(() => {
     fetchSubjects();
@@ -161,6 +172,33 @@ const SubjectList = () => {
       throw formattedError;
     }
   };
+  
+  // Filter handlers
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      Name: '',
+      SubjectCode: ''
+    });
+  };
+
+  const handleToggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  const handleClearSingleFilter = (name) => {
+    setFilters(prev => ({
+      ...prev,
+      [name]: ''
+    }));
+  };
 
   return (
     <Box>
@@ -172,10 +210,18 @@ const SubjectList = () => {
           <Button
             variant="outlined"
             color="primary"
+            startIcon={<FilterAltIcon />}
+            onClick={handleToggleFilters}
+          >
+            {showFilters ? t('common:hideFilters') : t('common:showFilters')}
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
             startIcon={<UploadFileIcon />}
             onClick={handleOpenImportDialog}
           >
-            {t('common:fileImport.import')}
+            {t('common:import')}
           </Button>
           <Button
             variant="contained"
@@ -187,6 +233,92 @@ const SubjectList = () => {
           </Button>
         </Stack>
       </Box>
+
+      {showFilters && (
+        <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6}>
+              <TextField
+                placeholder={t('subject.name')}
+                name="Name"
+                value={filters.Name}
+                onChange={handleFilterChange}
+                variant="outlined"
+                size="small"
+                fullWidth
+                sx={{ 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.5
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="action" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: filters.Name ? (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => handleClearSingleFilter('Name')}
+                        edge="end"
+                        size="small"
+                      >
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                placeholder={t('subject.subjectCode')}
+                name="SubjectCode"
+                value={filters.SubjectCode}
+                onChange={handleFilterChange}
+                variant="outlined"
+                size="small"
+                fullWidth
+                sx={{ 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.5
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="action" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: filters.SubjectCode ? (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => handleClearSingleFilter('SubjectCode')}
+                        edge="end"
+                        size="small"
+                      >
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} display="flex" justifyContent="flex-end">
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<ClearIcon />}
+                onClick={handleClearFilters}
+                sx={{ mt: { xs: 1, sm: 0 } }}
+              >
+                {t('common:clearFilters')}
+              </Button>
+            </Grid>
+          </Grid>
+        </Paper>
+      )}
 
       <DataTable
         columns={columns}
