@@ -3128,16 +3128,11 @@
           "academicYear",
           "courseBatchId",
           "majorId",
-          "order",
           "semester",
           "subjectId"
         ],
         "type": "object",
         "properties": {
-          "order": {
-            "type": "integer",
-            "format": "int32"
-          },
           "semester": {
             "maximum": 8,
             "minimum": 1,
@@ -3539,10 +3534,6 @@
             "type": "string",
             "format": "uuid"
           },
-          "order": {
-            "type": "integer",
-            "format": "int32"
-          },
           "semester": {
             "type": "integer",
             "format": "int32"
@@ -3870,7 +3861,6 @@
           "academicYear",
           "courseBatchId",
           "majorId",
-          "order",
           "semester",
           "subjectId"
         ],
@@ -3879,10 +3869,6 @@
           "id": {
             "type": "string",
             "format": "uuid"
-          },
-          "order": {
-            "type": "integer",
-            "format": "int32"
           },
           "semester": {
             "maximum": 8,

@@ -9,10 +9,6 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
   const { t } = useTranslation(['admin', 'common']);
   
   const validationSchema = Yup.object({
-    order: Yup.number()
-      .required(t('common:fieldRequired', { field: t('admin:order') }))
-      .min(1, t('common:numberPositive'))
-      .integer(t('common:numberInteger')),
     semester: Yup.number()
       .required(t('common:fieldRequired', { field: t('semester') }))
       .min(1, t('trainingProgram.semesterMin', { min: 1 }))
@@ -34,7 +30,6 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
   const [error, setError] = useState(null);
 
   const initialValues = {
-    order: program?.order || 1,
     semester: program?.semester || '',
     academicYear: program?.academicYear || new Date().getFullYear(),
     subjectId: program?.subject?.id || '',
@@ -123,12 +118,6 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
     >
       {() => (
         <>
-          <FormField
-            name="order"
-            label={t('admin:order')}
-            type="number"
-            required
-          />
           <FormField
             name="semester"
             label={t('semester')}

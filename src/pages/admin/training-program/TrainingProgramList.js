@@ -17,7 +17,6 @@ const TrainingProgramList = () => {
   const { t } = useTranslation(['admin', 'common']);
   
   const columns = [
-    { id: 'order', label: t('admin:order', 'Order'), minWidth: 80 },
     { id: 'semester', label: t('admin:semester', 'Semester'), minWidth: 100 },
     { 
       id: 'subject', 
