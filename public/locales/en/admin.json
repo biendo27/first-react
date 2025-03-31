@@ -87,6 +87,7 @@
       "passed": "Passed",
       "disqualification": "Failed",
       "exempted": "Exempted"
-    }
+    },
+    "administrativeClass": "Administrative Class"
   }
 } 

@@ -8,7 +8,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import FileImportDialog from '../../../components/common/FileImportDialog';
-import { academicRecordService, handleApiError } from '../../../services/api';
+import { academicRecordService, administrativeClassService, handleApiError } from '../../../services/api';
 import AcademicRecordForm from './AcademicRecordForm';
 import { useTranslation } from 'react-i18next';
 
@@ -78,6 +78,35 @@ const AcademicRecordList = () => {
     { value: 'EXEMPTED', label: t('academicRecord.resultTypes.exempted') },
   ], [t]);
 
+  // Add new state for administrative class filter
+  const [administrativeClasses, setAdministrativeClasses] = useState([]);
+  const [selectedAdministrativeClassId, setSelectedAdministrativeClassId] = useState('');
+  const [classesLoading, setClassesLoading] = useState(false);
+
+  // Add function to fetch administrative classes
+  const fetchAdministrativeClasses = useCallback(async () => {
+    setClassesLoading(true);
+    try {
+      const response = await administrativeClassService.getAll({ PageSize: 100 });
+      setAdministrativeClasses(response.data || []);
+    } catch (error) {
+      const formattedError = handleApiError(error, t('common:fetchError', { resource: t('administrativeClasses') }));
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+    } finally {
+      setClassesLoading(false);
+    }
+  }, [t]);
+
+  // Add useEffect to fetch administrative classes when component mounts
+  useEffect(() => {
+    fetchAdministrativeClasses();
+  }, [fetchAdministrativeClasses]);
+
+  // Update fetchRecords to include the new filter
   const fetchRecords = useCallback(async () => {
     setLoading(true);
     try {
@@ -90,6 +119,7 @@ const AcademicRecordList = () => {
       if (academicYearFilter) params.AcademicYear = academicYearFilter;
       if (semesterFilter) params.Semester = semesterFilter;
       if (resultTypeFilter) params.ResultType = resultTypeFilter;
+      if (selectedAdministrativeClassId) params.AdministrativeClassId = selectedAdministrativeClassId;
       
       const response = await academicRecordService.getAll(params);
       setRecords(response.data || []);
@@ -104,12 +134,12 @@ const AcademicRecordList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, t]);
+  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, selectedAdministrativeClassId, t]);
 
   // Fetch records when any filter or pagination changes
   useEffect(() => {
     fetchRecords();
-  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, fetchRecords]);
+  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, selectedAdministrativeClassId, fetchRecords]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
@@ -190,6 +220,7 @@ const AcademicRecordList = () => {
     setAcademicYearFilter('');
     setSemesterFilter('');
     setResultTypeFilter('');
+    setSelectedAdministrativeClassId('');
     setPage(1);
   };
 
@@ -278,6 +309,12 @@ const AcademicRecordList = () => {
     }
   };
 
+  // Add handler for administrative class change
+  const handleAdministrativeClassChange = (event) => {
+    setSelectedAdministrativeClassId(event.target.value);
+    setPage(1);
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -324,7 +361,7 @@ const AcademicRecordList = () => {
       {showFilters && (
         <Paper sx={{ p: 2, mb: 2 }}>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={2}>
               <TextField
                 fullWidth
                 label={t('academicRecord.studentCode')}
@@ -335,7 +372,7 @@ const AcademicRecordList = () => {
                 placeholder={t('common:onlyCode')}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth size="small">
                 <InputLabel id="academicYear-label">{t('academicRecord.academicYear')}</InputLabel>
                 <Select
@@ -352,7 +389,7 @@ const AcademicRecordList = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth size="small">
                 <InputLabel id="semester-label">{t('academicRecord.semester')}</InputLabel>
                 <Select
@@ -369,31 +406,52 @@ const AcademicRecordList = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="resultType-label">{t('academicRecord.resultType')}</InputLabel>
-                  <Select
-                    labelId="resultType-label"
-                    id="resultType"
-                    value={resultTypeFilter}
-                    label={t('academicRecord.resultType')}
-                    onChange={handleResultTypeChange}
-                  >
-                    {resultTypeOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<ClearIcon />}
-                  onClick={handleClearFilters}
+            <Grid item xs={12} sm={6} md={2}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="resultType-label">{t('academicRecord.resultType')}</InputLabel>
+                <Select
+                  labelId="resultType-label"
+                  id="resultType"
+                  value={resultTypeFilter}
+                  label={t('academicRecord.resultType')}
+                  onChange={handleResultTypeChange}
                 >
-                  {t('common:clear')}
-                </Button>
-              </Box>
+                  {resultTypeOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="administrativeClass-label">{t('academicRecord.administrativeClass')}</InputLabel>
+                <Select
+                  labelId="administrativeClass-label"
+                  id="administrativeClass"
+                  value={selectedAdministrativeClassId}
+                  label={t('academicRecord.administrativeClass')}
+                  onChange={handleAdministrativeClassChange}
+                  disabled={classesLoading}
+                >
+                  <MenuItem value="">{t('common:all')}</MenuItem>
+                  {administrativeClasses.map((adminClass) => (
+                    <MenuItem key={adminClass.id} value={adminClass.id}>
+                      {adminClass.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={1}>
+              <Button
+                fullWidth
+                variant="outlined"
+                color="primary"
+                startIcon={<ClearIcon />}
+                onClick={handleClearFilters}
+              >
+                {t('common:clear')}
+              </Button>
             </Grid>
           </Grid>
         </Paper>

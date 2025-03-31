@@ -74,7 +74,7 @@
   },
   "academicRecord": {
     "title": "Hồ Sơ Học Tập",
-    "addAcademicRecord": "Thêm Hồ Sơ Học Tập",   
+    "addAcademicRecord": "Thêm Hồ Sơ Học Tập",
     "student": "Sinh viên",
     "subject": "Môn học",
     "zScore": "Điểm Z",
@@ -102,7 +102,8 @@
       "passed": "Đạt",
       "disqualification": "Không đạt",
       "exempted": "Miễn học"
-    }
+    },
+    "administrativeClass": "Lớp hành chính"
   },
   "subject": {
     "name": "Tên",
