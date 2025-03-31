@@ -3,8 +3,11 @@ import { Box, Button, Typography, Snackbar, Alert, TextField, Grid, MenuItem, Fo
 import AddIcon from '@mui/icons-material/Add';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import DownloadIcon from '@mui/icons-material/Download';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
+import FileImportDialog from '../../../components/common/FileImportDialog';
 import { academicRecordService, handleApiError } from '../../../services/api';
 import AcademicRecordForm from './AcademicRecordForm';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +40,7 @@ const AcademicRecordList = () => {
     },
     { 
       id: 'resultType', 
-      label: t('academicRecord.resultType'), 
+      label: t('academicRecord.result'), 
       minWidth: 120,
       render: (row) => row.resultType ? t(`academicRecord.resultTypes.${row.resultType.toLowerCase()}`) : t('common:noData')
     },
@@ -52,6 +55,7 @@ const AcademicRecordList = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   
   // Filter states
   const [studentCodeFilter, setStudentCodeFilter] = useState('');
@@ -204,11 +208,81 @@ const AcademicRecordList = () => {
 
   const yearOptions = generateYearOptions();
 
+  const handleOpenImportDialog = () => {
+    setImportDialogOpen(true);
+  };
+
+  const handleImportClose = () => {
+    setImportDialogOpen(false);
+  };
+
+  const handleImportFile = async (file) => {
+    try {
+      await academicRecordService.importFile(file);
+      setAlertInfo({
+        open: true,
+        message: t('academicRecord.importSuccess'),
+        severity: 'success',
+      });
+      fetchRecords();
+      handleImportClose();
+    } catch (error) {
+      const formattedError = handleApiError(error, t('academicRecord.importError'));
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const params = {
+        PageIndex: page,
+        PageSize: pageSize,
+      };
+      
+      if (studentCodeFilter) params.StudentCode = studentCodeFilter;
+      if (academicYearFilter) params.AcademicYear = academicYearFilter;
+      if (semesterFilter) params.Semester = semesterFilter;
+      if (resultTypeFilter) params.ResultType = resultTypeFilter;
+
+      const response = await academicRecordService.export(params);
+      
+      // Create a blob from the response data
+      const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `academic-records-${new Date().toISOString().split('T')[0]}.xlsx`;
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      const formattedError = handleApiError(error, t('academicRecord.exportError'));
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4" component="h1">
-          {t('academicRecords')}
+          {t('academicRecord.title')}
         </Typography>
         <Box>
           <Button
@@ -219,6 +293,22 @@ const AcademicRecordList = () => {
             sx={{ mr: 1 }}
           >
             {showFilters ? t('common:hideFilters') : t('common:showFilters')}
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<UploadFileIcon />}
+            onClick={handleOpenImportDialog}
+            sx={{ mr: 1 }}
+          >
+            {t('academicRecord.importRecords')}
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={handleExport}
+            sx={{ mr: 1 }}
+          >
+            {t('academicRecord.exportRecords')}
           </Button>
           <Button
             variant="contained"
@@ -337,6 +427,18 @@ const AcademicRecordList = () => {
         title={t('academicRecord.deleteAcademicRecord')}
         message={t('academicRecord.deleteAcademicRecordConfirmation')}
         loading={deleteLoading}
+      />
+
+      <FileImportDialog
+        open={importDialogOpen}
+        onClose={handleImportClose}
+        onImport={handleImportFile}
+        title={t('academicRecord.importRecords')}
+        description={t('academicRecord.importDescription')}
+        acceptedFormats={t('academicRecord.acceptedFormats')}
+        maxFileSize={t('academicRecord.maxFileSize')}
+        accept=".xlsx,.xls"
+        maxSize={5}
       />
 
       <Snackbar

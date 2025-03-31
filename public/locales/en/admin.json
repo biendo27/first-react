@@ -69,10 +69,23 @@
       "min": "Academic year must be at least {{min}}",
       "integer": "Academic year must be a whole number"
     },
+    "importRecords": "Import Records",
+    "exportRecords": "Export Records",
+    "importDescription": "Upload an Excel file (.xlsx, .xls) containing academic record data. Maximum file size is 5MB.",
+    "importSuccess": "Academic records imported successfully",
+    "importError": "Failed to import academic records",
+    "exportError": "Failed to export academic records",
+    "title": "Academic Records",
+    "result": "Result",
+    "actions": "Actions",
+    "acceptedFormats": "Accepted formats: .xlsx, .xls",
+    "maxFileSize": "Maximum file size: 5 MB",
+    "showFilters": "Show Filters",
+    "hideFilters": "Hide Filters",
     "resultTypes": {
       "all": "All",
-      "disqualification": "Disqualification",
       "passed": "Passed",
+      "disqualification": "Failed",
       "exempted": "Exempted"
     }
   }

@@ -267,7 +267,51 @@ const createCrudService = (endpoint) => ({
 });
 
 // Create services for each entity
-export const academicRecordService = createCrudService('academic-records');
+export const academicRecordService = {
+  ...createCrudService('academic-records'),
+  importFile: async (file) => {
+    const formData = new FormData();
+    formData.append('File', file);
+    
+    try {
+      const response = await fetch(`${API_URL}/v1/academic-records/import`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('File upload error:', error);
+      throw error;
+    }
+  },
+  export: async (params) => {
+    try {
+      const response = await fetch(`${API_URL}/v1/academic-records/export?${new URLSearchParams(params)}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.status} ${response.statusText}`);
+      }
+      
+      return await response.blob();
+    } catch (error) {
+      console.error('Export error:', error);
+      throw error;
+    }
+  }
+};
 export const administrativeClassService = createCrudService('administrative-classes');
 export const courseBatchService = createCrudService('course-batches');
 export const educationModeService = createCrudService('education-modes');

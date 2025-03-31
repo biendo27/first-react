@@ -58,6 +58,22 @@
             }
           },
           {
+            "name": "AdministrativeClassId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CourseBatchId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
             "name": "PageIndex",
             "in": "query",
             "schema": {
@@ -272,6 +288,153 @@
             ]
           }
         ]
+      }
+    },
+    "/v1/academic-records/import": {
+      "post": {
+        "tags": [
+          "AcademicRecord"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "File"
+                ],
+                "type": "object",
+                "properties": {
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "File": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "Admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/v1/academic-records/export": {
+      "get": {
+        "tags": [
+          "AcademicRecord"
+        ],
+        "parameters": [
+          {
+            "name": "StudentId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "SubjectId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "StudentCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AcademicYear",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Semester",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ResultType",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/AcademicRecordType"
+            }
+          },
+          {
+            "name": "AdministrativeClassId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CourseBatchId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     },
     "/v1/administrative-classes": {
@@ -2146,6 +2309,22 @@
             }
           },
           {
+            "name": "AdministrativeClassId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CourseBatchId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
             "name": "PageIndex",
             "in": "query",
             "schema": {
@@ -2994,8 +3173,6 @@
       "CreateStudentRequestDto": {
         "required": [
           "administrativeClassId",
-          "dateOfBirth",
-          "email",
           "firstName",
           "lastName",
           "status",
@@ -3025,7 +3202,10 @@
           "email": {
             "maxLength": 100,
             "minLength": 0,
-            "type": "string",
+            "type": [
+              "null",
+              "string"
+            ],
             "format": "email"
           },
           "phoneNumber": {
