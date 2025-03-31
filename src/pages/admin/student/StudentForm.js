@@ -25,8 +25,13 @@ const StudentForm = ({ open, onClose, student }) => {
     firstName: Yup.string().required(t('common:fieldRequired', { field: t('student.firstName') })),
     lastName: Yup.string().required(t('common:fieldRequired', { field: t('student.lastName') })),
     dateOfBirth: Yup.date().required(t('common:fieldRequired', { field: t('student.dateOfBirth') })),
-    email: Yup.string().email(t('common:invalidFormat', { field: t('student.email') })).required(t('common:fieldRequired', { field: t('student.email') })),
-    phoneNumber: Yup.string(),
+    email: Yup.string()
+      .email(t('common:invalidFormat', { field: t('student.email') }))
+      .nullable()
+      .transform((value) => (value === '' ? null : value)), // Transform empty string to null
+    phoneNumber: Yup.string()
+      .nullable()
+      .transform((value) => (value === '' ? null : value)), // Transform empty string to null
     administrativeClassId: Yup.string().required(t('common:fieldRequired', { field: t('student.class') })),
     status: Yup.string().required(t('common:fieldRequired', { field: t('student.status') })),
   });
@@ -141,7 +146,6 @@ const StudentForm = ({ open, onClose, student }) => {
               name="email"
               label={t('student.email')}
               type="email"
-              required
             />
             <FormField
               name="phoneNumber"

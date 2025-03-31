@@ -23,11 +23,12 @@
   "noData": "No data",
   "name": "Name",
   "fieldRequired": "{{field}} is required",
-  "invalidFormat": "{{field}} format is invalid",
+  "invalidFormat": "{{field}} has an invalid format",
   "numberRange": "Must be between {{min}} and {{max}}",
   "onlyCode": "Enter code only",
   "fetchError": "Failed to fetch {{resource}}",
   "error": {
     "loading": "Error loading data"
-  }
+  },
+  "optionalField": "Optional field"
 } 

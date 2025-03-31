@@ -47,6 +47,7 @@
   },
   "fieldRequired": "{{field}} là bắt buộc",
   "invalidFormat": "{{field}} không đúng định dạng",
+  "optionalField": "Trường không bắt buộc",
   "numberRange": "Phải nằm trong khoảng từ {{min}} đến {{max}}",
   "maxLength": "{{field}} không được vượt quá {{length}} ký tự",
   "mustBeNumber": "Phải là số",
