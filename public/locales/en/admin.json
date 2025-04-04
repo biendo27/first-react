@@ -75,6 +75,7 @@
     "importSuccess": "Academic records imported successfully",
     "importError": "Failed to import academic records",
     "exportError": "Failed to export academic records",
+    "exportSuccess": "Academic records exported successfully",
     "title": "Academic Records",
     "result": "Result",
     "actions": "Actions",

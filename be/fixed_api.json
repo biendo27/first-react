@@ -416,7 +416,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportDto"
+                }
+              }
+            }
           }
         }
       }
@@ -2450,6 +2457,21 @@
             }
           },
           {
+            "name": "SubjectName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SubjectCode",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
             "name": "MajorId",
             "in": "query",
             "schema": {
@@ -3181,8 +3203,7 @@
             "type": [
               "null",
               "string"
-            ],
-            "format": "email"
+            ]
           },
           "phoneNumber": {
             "maxLength": 20,
@@ -3190,8 +3211,7 @@
             "type": [
               "null",
               "string"
-            ],
-            "format": "tel"
+            ]
           },
           "gender": {
             "$ref": "#/components/schemas/GenderType"
@@ -3397,6 +3417,24 @@
           "totalPage": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExportDto": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "base64": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false

@@ -93,6 +93,7 @@
     "importSuccess": "Đã nhập hồ sơ học tập thành công",
     "importError": "Không thể nhập hồ sơ học tập",
     "exportError": "Không thể xuất hồ sơ học tập",
+    "exportSuccess": "Đã xuất hồ sơ học tập thành công",
     "resultType": "Loại kết quả",
     "semesterNumber": "Học kỳ {{number}}",
     "note": "Ghi chú",

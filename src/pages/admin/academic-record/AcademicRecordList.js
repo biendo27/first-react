@@ -278,11 +278,20 @@ const AcademicRecordList = () => {
       if (academicYearFilter) params.AcademicYear = academicYearFilter;
       if (semesterFilter) params.Semester = semesterFilter;
       if (resultTypeFilter) params.ResultType = resultTypeFilter;
+      if (selectedAdministrativeClassId) params.AdministrativeClassId = selectedAdministrativeClassId;
 
       const response = await academicRecordService.export(params);
       
-      // Create a blob from the response data
-      const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      // Convert base64 to blob
+      const byteCharacters = atob(response.base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       
       // Create a URL for the blob
       const url = window.URL.createObjectURL(blob);
@@ -290,7 +299,10 @@ const AcademicRecordList = () => {
       // Create a temporary link element
       const link = document.createElement('a');
       link.href = url;
-      link.download = `academic-records-${new Date().toISOString().split('T')[0]}.xlsx`;
+      
+      // Use the fileName from the response, or create a default one
+      const fileName = response.fileName || `academic-records-${new Date().toISOString().split('T')[0]}.xlsx`;
+      link.download = fileName;
       
       // Append to body, click, and remove
       document.body.appendChild(link);
@@ -299,6 +311,12 @@ const AcademicRecordList = () => {
       
       // Clean up the URL
       window.URL.revokeObjectURL(url);
+      
+      setAlertInfo({
+        open: true,
+        message: t('academicRecord.exportSuccess'),
+        severity: 'success',
+      });
     } catch (error) {
       const formattedError = handleApiError(error, t('academicRecord.exportError'));
       setAlertInfo({
