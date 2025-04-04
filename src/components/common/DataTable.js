@@ -46,9 +46,9 @@ const DataTable = ({
   const totalColumns = showDefaultActions ? columns.length + 1 : columns.length;
 
   return (
-    <Paper>
-      <TableContainer>
-        <Table>
+    <Paper sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+      <TableContainer sx={{ flexGrow: 1, overflow: 'auto' }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               {columns.map((column) => (
@@ -126,19 +126,28 @@ const DataTable = ({
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={totalCount}
-        rowsPerPage={pageSize}
-        page={page}
-        onPageChange={onPageChange}
-        onRowsPerPageChange={(e) => onPageSizeChange(e.target.value)}
-        labelRowsPerPage={t('rowsPerPage')}
-        labelDisplayedRows={({ from, to, count }) => 
-          `${t('page')} ${page + 1} ${t('of')} ${Math.ceil(count / pageSize)}`
-        }
-      />
+      <Box sx={{ width: '100%', bgcolor: 'background.paper', py: 1 }}>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={totalCount}
+          rowsPerPage={pageSize}
+          page={page}
+          onPageChange={onPageChange}
+          onRowsPerPageChange={(e) => onPageSizeChange(e.target.value)}
+          labelRowsPerPage={t('rowsPerPage')}
+          labelDisplayedRows={({ from, to, count }) => 
+            `${t('page')} ${page + 1} ${t('of')} ${Math.ceil(count / pageSize)}`
+          }
+          sx={{ 
+            '.MuiTablePagination-toolbar': { 
+              minHeight: '48px',
+              pl: 2,
+              pr: 2 
+            } 
+          }}
+        />
+      </Box>
     </Paper>
   );
 };

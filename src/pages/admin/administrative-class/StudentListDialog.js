@@ -33,10 +33,10 @@ const StudentListDialog = ({ open, onClose, administrativeClass }) => {
   const [totalCount, setTotalCount] = useState(0);
   const [error, setError] = useState('');
   
-  // Remove FirstName from filters, keep only LastName and StudentCode
+  // Update filters to include both student code and name search
   const [filters, setFilters] = useState({
-    LastName: '',
     StudentCode: '',
+    LastName: '',
   });
   
   const columns = [
@@ -143,10 +143,19 @@ const StudentListDialog = ({ open, onClose, administrativeClass }) => {
     setPage(1);
   };
 
+  const handleClearSingleFilter = (name) => {
+    setFilters(prev => ({
+      ...prev,
+      [name]: ''
+    }));
+    // Reset to first page when filters are cleared
+    setPage(1);
+  };
+
   const handleClearFilters = () => {
     setFilters({
-      LastName: '',
       StudentCode: '',
+      LastName: '',
     });
     // Reset to first page when filters are cleared
     setPage(1);
@@ -179,13 +188,14 @@ const StudentListDialog = ({ open, onClose, administrativeClass }) => {
       </DialogTitle>
       
       <DialogContent dividers sx={{ p: 2, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
-        <Paper sx={{ p: 2, mb: 2 }}>
+        {/* Enhanced filter section matching screenshot */}
+        <Box sx={{ mb: 2 }}>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
                 name="StudentCode"
-                label={t('student.studentCode')}
+                placeholder={t('student.studentCode')}
                 variant="outlined"
                 size="small"
                 value={filters.StudentCode}
@@ -196,32 +206,62 @@ const StudentListDialog = ({ open, onClose, administrativeClass }) => {
                       <SearchIcon color="action" />
                     </InputAdornment>
                   ),
+                  endAdornment: filters.StudentCode ? (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => handleClearSingleFilter('StudentCode')}
+                        edge="end"
+                        size="small"
+                      >
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null,
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
                 name="LastName"
-                label={t('student.lastName')}
+                placeholder={t('student.fullName')}
                 variant="outlined"
                 size="small"
                 value={filters.LastName}
                 onChange={handleFilterChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="action" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: filters.LastName ? (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => handleClearSingleFilter('LastName')}
+                        edge="end"
+                        size="small"
+                      >
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null,
+                }}
               />
             </Grid>
-            <Grid item xs={12} display="flex" justifyContent="flex-end">
-              <Button
-                variant="outlined"
-                color="primary"
-                startIcon={<ClearIcon />}
-                onClick={handleClearFilters}
-              >
-                {t('common:clearFilters')}
-              </Button>
-            </Grid>
           </Grid>
-        </Paper>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<ClearIcon />}
+              onClick={handleClearFilters}
+              size="small"
+            >
+              {t('common:clearFilters')}
+            </Button>
+          </Box>
+        </Box>
         
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -229,7 +269,7 @@ const StudentListDialog = ({ open, onClose, administrativeClass }) => {
           </Alert>
         )}
         
-        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, width: '100%', overflow: 'hidden', pb: 0 }}>
           <DataTable
             columns={columns}
             data={students}
