@@ -55,7 +55,7 @@
   "mustBeInteger": "Phải là số nguyên",
   "statusActive": "Đang học",
   "statusGraduated": "Đã tốt nghiệp",
-  "statusSuspended": "Đình chỉ",
+  "statusSuspended": "Thôi học",
   "student": "Sinh viên",
   "deleteTitle": "Xóa {{resource}}",
   "deleteConfirmation": "Bạn có chắc chắn muốn xóa \"{{name}}\"?",

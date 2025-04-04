@@ -178,7 +178,7 @@
     "statusTypes": {
       "active": "Đang học",
       "graduated": "Đã tốt nghiệp",
-      "suspended": "Bị đình chỉ"
+      "suspended": "Thôi học"
     },
     "class": "Lớp",
     "major": "Chuyên Ngành",
@@ -229,6 +229,8 @@
   "subjectCode": "Mã Môn Học",
   "credit": "Tín Chỉ",
   "subjectType": "Loại Môn Học",
+  "subjectName": "Tên Môn Học",
+  "enterSubjectName": "Nhập tên môn học",
   "subjectTypes": {
     "compulsory": "Bắt Buộc",
     "elective": "Tự Chọn"

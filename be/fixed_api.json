@@ -2934,6 +2934,10 @@
               "string"
             ]
           },
+          "totalStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
           "courseBatch": {
             "$ref": "#/components/schemas/CourseBatchDto"
           },
@@ -3653,7 +3657,8 @@
         "enum": [
           "Active",
           "Graduated",
-          "Suspended"
+          "Suspended",
+          "Reserve"
         ],
         "type": "string"
       },

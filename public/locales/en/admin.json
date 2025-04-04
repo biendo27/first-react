@@ -90,5 +90,13 @@
       "exempted": "Exempted"
     },
     "administrativeClass": "Administrative Class"
+  },
+  "subjectCode": "Subject Code",
+  "credit": "Credit",
+  "subjectType": "Subject Type",
+  "enterSubjectName": "Enter subject name",
+  "subjectTypes": {
+    "required": "Required",
+    "optional": "Optional"
   }
 } 

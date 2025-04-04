@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem, Grid, Paper, Stack } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem, Grid, Paper, Stack, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -65,6 +65,7 @@ const TrainingProgramList = () => {
   const [courseBatches, setCourseBatches] = useState([]);
   const [selectedMajorId, setSelectedMajorId] = useState('');
   const [selectedCourseBatchId, setSelectedCourseBatchId] = useState('');
+  const [subjectNameFilter, setSubjectNameFilter] = useState('');
   const [filtersLoading, setFiltersLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -109,6 +110,10 @@ const TrainingProgramList = () => {
         params.CourseBatchId = selectedCourseBatchId;
       }
       
+      if (subjectNameFilter) {
+        params.SubjectName = subjectNameFilter;
+      }
+      
       const response = await trainingProgramService.getAll(params);
       setPrograms(response.data || []);
       setTotalCount(response.totalCount || 0);
@@ -123,7 +128,7 @@ const TrainingProgramList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, selectedMajorId, selectedCourseBatchId, t]);
+  }, [page, pageSize, selectedMajorId, selectedCourseBatchId, subjectNameFilter, t]);
 
   useEffect(() => {
     fetchFilterOptions();
@@ -201,9 +206,15 @@ const TrainingProgramList = () => {
     setShowFilters(!showFilters);
   };
 
+  const handleSubjectNameChange = (event) => {
+    setSubjectNameFilter(event.target.value);
+    setPage(1); // Reset to first page when filter changes
+  };
+
   const handleClearFilters = () => {
     setSelectedMajorId('');
     setSelectedCourseBatchId('');
+    setSubjectNameFilter('');
     setPage(1);
   };
 
@@ -307,7 +318,22 @@ const TrainingProgramList = () => {
       {showFilters && (
         <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={5}>
+            <Grid item xs={12} md={3}>
+              <TextField
+                fullWidth
+                size="small"
+                label={t('admin:subjectName')}
+                value={subjectNameFilter}
+                onChange={handleSubjectNameChange}
+                placeholder={t('admin:enterSubjectName')}
+                sx={{ 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.5
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
               <FormControl fullWidth size="small">
                 <InputLabel id="major-filter-label">{t('admin:majors')}</InputLabel>
                 <Select
@@ -331,7 +357,7 @@ const TrainingProgramList = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={5}>
+            <Grid item xs={12} md={4}>
               <FormControl fullWidth size="small">
                 <InputLabel id="course-batch-filter-label">{t('admin:courseBatch.displayName')}</InputLabel>
                 <Select
