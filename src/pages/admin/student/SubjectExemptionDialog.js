@@ -26,11 +26,13 @@ import {
   TextField,
   MenuItem,
   Grid,
+  InputAdornment,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import { subjectExemptionService, handleApiError } from '../../../services/api';
 import ExemptionForm from './ExemptionForm';
 
@@ -58,11 +60,95 @@ function TabPanel(props) {
 }
 
 // Create memoized table components to prevent unnecessary re-renders
-const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExemption, page, rowsPerPage, handleChangePage, handleChangeRowsPerPage }) => {
+const SubjectsTable = memo(({ subjects, loading, totalSubjects, handleAddExemption, page, rowsPerPage, handleChangePage, handleChangeRowsPerPage, filters, handleFilterChange, handleClearSingleFilter, handleClearFilters }) => {
   const { t } = useTranslation(['admin', 'common']);
   
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+      <Paper sx={{ p: 2, mb: 2, borderRadius: 1 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={5}>
+            <TextField
+              placeholder={t('subject.name')}
+              name="SubjectName"
+              value={filters.SubjectName}
+              onChange={handleFilterChange}
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ 
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1.5
+                }
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: filters.SubjectName ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => handleClearSingleFilter('SubjectName')}
+                      edge="end"
+                      size="small"
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={5}>
+            <TextField
+              placeholder={t('subject.subjectCode')}
+              name="SubjectCode"
+              value={filters.SubjectCode}
+              onChange={handleFilterChange}
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ 
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1.5
+                }
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: filters.SubjectCode ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => handleClearSingleFilter('SubjectCode')}
+                      edge="end"
+                      size="small"
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2} display="flex" justifyContent="flex-end">
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<ClearIcon />}
+              onClick={handleClearFilters}
+              fullWidth
+            >
+              {t('common:clearFilters')}
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+
       <TableContainer component={Paper} sx={{ flexGrow: 1, overflow: 'auto' }}>
         <Table size="small" stickyHeader>
           <TableHead>
@@ -212,6 +298,10 @@ SubjectsTable.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
   handleChangePage: PropTypes.func.isRequired,
   handleChangeRowsPerPage: PropTypes.func.isRequired,
+  filters: PropTypes.object.isRequired,
+  handleFilterChange: PropTypes.func.isRequired,
+  handleClearSingleFilter: PropTypes.func.isRequired,
+  handleClearFilters: PropTypes.func.isRequired,
 };
 
 ExemptionsTable.propTypes = {
@@ -233,6 +323,12 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalSubjects, setTotalSubjects] = useState(0);
+  
+  // Subject filter states
+  const [subjectFilters, setSubjectFilters] = useState({
+    SubjectName: '',
+    SubjectCode: ''
+  });
   
   const [exemptions, setExemptions] = useState([]);
   const [exemptionsLoading, setExemptionsLoading] = useState(false);
@@ -264,11 +360,13 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     setError('');
     
     try {
-      // Use the correct service method for subjects
+      // Use the correct service method for subjects and include filters
       const response = await subjectExemptionService.getStudentSubjects({
         StudentCode: student.studentCode,
         PageIndex: page,
         PageSize: rowsPerPage,
+        SubjectName: subjectFilters.SubjectName,
+        SubjectCode: subjectFilters.SubjectCode
       });
       
       setSubjects(response.data || []);
@@ -279,7 +377,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     } finally {
       setLoading(false);
     }
-  }, [student, page, rowsPerPage, t]);
+  }, [student, page, rowsPerPage, subjectFilters, t]);
 
   const fetchExemptions = useCallback(async () => {
     if (!student) return;
@@ -314,7 +412,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     }
   }, [student, exemptionsPage, exemptionsRowsPerPage, exemptionYear, exemptionSemester, t]);
 
-  // Load subjects when the dialog opens and on page/rowsPerPage changes
+  // Load subjects when the dialog opens and on page/rowsPerPage/filter changes
   useEffect(() => {
     if (open && tabValue === 0) {
       actionRef.current.type = 'initial';
@@ -359,6 +457,33 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
   const handleTabChange = (event, newValue) => {
     actionRef.current.type = 'tabChange';
     setTabValue(newValue);
+  };
+
+  // Add handlers for subject filters
+  const handleSubjectFilterChange = (event) => {
+    const { name, value } = event.target;
+    setSubjectFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Reset to first page when filter changes
+    setPage(1);
+  };
+
+  const handleClearSubjectFilters = () => {
+    setSubjectFilters({
+      SubjectName: '',
+      SubjectCode: ''
+    });
+    setPage(1); // Reset to first page
+  };
+
+  const handleClearSingleSubjectFilter = (name) => {
+    setSubjectFilters(prev => ({
+      ...prev,
+      [name]: ''
+    }));
+    setPage(1); // Reset to first page
   };
 
   const handleAddExemption = (subject) => {
@@ -500,6 +625,10 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
             rowsPerPage={rowsPerPage}
             handleChangePage={handleChangePage}
             handleChangeRowsPerPage={handleChangeRowsPerPage}
+            filters={subjectFilters}
+            handleFilterChange={handleSubjectFilterChange}
+            handleClearSingleFilter={handleClearSingleSubjectFilter}
+            handleClearFilters={handleClearSubjectFilters}
           />
         </TabPanel>
         
