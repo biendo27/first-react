@@ -75,6 +75,11 @@
   "academicRecord": {
     "title": "Hồ Sơ Học Tập",
     "addAcademicRecord": "Thêm Hồ Sơ Học Tập",
+    "viewRecords": "Xem Hồ Sơ Học Tập",
+    "recordsForStudent": "Hồ Sơ Học Tập - {{name}} ({{code}})",
+    "subjectCode": "Mã Môn Học",
+    "subjectName": "Tên Môn Học",
+    "noRecordsFound": "Không tìm thấy hồ sơ học tập cho sinh viên này",
     "student": "Sinh viên",
     "subject": "Môn học",
     "zScore": "Điểm Z",
@@ -178,7 +183,8 @@
     "statusTypes": {
       "active": "Đang học",
       "graduated": "Đã tốt nghiệp",
-      "suspended": "Thôi học"
+      "suspended": "Thôi học",
+      "reserve": "Đang bảo lưu"
     },
     "class": "Lớp",
     "major": "Chuyên Ngành",

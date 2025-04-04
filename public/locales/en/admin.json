@@ -24,7 +24,8 @@
     "statusTypes": {
       "active": "Active",
       "graduated": "Graduated",
-      "suspended": "Suspended"
+      "suspended": "Suspended",
+      "reserve": "Reserve"
     }
   },
   "exemptionsButton": "Subject Exemptions",

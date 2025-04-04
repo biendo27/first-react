@@ -39,6 +39,12 @@ const AdministrativeClassList = () => {
       minWidth: 150,
       render: (row) => row.educationMode?.name || 'N/A'
     },
+    { 
+      id: 'totalStudents', 
+      label: t('admin:totalStudents', 'Total Students'), 
+      minWidth: 150,
+      align: 'center'
+    },
     {
       id: 'actions',
       label: t('common:actions'),

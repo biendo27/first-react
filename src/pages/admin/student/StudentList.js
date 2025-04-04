@@ -32,7 +32,7 @@ const StudentList = () => {
       minWidth: 120,
       render: (row) => new Date(row.dateOfBirth).toLocaleDateString()
     },
-    { id: 'email', label: t('student.email'), minWidth: 180 },
+    { id: 'phoneNumber', label: t('student.phoneNumber'), minWidth: 180 },
     { 
       id: 'status', 
       label: t('student.status'), 
