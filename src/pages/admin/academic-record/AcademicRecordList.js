@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, TextField, Grid, MenuItem, FormControl, InputLabel, Select, Paper } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, TextField, Grid, Paper, CircularProgress, Autocomplete } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -87,7 +87,7 @@ const AcademicRecordList = () => {
   const fetchAdministrativeClasses = useCallback(async () => {
     setClassesLoading(true);
     try {
-      const response = await administrativeClassService.getAll({ PageSize: 100 });
+      const response = await administrativeClassService.getAll({ PageSize: 10000 });
       setAdministrativeClasses(response.data || []);
     } catch (error) {
       const formattedError = handleApiError(error, t('common:fetchError', { resource: t('administrativeClasses') }));
@@ -200,18 +200,18 @@ const AcademicRecordList = () => {
     setPage(1);
   };
 
-  const handleAcademicYearChange = (event) => {
-    setAcademicYearFilter(event.target.value);
+  const handleAcademicYearChange = (_, newValue) => {
+    setAcademicYearFilter(newValue ? newValue.value : '');
     setPage(1);
   };
 
-  const handleSemesterChange = (event) => {
-    setSemesterFilter(event.target.value);
+  const handleSemesterChange = (_, newValue) => {
+    setSemesterFilter(newValue ? newValue.value : '');
     setPage(1);
   };
 
-  const handleResultTypeChange = (event) => {
-    setResultTypeFilter(event.target.value);
+  const handleResultTypeChange = (_, newValue) => {
+    setResultTypeFilter(newValue ? newValue.value : '');
     setPage(1);
   };
 
@@ -230,14 +230,22 @@ const AcademicRecordList = () => {
 
   const generateYearOptions = () => {
     const currentYear = new Date().getFullYear();
-    const years = [];
+    const years = [{ value: '', label: t('common:all') }];
     for (let i = currentYear; i >= currentYear - 10; i--) {
-      years.push(i);
+      years.push({ value: i, label: i.toString() });
     }
     return years;
   };
 
   const yearOptions = generateYearOptions();
+
+  const semesterOptions = useMemo(() => [
+    { value: '', label: t('common:all') },
+    ...Array.from({ length: 8 }, (_, i) => ({ 
+      value: i + 1, 
+      label: t('academicRecord.semesterNumber', { number: i + 1 }) 
+    }))
+  ], [t]);
 
   const handleOpenImportDialog = () => {
     setImportDialogOpen(true);
@@ -328,8 +336,8 @@ const AcademicRecordList = () => {
   };
 
   // Add handler for administrative class change
-  const handleAdministrativeClassChange = (event) => {
-    setSelectedAdministrativeClassId(event.target.value);
+  const handleAdministrativeClassChange = (_, newValue) => {
+    setSelectedAdministrativeClassId(newValue ? newValue.value : '');
     setPage(1);
   };
 
@@ -377,98 +385,134 @@ const AcademicRecordList = () => {
       </Box>
 
       {showFilters && (
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={2}>
+        <Paper 
+          elevation={2} 
+          sx={{ 
+            p: 3, 
+            mb: 3, 
+            borderRadius: 2,
+            backgroundColor: theme => theme.palette.background.default
+          }}
+        >
+          <Grid container spacing={3} alignItems="flex-start">
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
-                label={t('academicRecord.studentCode')}
+                name="StudentCode"
+                label={t('student.studentCode')}
                 variant="outlined"
                 size="small"
                 value={studentCodeFilter}
                 onChange={handleStudentCodeChange}
-                placeholder={t('common:onlyCode')}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="academicYear-label">{t('academicRecord.academicYear')}</InputLabel>
-                <Select
-                  labelId="academicYear-label"
-                  id="academicYear"
-                  value={academicYearFilter}
-                  label={t('academicRecord.academicYear')}
-                  onChange={handleAcademicYearChange}
-                >
-                  <MenuItem value="">{t('common:all')}</MenuItem>
-                  {yearOptions.map((year) => (
-                    <MenuItem key={year} value={year}>{year}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <Grid item xs={12} md={4}>
+              <Autocomplete
+                id="academicYear"
+                options={yearOptions}
+                getOptionLabel={(option) => option.label || ''}
+                value={yearOptions.find(option => option.value === academicYearFilter) || yearOptions[0]}
+                onChange={handleAcademicYearChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('academicRecord.academicYear')}
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                  />
+                )}
+              />
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="semester-label">{t('academicRecord.semester')}</InputLabel>
-                <Select
-                  labelId="semester-label"
-                  id="semester"
-                  value={semesterFilter}
-                  label={t('academicRecord.semester')}
-                  onChange={handleSemesterChange}
-                >
-                  <MenuItem value="">{t('common:all')}</MenuItem>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
-                    <MenuItem key={semester} value={semester}>{semester}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <Grid item xs={12} md={4}>
+              <Autocomplete
+                id="semester"
+                options={semesterOptions}
+                getOptionLabel={(option) => option.label || ''}
+                value={semesterOptions.find(option => option.value === semesterFilter) || semesterOptions[0]}
+                onChange={handleSemesterChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('academicRecord.semester')}
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                  />
+                )}
+              />
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="resultType-label">{t('academicRecord.resultType')}</InputLabel>
-                <Select
-                  labelId="resultType-label"
-                  id="resultType"
-                  value={resultTypeFilter}
-                  label={t('academicRecord.resultType')}
-                  onChange={handleResultTypeChange}
-                >
-                  {resultTypeOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <Grid item xs={12} md={6}>
+              <Autocomplete
+                id="resultType"
+                options={resultTypeOptions}
+                getOptionLabel={(option) => option.label || ''}
+                value={resultTypeOptions.find(option => option.value === resultTypeFilter) || resultTypeOptions[0]}
+                onChange={handleResultTypeChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('academicRecord.resultType')}
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                  />
+                )}
+              />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="administrativeClass-label">{t('academicRecord.administrativeClass')}</InputLabel>
-                <Select
-                  labelId="administrativeClass-label"
-                  id="administrativeClass"
-                  value={selectedAdministrativeClassId}
-                  label={t('academicRecord.administrativeClass')}
-                  onChange={handleAdministrativeClassChange}
-                  disabled={classesLoading}
-                >
-                  <MenuItem value="">{t('common:all')}</MenuItem>
-                  {administrativeClasses.map((adminClass) => (
-                    <MenuItem key={adminClass.id} value={adminClass.id}>
-                      {adminClass.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <Grid item xs={12} md={6}>
+              <Autocomplete
+                id="administrativeClass"
+                options={[
+                  { value: '', label: t('common:all') },
+                  ...administrativeClasses.map(adminClass => ({ 
+                    value: adminClass.id, 
+                    label: adminClass.name 
+                  }))
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={
+                  administrativeClasses.find(c => c.id === selectedAdministrativeClassId) 
+                    ? { value: selectedAdministrativeClassId, label: administrativeClasses.find(c => c.id === selectedAdministrativeClassId).name }
+                    : { value: '', label: t('common:all') }
+                }
+                onChange={handleAdministrativeClassChange}
+                loading={classesLoading}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('student.class')}
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {classesLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+              />
             </Grid>
-            <Grid item xs={12} sm={6} md={1}>
+            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
               <Button
-                fullWidth
                 variant="outlined"
                 color="primary"
                 startIcon={<ClearIcon />}
                 onClick={handleClearFilters}
+                size="medium"
+                sx={{ 
+                  borderRadius: 1.5,
+                  px: 3,
+                  py: 1,
+                  fontWeight: 500
+                }}
               >
-                {t('common:clear')}
+                {t('common:clearFilters')}
               </Button>
             </Grid>
           </Grid>

@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as Yup from 'yup';
-import { Snackbar, Alert, TextField, MenuItem, DialogTitle, DialogContent, DialogActions, Button, Dialog, Box, CircularProgress } from '@mui/material';
-import { Formik, Form, Field } from 'formik';
+import { Snackbar, Alert, TextField, DialogTitle, DialogContent, DialogActions, Button, Dialog, Box, CircularProgress, Autocomplete } from '@mui/material';
+import { Formik, Form } from 'formik';
 import FormField from '../../../components/common/FormField';
 import { academicRecordService, studentService, subjectService, subjectExemptionService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
   const { t } = useTranslation(['admin', 'common']);
+  // We maintain two loading states for different purposes:
+  // 1. loading - tracks API submission state (useful for external tracking and long operations)
+  // 2. isSubmitting - Formik's internal submission state
+  // Both are used to provide a comprehensive UX during form submission
   const [loading, setLoading] = useState(false);
   const [students, setStudents] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -53,11 +57,61 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
     return date.toISOString().split('T')[0];
   }
 
-  const fetchDependencies = async () => {
+  const fetchSubjectsForStudent = useCallback(async (studentId) => {
+    if (!studentId) return;
+    
+    setFetchLoading(true);
+    try {
+      // Find the student code from the selected student
+      const selectedStudent = students.find(s => s.id === studentId);
+      
+      if (selectedStudent) {
+        // We found the student in our local state
+        const response = await subjectExemptionService.getStudentSubjects({
+          StudentCode: selectedStudent.studentCode,
+          PageSize: 10000
+        });
+        setSubjects(response.data || []);
+      } else {
+        // If student not found in the array (rare edge case), fetch it individually
+        try {
+          const studentResponse = await studentService.getById(studentId);
+          if (studentResponse) {
+            const response = await subjectExemptionService.getStudentSubjects({
+              StudentCode: studentResponse.studentCode,
+              PageSize: 10000
+            });
+            setSubjects(response.data || []);
+          } else {
+            // Fallback to all subjects if we can't determine the student
+            const response = await subjectService.getAll({ PageSize: 10000 });
+            setSubjects(response.data || []);
+          }
+        } catch (err) {
+          console.error('Error fetching student details:', err);
+          // Fallback to all subjects
+          const response = await subjectService.getAll({ PageSize: 10000 });
+          setSubjects(response.data || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching subjects for student:', error);
+      setError({
+        show: true,
+        message: t('academicRecord.failedToLoadSubjects')
+      });
+      // Fallback to empty subjects list
+      setSubjects([]);
+    } finally {
+      setFetchLoading(false);
+    }
+  }, [students, t]);
+
+  const fetchDependencies = useCallback(async () => {
     setFetchLoading(true);
     try {
       // Only fetch students initially
-      const studentsResponse = await studentService.getAll({ PageSize: 100 });
+      const studentsResponse = await studentService.getAll({ PageSize: 10000 });
       setStudents(studentsResponse.data || []);
 
       // If there's an initial student, load subjects too
@@ -73,64 +127,14 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
     } finally {
       setFetchLoading(false);
     }
-  };
-
-  const fetchSubjectsForStudent = async (studentId) => {
-    if (!studentId) return;
-    
-    setFetchLoading(true);
-    try {
-      // Find the student code from the selected student
-      const selectedStudent = students.find(s => s.id === studentId);
-      
-      if (selectedStudent) {
-        // We found the student in our local state
-        const response = await subjectExemptionService.getStudentSubjects({
-          StudentCode: selectedStudent.studentCode,
-          PageSize: 100
-        });
-        setSubjects(response.data || []);
-      } else {
-        // If student not found in the array (rare edge case), fetch it individually
-        try {
-          const studentResponse = await studentService.getById(studentId);
-          if (studentResponse) {
-            const response = await subjectExemptionService.getStudentSubjects({
-              StudentCode: studentResponse.studentCode,
-              PageSize: 100
-            });
-            setSubjects(response.data || []);
-          } else {
-            // Fallback to all subjects if we can't determine the student
-            const response = await subjectService.getAll({ PageSize: 100 });
-            setSubjects(response.data || []);
-          }
-        } catch (err) {
-          console.error('Error fetching student details:', err);
-          // Fallback to all subjects
-          const response = await subjectService.getAll({ PageSize: 100 });
-          setSubjects(response.data || []);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching subjects for student:', error);
-      setError({
-        show: true,
-        message: t('academicRecord.failedToLoadSubjects')
-      });
-      // Fallback to empty subjects list
-      setSubjects([]);
-    } finally {
-      setFetchLoading(false);
-    }
-  };
+  }, [formValues.studentId, t, fetchSubjectsForStudent]);
 
   useEffect(() => {
     fetchDependencies();
-  }, []);
+  }, [fetchDependencies]);
 
-  const handleStudentChange = async (event, setFieldValue) => {
-    const studentId = event.target.value;
+  const handleStudentChange = async (_, newValue, setFieldValue) => {
+    const studentId = newValue ? newValue.value : '';
     
     // Update form values
     setFieldValue('studentId', studentId);
@@ -230,133 +234,191 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
                 )}
                 
                 <Box sx={{ mb: 2 }}>
-                  <TextField
-                    fullWidth
-                    select
+                  <Autocomplete
                     id="studentId"
-                    name="studentId"
-                    label={t('academicRecord.student')}
-                    value={values.studentId}
-                    onChange={(e) => handleStudentChange(e, setFieldValue)}
-                    error={touched.studentId && Boolean(errors.studentId)}
-                    helperText={touched.studentId && errors.studentId}
+                    options={studentOptions}
+                    getOptionLabel={(option) => option.label || ''}
+                    value={studentOptions.find(option => option.value === values.studentId) || null}
+                    onChange={(event, newValue) => handleStudentChange(event, newValue, setFieldValue)}
+                    onBlur={() => touched.studentId = true}
                     disabled={fetchLoading || !!academicRecord}
-                    margin="normal"
-                    size="small"
-                    required
-                  >
-                    {studentOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  
+                    loading={fetchLoading}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={t('academicRecord.student')}
+                        error={touched.studentId && Boolean(errors.studentId)}
+                        helperText={touched.studentId && errors.studentId}
+                        margin="normal"
+                        size="small"
+                        required
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {fetchLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <Autocomplete
+                    id="subjectId"
+                    options={subjectOptions}
+                    getOptionLabel={(option) => option.label || ''}
+                    value={subjectOptions.find(option => option.value === values.subjectId) || null}
+                    onChange={(_, newValue) => setFieldValue('subjectId', newValue ? newValue.value : '')}
+                    onBlur={() => touched.subjectId = true}
+                    disabled={fetchLoading || !values.studentId}
+                    loading={fetchLoading}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={t('academicRecord.subject')}
+                        error={touched.subjectId && Boolean(errors.subjectId)}
+                        helperText={touched.subjectId && errors.subjectId}
+                        margin="normal"
+                        size="small"
+                        required
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {fetchLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
                   <TextField
                     fullWidth
-                    select
-                    id="subjectId"
-                    name="subjectId"
-                    label={t('academicRecord.subject')}
-                    value={values.subjectId}
-                    onChange={(e) => setFieldValue('subjectId', e.target.value)}
-                    error={touched.subjectId && Boolean(errors.subjectId)}
-                    helperText={touched.subjectId && errors.subjectId}
-                    disabled={fetchLoading || !values.studentId}
-                    margin="normal"
-                    size="small"
-                    required
-                  >
-                    {subjectOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  
-                  <FormField
+                    id="zScore"
                     name="zScore"
                     label={t('academicRecord.zScore')}
                     type="number"
+                    inputProps={{ step: 0.1, min: 0, max: 10 }}
+                    value={values.zScore}
+                    onChange={(e) => setFieldValue('zScore', e.target.value)}
+                    onBlur={() => touched.zScore = true}
+                    error={touched.zScore && Boolean(errors.zScore)}
+                    helperText={touched.zScore && errors.zScore}
+                    disabled={isSubmitting}
+                    margin="normal"
+                    size="small"
                     required
-                    inputProps={{ step: "0.1", min: "0", max: "10" }}
                   />
-                  
-                  <FormField
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <TextField
+                    fullWidth
+                    id="academicYear"
                     name="academicYear"
                     label={t('academicRecord.academicYear')}
                     type="number"
+                    inputProps={{ min: 2000 }}
+                    value={values.academicYear}
+                    onChange={(e) => setFieldValue('academicYear', e.target.value)}
+                    onBlur={() => touched.academicYear = true}
+                    error={touched.academicYear && Boolean(errors.academicYear)}
+                    helperText={touched.academicYear && errors.academicYear}
+                    disabled={isSubmitting}
+                    margin="normal"
+                    size="small"
                     required
-                    inputProps={{ min: "2000" }}
                   />
-                  
-                  <TextField
-                    fullWidth
-                    select
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <Autocomplete
                     id="semester"
-                    name="semester"
-                    label={t('academicRecord.semester')}
-                    value={values.semester}
-                    onChange={(e) => setFieldValue('semester', e.target.value)}
-                    error={touched.semester && Boolean(errors.semester)}
-                    helperText={touched.semester && errors.semester}
-                    margin="normal"
-                    size="small"
-                    required
-                  >
-                    {semesterOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  
+                    options={semesterOptions}
+                    getOptionLabel={(option) => option.label || ''}
+                    value={semesterOptions.find(option => option.value === values.semester) || semesterOptions[0]}
+                    onChange={(_, newValue) => setFieldValue('semester', newValue ? newValue.value : 1)}
+                    onBlur={() => touched.semester = true}
+                    disabled={isSubmitting}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={t('academicRecord.semester')}
+                        error={touched.semester && Boolean(errors.semester)}
+                        helperText={touched.semester && errors.semester}
+                        margin="normal"
+                        size="small"
+                        required
+                      />
+                    )}
+                  />
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <Autocomplete
+                    id="resultType"
+                    options={resultTypeOptions}
+                    getOptionLabel={(option) => option.label || ''}
+                    value={resultTypeOptions.find(option => option.value === values.resultType) || resultTypeOptions[0]}
+                    onChange={(_, newValue) => setFieldValue('resultType', newValue ? newValue.value : 'PASSED')}
+                    onBlur={() => touched.resultType = true}
+                    disabled={isSubmitting}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={t('academicRecord.resultType')}
+                        error={touched.resultType && Boolean(errors.resultType)}
+                        helperText={touched.resultType && errors.resultType}
+                        margin="normal"
+                        size="small"
+                        required
+                      />
+                    )}
+                  />
+                </Box>
+                
+                {academicRecord && (
+                  <FormField
+                    name="completionDate"
+                    label={t('academicRecord.completionDate')}
+                    type="date"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                )}
+                
+                <Box sx={{ mb: 2 }}>
                   <TextField
                     fullWidth
-                    select
-                    id="resultType"
-                    name="resultType"
-                    label={t('academicRecord.resultType')}
-                    value={values.resultType}
-                    onChange={(e) => setFieldValue('resultType', e.target.value)}
-                    error={touched.resultType && Boolean(errors.resultType)}
-                    helperText={touched.resultType && errors.resultType}
-                    margin="normal"
-                    size="small"
-                    required
-                  >
-                    {resultTypeOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  
-                  {academicRecord && (
-                    <FormField
-                      name="completionDate"
-                      label={t('academicRecord.completionDate')}
-                      type="date"
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                    />
-                  )}
-                  
-                  <FormField
+                    id="note"
                     name="note"
                     label={t('academicRecord.note')}
                     multiline
-                    rows={3}
+                    rows={4}
+                    value={values.note}
+                    onChange={(e) => setFieldValue('note', e.target.value)}
+                    onBlur={() => touched.note = true}
+                    error={touched.note && Boolean(errors.note)}
+                    helperText={touched.note && errors.note}
+                    disabled={isSubmitting}
+                    margin="normal"
+                    size="small"
                   />
                 </Box>
               </DialogContent>
-              
               <DialogActions>
-                <Button
-                  onClick={() => onClose(false)}
-                  color="inherit"
-                  disabled={loading || isSubmitting}
+                <Button 
+                  onClick={() => onClose(false)} 
+                  disabled={isSubmitting || loading}
                 >
                   {t('common:cancel')}
                 </Button>
@@ -364,10 +426,10 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
                   type="submit"
                   variant="contained"
                   color="primary"
-                  disabled={loading || isSubmitting || !isValid || (!dirty && !academicRecord)}
-                  startIcon={loading || isSubmitting ? <CircularProgress size={20} /> : null}
+                  disabled={isSubmitting || loading || !(isValid && dirty)}
+                  startIcon={(isSubmitting || loading) ? <CircularProgress size={20} /> : null}
                 >
-                  {t('common:save')}
+                  {(isSubmitting || loading) ? t('common:saving') : t('common:save')}
                 </Button>
               </DialogActions>
             </Form>
