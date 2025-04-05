@@ -42,9 +42,9 @@ const TrainingProgramForm = ({ open, onClose, program }) => {
     setError(null);
     try {
       const [majorsRes, subjectsRes, courseBatchesRes] = await Promise.all([
-        majorService.getAll({ PageSize: 100 }),
-        subjectService.getAll({ PageSize: 100 }),
-        courseBatchService.getAll({ PageSize: 100 }),
+        majorService.getAll({ PageSize: 10000 }),
+        subjectService.getAll({ PageSize: 10000 }),
+        courseBatchService.getAll({ PageSize: 10000 }),
       ]);
 
       setMajors(majorsRes.data || []);

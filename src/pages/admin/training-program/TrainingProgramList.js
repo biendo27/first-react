@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem, Grid, Paper, Stack, TextField } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Grid, Paper, Stack, TextField, CircularProgress, Autocomplete } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -76,8 +76,8 @@ const TrainingProgramList = () => {
     setFiltersLoading(true);
     try {
       const [majorsRes, courseBatchesRes] = await Promise.all([
-        majorService.getAll({ PageSize: 100 }),
-        courseBatchService.getAll({ PageSize: 100 }),
+        majorService.getAll({ PageSize: 10000 }),
+        courseBatchService.getAll({ PageSize: 10000 }),
       ]);
       setMajors(majorsRes.data || []);
       setCourseBatches(courseBatchesRes.data || []);
@@ -192,13 +192,13 @@ const TrainingProgramList = () => {
     }
   };
 
-  const handleMajorChange = (event) => {
-    setSelectedMajorId(event.target.value);
+  const handleMajorChange = (_, newValue) => {
+    setSelectedMajorId(newValue ? newValue.value : '');
     setPage(1); // Reset to first page when filter changes
   };
 
-  const handleCourseBatchChange = (event) => {
-    setSelectedCourseBatchId(event.target.value);
+  const handleCourseBatchChange = (_, newValue) => {
+    setSelectedCourseBatchId(newValue ? newValue.value : '');
     setPage(1); // Reset to first page when filter changes
   };
 
@@ -318,7 +318,7 @@ const TrainingProgramList = () => {
       {showFilters && (
         <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -334,52 +334,86 @@ const TrainingProgramList = () => {
               />
             </Grid>
             <Grid item xs={12} md={3}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="major-filter-label">{t('admin:majors')}</InputLabel>
-                <Select
-                  labelId="major-filter-label"
-                  value={selectedMajorId}
-                  onChange={handleMajorChange}
-                  label={t('admin:majors')}
-                  disabled={filtersLoading}
-                  sx={{ 
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 1.5
-                    }
-                  }}
-                >
-                  <MenuItem value="">{t('common:all')}</MenuItem>
-                  {majors.map((major) => (
-                    <MenuItem key={major.id} value={major.id}>
-                      {major.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                id="major-filter"
+                options={[
+                  { value: '', label: t('common:all') },
+                  ...majors.map(major => ({ value: major.id, label: major.name }))
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={
+                  selectedMajorId
+                    ? { value: selectedMajorId, label: majors.find(m => m.id === selectedMajorId)?.name || '' }
+                    : { value: '', label: t('common:all') }
+                }
+                onChange={handleMajorChange}
+                loading={filtersLoading}
+                size="small"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('admin:majors')}
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {filtersLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                    sx={{ 
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 1.5
+                      }
+                    }}
+                  />
+                )}
+              />
             </Grid>
-            <Grid item xs={12} md={4}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="course-batch-filter-label">{t('admin:courseBatch.displayName')}</InputLabel>
-                <Select
-                  labelId="course-batch-filter-label"
-                  value={selectedCourseBatchId}
-                  onChange={handleCourseBatchChange}
-                  label={t('admin:courseBatch.displayName')}
-                  disabled={filtersLoading}
-                  sx={{ 
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 1.5
-                    }
-                  }}
-                >
-                  <MenuItem value="">{t('common:all')}</MenuItem>
-                  {courseBatches.map((batch) => (
-                    <MenuItem key={batch.id} value={batch.id}>
-                      {batch.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <Grid item xs={12} md={3}>
+              <Autocomplete
+                id="course-batch-filter"
+                options={[
+                  { value: '', label: t('common:all') },
+                  ...courseBatches.map(batch => ({ value: batch.id, label: batch.name }))
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={
+                  selectedCourseBatchId
+                    ? { value: selectedCourseBatchId, label: courseBatches.find(b => b.id === selectedCourseBatchId)?.name || '' }
+                    : { value: '', label: t('common:all') }
+                }
+                onChange={handleCourseBatchChange}
+                loading={filtersLoading}
+                size="small"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('admin:courseBatch.displayName')}
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {filtersLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                    sx={{ 
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 1.5
+                      }
+                    }}
+                  />
+                )}
+              />
             </Grid>
             <Grid item xs={12} md={2} display="flex" justifyContent="flex-end">
               <Button

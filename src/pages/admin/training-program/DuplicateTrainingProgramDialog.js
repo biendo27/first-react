@@ -5,14 +5,12 @@ import {
   DialogContent, 
   DialogActions, 
   Button, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem, 
   Typography,
   CircularProgress,
   Box,
-  Alert
+  Alert,
+  Autocomplete,
+  TextField
 } from '@mui/material';
 import { courseBatchService, trainingProgramService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +26,7 @@ const DuplicateTrainingProgramDialog = ({ open, onClose, sourceBatchId }) => {
   const fetchCourseBatches = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await courseBatchService.getAll({ PageSize: 100 });
+      const response = await courseBatchService.getAll({ PageSize: 10000 });
       setCourseBatches(response.data || []);
     } catch (error) {
       const formattedError = handleApiError(error, t('common:error.loading'));
@@ -44,6 +42,10 @@ const DuplicateTrainingProgramDialog = ({ open, onClose, sourceBatchId }) => {
       fetchCourseBatches();
     }
   }, [open, fetchCourseBatches]);
+
+  const handleDestinationChange = (_, newValue) => {
+    setDestinationBatchId(newValue ? newValue.value : '');
+  };
 
   const handleDuplicate = async () => {
     if (!destinationBatchId) {
@@ -66,6 +68,14 @@ const DuplicateTrainingProgramDialog = ({ open, onClose, sourceBatchId }) => {
     }
   };
 
+  // Filter out the source batch from the options
+  const batchOptions = courseBatches
+    .filter(batch => batch.id !== sourceBatchId)
+    .map(batch => ({
+      value: batch.id,
+      label: batch.name
+    }));
+
   return (
     <Dialog 
       open={open} 
@@ -87,31 +97,35 @@ const DuplicateTrainingProgramDialog = ({ open, onClose, sourceBatchId }) => {
           </Alert>
         )}
 
-        <FormControl fullWidth sx={{ mt: 2 }} disabled={loading || submitting}>
-          <InputLabel id="destination-batch-label">
-            {t('destinationCourseBatch', 'Destination Course Batch')}
-          </InputLabel>
-          <Select
-            labelId="destination-batch-label"
-            value={destinationBatchId}
-            onChange={(e) => setDestinationBatchId(e.target.value)}
-            label={t('destinationCourseBatch', 'Destination Course Batch')}
-          >
-            {courseBatches
-              .filter(batch => batch.id !== sourceBatchId)
-              .map((batch) => (
-                <MenuItem key={batch.id} value={batch.id}>
-                  {batch.name}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
-        
-        {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <CircularProgress size={24} />
-          </Box>
-        )}
+        <Box sx={{ mt: 2 }}>
+          <Autocomplete
+            id="destination-batch"
+            options={batchOptions}
+            getOptionLabel={(option) => option.label || ''}
+            value={batchOptions.find(option => option.value === destinationBatchId) || null}
+            onChange={handleDestinationChange}
+            disabled={loading || submitting}
+            loading={loading}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={t('destinationCourseBatch', 'Destination Course Batch')}
+                variant="outlined"
+                fullWidth
+                required
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+          />
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button 
