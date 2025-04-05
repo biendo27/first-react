@@ -21,7 +21,7 @@ import {
   Alert,
   Grid,
   TextField,
-  MenuItem
+  Autocomplete
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
@@ -93,16 +93,16 @@ const AcademicRecordDialog = ({ open, onClose, student }) => {
     setPage(1);
   };
 
-  const handleAcademicYearChange = (event) => {
-    setAcademicYear(event.target.value);
+  const handleAcademicYearChange = (newYear) => {
+    setAcademicYear(newYear);
   };
 
-  const handleSemesterChange = (event) => {
-    setSemester(event.target.value);
+  const handleSemesterChange = (newSemester) => {
+    setSemester(newSemester);
   };
 
-  const handleResultTypeChange = (event) => {
-    setResultType(event.target.value);
+  const handleResultTypeChange = (newType) => {
+    setResultType(newType);
   };
 
   const handleApplyFilters = () => {
@@ -183,76 +183,108 @@ const AcademicRecordDialog = ({ open, onClose, student }) => {
         <Box sx={{ mb: 2, p: 1, bgcolor: 'background.paper', borderRadius: 1 }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                select
-                fullWidth
-                label={t('academicRecord.academicYear')}
-                value={academicYear}
-                onChange={handleAcademicYearChange}
-                size="small"
-              >
-                <MenuItem value="">{t('common:all')}</MenuItem>
-                {[...Array(10)].map((_, i) => {
-                  const year = new Date().getFullYear() - i;
-                  return (
-                    <MenuItem key={year} value={year}>
-                      {year}
-                    </MenuItem>
-                  );
-                })}
-              </TextField>
+              <Autocomplete
+                id="academicYear"
+                options={[
+                  { value: '', label: t('common:all') },
+                  ...[...Array(10)].map((_, i) => {
+                    const year = new Date().getFullYear() - i;
+                    return { value: year, label: year.toString() };
+                  })
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={academicYear ? 
+                  { value: academicYear, label: academicYear.toString() } : 
+                  { value: '', label: t('common:all') }
+                }
+                onChange={(_, newValue) => {
+                  handleAcademicYearChange(newValue ? newValue.value : '');
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('academicRecord.academicYear')}
+                    fullWidth
+                    size="small"
+                  />
+                )}
+              />
             </Grid>
+            
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                select
-                fullWidth
-                label={t('academicRecord.semester')}
-                value={semester}
-                onChange={handleSemesterChange}
-                size="small"
-              >
-                <MenuItem value="">{t('common:all')}</MenuItem>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                  <MenuItem key={sem} value={sem}>
-                    {t('academicRecord.semesterNumber', { number: sem })}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <Autocomplete
+                id="semester"
+                options={[
+                  { value: '', label: t('common:all') },
+                  ...[1, 2, 3, 4, 5, 6, 7, 8].map(num => ({
+                    value: num,
+                    label: t('academicRecord.semesterNumber', { number: num })
+                  }))
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={semester ? 
+                  { value: semester, label: t('academicRecord.semesterNumber', { number: semester }) } : 
+                  { value: '', label: t('common:all') }
+                }
+                onChange={(_, newValue) => {
+                  handleSemesterChange(newValue ? newValue.value : '');
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('academicRecord.semester')}
+                    fullWidth
+                    size="small"
+                  />
+                )}
+              />
             </Grid>
+            
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                select
-                fullWidth
-                label={t('academicRecord.resultType')}
-                value={resultType}
-                onChange={handleResultTypeChange}
-                size="small"
-              >
-                <MenuItem value="All">{t('common:all')}</MenuItem>
-                <MenuItem value="Passed">{t('academicRecord.resultTypes.passed')}</MenuItem>
-                <MenuItem value="Disqualification">{t('academicRecord.resultTypes.disqualification')}</MenuItem>
-                <MenuItem value="Exempted">{t('academicRecord.resultTypes.exempted')}</MenuItem>
-              </TextField>
+              <Autocomplete
+                id="resultType"
+                options={[
+                  { value: 'All', label: t('academicRecord.resultTypes.all') },
+                  { value: 'Passed', label: t('academicRecord.resultTypes.passed') },
+                  { value: 'Disqualification', label: t('academicRecord.resultTypes.disqualification') },
+                  { value: 'Exempted', label: t('academicRecord.resultTypes.exempted') }
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={{
+                  value: resultType,
+                  label: t(`academicRecord.resultTypes.${resultType.toLowerCase()}`)
+                }}
+                onChange={(_, newValue) => {
+                  handleResultTypeChange(newValue ? newValue.value : 'All');
+                }}
+                disableClearable
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('academicRecord.resultType')}
+                    fullWidth
+                    size="small"
+                  />
+                )}
+              />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleApplyFilters}
-                  startIcon={<SearchIcon />}
-                  sx={{ flexGrow: 1 }}
-                >
-                  {t('common:applyFilters')}
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={handleClearFilters}
-                  sx={{ flexGrow: 1 }}
-                >
-                  {t('common:clearFilters')}
-                </Button>
-              </Box>
+            
+            <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', alignItems: 'flex-end' }}>
+              <Button 
+                variant="contained" 
+                onClick={handleApplyFilters} 
+                startIcon={<SearchIcon />}
+                sx={{ mr: 1, height: 40 }}
+              >
+                {t('common:search')}
+              </Button>
+              <Button 
+                variant="outlined" 
+                onClick={handleClearFilters}
+                sx={{ height: 40 }}
+              >
+                {t('common:clear')}
+              </Button>
             </Grid>
           </Grid>
         </Box>

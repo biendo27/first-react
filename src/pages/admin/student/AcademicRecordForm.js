@@ -8,15 +8,15 @@ import {
   Button,
   Grid,
   TextField,
-  MenuItem,
   CircularProgress,
   Alert,
   Box,
-  Typography
+  Typography,
+  Autocomplete
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { academicRecordService, subjectService, subjectExemptionService, handleApiError } from '../../../services/api';
+import { academicRecordService, subjectExemptionService, handleApiError } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
@@ -67,7 +67,7 @@ const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
       try {
         const response = await subjectExemptionService.getStudentSubjects({
           StudentCode: student.studentCode,
-          PageSize: 100
+          PageSize: 10000
         });
         setSubjects(response.data || []);
       } catch (err) {
@@ -160,32 +160,44 @@ const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
 
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                select
+              <Autocomplete
                 id="subjectId"
-                name="subjectId"
-                label={t('academicRecord.subject')}
-                value={formik.values.subjectId}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.subjectId && Boolean(formik.errors.subjectId)}
-                helperText={formik.touched.subjectId && formik.errors.subjectId}
+                options={subjects.map(subject => ({
+                  value: subject.id,
+                  label: `${subject.name} (${subject.subjectCode})`
+                }))}
+                getOptionLabel={(option) => option.label || ''}
+                value={subjects.some(s => s.id === formik.values.subjectId) 
+                  ? { 
+                      value: formik.values.subjectId, 
+                      label: subjects.find(s => s.id === formik.values.subjectId)
+                        ? `${subjects.find(s => s.id === formik.values.subjectId).name} (${subjects.find(s => s.id === formik.values.subjectId).subjectCode})`
+                        : ''
+                    } 
+                  : null
+                }
+                onChange={(_, newValue) => formik.setFieldValue('subjectId', newValue ? newValue.value : '')}
+                onBlur={() => formik.setFieldTouched('subjectId', true)}
                 disabled={loadingSubjects || loading}
-                required
-              >
-                {loadingSubjects ? (
-                  <MenuItem value="">
-                    <CircularProgress size={20} /> {t('common:loading')}
-                  </MenuItem>
-                ) : (
-                  subjects.map(subject => (
-                    <MenuItem key={subject.id} value={subject.id}>
-                      {subject.name} ({subject.subjectCode})
-                    </MenuItem>
-                  ))
+                loading={loadingSubjects}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={`${t('academicRecord.subject')}*`}
+                    error={formik.touched.subjectId && Boolean(formik.errors.subjectId)}
+                    helperText={formik.touched.subjectId && formik.errors.subjectId}
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {loadingSubjects ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
                 )}
-              </TextField>
+              />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -222,46 +234,56 @@ const AcademicRecordForm = ({ open, onClose, student, academicRecord }) => {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                select
+              <Autocomplete
                 id="semester"
-                name="semester"
-                label={t('academicRecord.semester')}
-                value={formik.values.semester}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.semester && Boolean(formik.errors.semester)}
-                helperText={formik.touched.semester && formik.errors.semester}
+                options={[1, 2, 3, 4, 5, 6, 7, 8].map(semester => ({
+                  value: semester,
+                  label: t('academicRecord.semesterNumber', { number: semester })
+                }))}
+                getOptionLabel={(option) => option.label || ''}
+                value={{
+                  value: formik.values.semester,
+                  label: t('academicRecord.semesterNumber', { number: formik.values.semester })
+                }}
+                onChange={(_, newValue) => formik.setFieldValue('semester', newValue ? newValue.value : '')}
+                onBlur={() => formik.setFieldTouched('semester', true)}
                 disabled={loading}
-                required
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map(semester => (
-                  <MenuItem key={semester} value={semester}>
-                    {t('academicRecord.semesterNumber', { number: semester })}
-                  </MenuItem>
-                ))}
-              </TextField>
+                disableClearable
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={`${t('academicRecord.semester')}*`}
+                    error={formik.touched.semester && Boolean(formik.errors.semester)}
+                    helperText={formik.touched.semester && formik.errors.semester}
+                  />
+                )}
+              />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                select
+              <Autocomplete
                 id="resultType"
-                name="resultType"
-                label={t('academicRecord.resultType')}
-                value={formik.values.resultType}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.resultType && Boolean(formik.errors.resultType)}
-                helperText={formik.touched.resultType && formik.errors.resultType}
+                options={[
+                  { value: 'Passed', label: t('academicRecord.resultTypes.passed') },
+                  { value: 'Disqualification', label: t('academicRecord.resultTypes.disqualification') }
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={{
+                  value: formik.values.resultType,
+                  label: t(`academicRecord.resultTypes.${formik.values.resultType.toLowerCase()}`)
+                }}
+                onChange={(_, newValue) => formik.setFieldValue('resultType', newValue ? newValue.value : '')}
+                onBlur={() => formik.setFieldTouched('resultType', true)}
                 disabled={loading}
-                required
-              >
-                <MenuItem value="Passed">{t('academicRecord.resultTypes.passed')}</MenuItem>
-                <MenuItem value="Disqualification">{t('academicRecord.resultTypes.disqualification')}</MenuItem>
-                <MenuItem value="Exempted">{t('academicRecord.resultTypes.exempted')}</MenuItem>
-              </TextField>
+                disableClearable
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={`${t('academicRecord.resultType')}*`}
+                    error={formik.touched.resultType && Boolean(formik.errors.resultType)}
+                    helperText={formik.touched.resultType && formik.errors.resultType}
+                  />
+                )}
+              />
             </Grid>
             {isEditing && (
               <Grid item xs={12} sm={6}>

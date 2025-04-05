@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Grid, Paper, IconButton, Tooltip, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Grid, Paper, IconButton, Tooltip, CircularProgress, Autocomplete } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -83,7 +83,7 @@ const StudentList = () => {
   const fetchAdministrativeClasses = useCallback(async () => {
     setClassesLoading(true);
     try {
-      const response = await administrativeClassService.getAll({ PageSize: 100 });
+      const response = await administrativeClassService.getAll({ PageSize: 10000 });
       setAdministrativeClasses(response.data || []);
     } catch (error) {
       console.error('Error fetching administrative classes:', error);
@@ -329,33 +329,51 @@ const StudentList = () => {
               />
             </Grid>
             <Grid item xs={12} md={4}>
-              <FormControl fullWidth size="small" variant="outlined">
-                <InputLabel id="administrative-class-label">{t('student.class')}</InputLabel>
-                <Select
-                  labelId="administrative-class-label"
-                  id="AdministrativeClassId"
-                  name="AdministrativeClassId"
-                  value={filters.AdministrativeClassId}
-                  onChange={handleFilterChange}
-                  label={t('student.class')}
-                  disabled={classesLoading}
-                >
-                  <MenuItem value="">{t('common:all')}</MenuItem>
-                  {administrativeClasses.map((adminClass) => (
-                    <MenuItem key={adminClass.id} value={adminClass.id}>
-                      {adminClass.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {classesLoading && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', ml: 1, mt: 1 }}>
-                    <CircularProgress size={16} />
-                    <Typography variant="caption" sx={{ ml: 1 }}>
-                      {t('common:loading')}
-                    </Typography>
-                  </Box>
+              <Autocomplete
+                id="AdministrativeClassId"
+                options={[
+                  { value: '', label: t('common:all') },
+                  ...administrativeClasses.map(adminClass => ({ 
+                    value: adminClass.id, 
+                    label: adminClass.name 
+                  }))
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={administrativeClasses.find(c => c.id === filters.AdministrativeClassId) ? 
+                  { 
+                    value: filters.AdministrativeClassId, 
+                    label: administrativeClasses.find(c => c.id === filters.AdministrativeClassId).name 
+                  } : 
+                  { value: '', label: t('common:all') }
+                }
+                onChange={(_, newValue) => {
+                  handleFilterChange({
+                    target: {
+                      name: 'AdministrativeClassId',
+                      value: newValue ? newValue.value : ''
+                    }
+                  });
+                }}
+                disableClearable
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('student.class')}
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {classesLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
                 )}
-              </FormControl>
+              />
             </Grid>
             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
               <Button

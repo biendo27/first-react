@@ -24,9 +24,9 @@ import {
   Divider,
   Alert,
   TextField,
-  MenuItem,
   Grid,
   InputAdornment,
+  Autocomplete
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -342,11 +342,9 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
   const [selectedExemption, setSelectedExemption] = useState(null);
   
   // State for filter values
-  const [exemptionYear, setExemptionYear] = useState(new Date().getFullYear());
-  const [exemptionSemester, setExemptionSemester] = useState('');
   const [pendingYear, setPendingYear] = useState(new Date().getFullYear());
   const [pendingSemester, setPendingSemester] = useState('');
-  
+
   // Use a ref to track if a specific action triggered the fetch
   const actionRef = useRef({ 
     type: null, // 'initial', 'pagination', 'filter', 'tabChange', 'formClose'
@@ -364,7 +362,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       const response = await subjectExemptionService.getStudentSubjects({
         StudentCode: student.studentCode,
         PageIndex: page,
-        PageSize: rowsPerPage,
+        PageSize: 10000,
         SubjectName: subjectFilters.SubjectName,
         SubjectCode: subjectFilters.SubjectCode
       });
@@ -377,7 +375,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     } finally {
       setLoading(false);
     }
-  }, [student, page, rowsPerPage, subjectFilters, t]);
+  }, [student, page, subjectFilters, t]);
 
   const fetchExemptions = useCallback(async () => {
     if (!student) return;
@@ -394,8 +392,8 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
       
       // Only add filter parameters if filters have been explicitly applied
       if (actionRef.current.filterApplied) {
-        if (exemptionYear) params.Year = exemptionYear;
-        if (exemptionSemester) params.Semester = exemptionSemester;
+        if (pendingYear) params.Year = pendingYear;
+        if (pendingSemester) params.Semester = pendingSemester;
       }
       
       console.log('Fetching exemptions with params:', params, 'Action:', actionRef.current.type);
@@ -410,7 +408,7 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     } finally {
       setExemptionsLoading(false);
     }
-  }, [student, exemptionsPage, exemptionsRowsPerPage, exemptionYear, exemptionSemester, t]);
+  }, [student, exemptionsPage, exemptionsRowsPerPage, pendingYear, pendingSemester, t]);
 
   // Load subjects when the dialog opens and on page/rowsPerPage/filter changes
   useEffect(() => {
@@ -517,19 +515,17 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
   }, [tabValue, fetchSubjects, fetchExemptions]);
 
   // Update only the pending state, not the actual filters
-  const handleYearChange = (event) => {
-    setPendingYear(event.target.value);
+  const handleYearChange = (newYear) => {
+    setPendingYear(newYear);
   };
 
   // Update only the pending state, not the actual filters
-  const handleSemesterChange = (event) => {
-    setPendingSemester(event.target.value);
+  const handleSemesterChange = (newSemester) => {
+    setPendingSemester(newSemester);
   };
 
   // Apply the filters only when the button is clicked
   const handleFilterApply = () => {
-    setExemptionYear(pendingYear);
-    setExemptionSemester(pendingSemester);
     setExemptionsPage(1); // Reset to first page when applying filters
     
     // Set action type and filterApplied flag before triggering fetch
@@ -549,8 +545,6 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
     // Update both pending and actual state
     setPendingYear(currentYear);
     setPendingSemester('');
-    setExemptionYear(currentYear);
-    setExemptionSemester('');
     setExemptionsPage(1);
     
     // Set action type and reset filterApplied flag before triggering fetch
@@ -633,67 +627,80 @@ const SubjectExemptionDialog = ({ open, onClose, student }) => {
         </TabPanel>
         
         <TabPanel value={tabValue} index={1}>
-          <Box sx={{ mb: 2, p: 1, bgcolor: 'background.paper', borderRadius: 1 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={3}>
-                <TextField
-                  select
-                  fullWidth
-                  label={t('exemption.academicYear')}
-                  value={pendingYear}
-                  onChange={handleYearChange}
-                  size="small"
-                >
-                  {[...Array(10)].map((_, i) => {
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1, mb: 2 }}>
+            <Box sx={{ width: { xs: '100%', sm: '30%' } }}>
+              <Autocomplete
+                id="academicYear"
+                options={[
+                  { value: '', label: t('common:all') },
+                  ...[...Array(10)].map((_, i) => {
                     const year = new Date().getFullYear() - i;
-                    return (
-                      <MenuItem key={year} value={year}>
-                        {year}
-                      </MenuItem>
-                    );
-                  })}
-                </TextField>
-              </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  select
-                  fullWidth
-                  label={t('exemption.semester')}
-                  value={pendingSemester}
-                  onChange={handleSemesterChange}
-                  size="small"
-                >
-                  <MenuItem value="">{t('exemption.allSemesters')}</MenuItem>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
-                    <MenuItem key={semester} value={semester}>
-                      {t('exemption.semester')} {semester}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={3}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleFilterApply}
-                  startIcon={<SearchIcon />}
-                  fullWidth
-                  sx={{ height: '100%' }}
-                >
-                  {t('common:applyFilters')}
-                </Button>
-              </Grid>
-              <Grid item xs={3}>
-                <Button
-                  variant="outlined"
-                  onClick={handleClearFilters}
-                  fullWidth
-                  sx={{ height: '100%' }}
-                >
-                  {t('common:clearFilters')}
-                </Button>
-              </Grid>
-            </Grid>
+                    return { value: year, label: year.toString() };
+                  })
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={pendingYear ? 
+                  { value: pendingYear, label: pendingYear.toString() } : 
+                  { value: '', label: t('common:all') }
+                }
+                onChange={(_, newValue) => {
+                  handleYearChange(newValue ? newValue.value : '');
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('academicRecord.academicYear')}
+                    fullWidth
+                    size="small"
+                  />
+                )}
+              />
+            </Box>
+
+            <Box sx={{ width: { xs: '100%', sm: '30%' } }}>
+              <Autocomplete
+                id="semester"
+                options={[
+                  { value: '', label: t('common:all') },
+                  ...[1, 2, 3, 4, 5, 6, 7, 8].map(num => ({
+                    value: num,
+                    label: t('academicRecord.semesterNumber', { number: num })
+                  }))
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={pendingSemester ? 
+                  { value: pendingSemester, label: t('academicRecord.semesterNumber', { number: pendingSemester }) } : 
+                  { value: '', label: t('common:all') }
+                }
+                onChange={(_, newValue) => {
+                  handleSemesterChange(newValue ? newValue.value : '');
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('academicRecord.semester')}
+                    fullWidth
+                    size="small"
+                  />
+                )}
+              />
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, width: { xs: '100%', sm: 'auto' } }}>
+              <Button 
+                variant="contained" 
+                onClick={handleFilterApply} 
+                startIcon={<SearchIcon />}
+              >
+                {t('common:search')}
+              </Button>
+              <Button 
+                variant="outlined" 
+                onClick={handleClearFilters}
+              >
+                {t('common:clear')}
+              </Button>
+            </Box>
           </Box>
           
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
