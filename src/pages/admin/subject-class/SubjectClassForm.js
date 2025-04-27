@@ -29,10 +29,9 @@ const formatDateForForm = (dateString) => {
 
 const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   const { t } = useTranslation(['admin', 'common']);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({ show: false, message: '' });
   const [subjects, setSubjects] = useState([]);
   const [classRooms, setClassRooms] = useState([]);
-  const [error, setError] = useState({ show: false, message: '' });
   const [formLoading, setFormLoading] = useState(false);
 
   const initialValues = {
@@ -114,7 +113,6 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   }, [open, fetchFormOptions]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    setLoading(true);
     try {
       if (subjectClass) {
         await subjectClassService.update(subjectClass.id, values);
@@ -144,7 +142,6 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
         severity: 'error'
       });
     } finally {
-      setLoading(false);
       setSubmitting(false);
     }
   };

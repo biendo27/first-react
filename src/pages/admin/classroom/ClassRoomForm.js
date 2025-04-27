@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as Yup from 'yup';
-import { Snackbar, Alert, DialogTitle, DialogContent, DialogActions, Button, Dialog, Box } from '@mui/material';
+import { Snackbar, Alert, DialogTitle, DialogContent, DialogActions, Button, Dialog, Box, CircularProgress } from '@mui/material';
 import { Formik, Form } from 'formik';
 import FormField from '../../../components/common/FormField';
 import { classRoomService, handleApiError } from '../../../services/api';
@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 const ClassRoomForm = ({ open, onClose, classRoom }) => {
   const { t } = useTranslation(['admin', 'common']);
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState({ show: false, message: '' });
   
   const initialValues = {
@@ -22,7 +22,7 @@ const ClassRoomForm = ({ open, onClose, classRoom }) => {
   });
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       if (classRoom) {
         await classRoomService.update(classRoom.id, values);
@@ -52,7 +52,7 @@ const ClassRoomForm = ({ open, onClose, classRoom }) => {
         severity: 'error'
       });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
       setSubmitting(false);
     }
   };
@@ -75,7 +75,7 @@ const ClassRoomForm = ({ open, onClose, classRoom }) => {
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({ isSubmitting, isValid, dirty }) => (
+          {({ isSubmitting: formIsSubmitting, isValid, dirty }) => (
             <Form>
               <DialogContent dividers>
                 {error.show && error.severity === 'error' && (
@@ -93,17 +93,21 @@ const ClassRoomForm = ({ open, onClose, classRoom }) => {
               <DialogActions>
                 <Button 
                   onClick={() => onClose(false)}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || formIsSubmitting}
                 >
                   {t('common:cancel')}
                 </Button>
                 <Button 
                   type="submit"
                   variant="contained" 
-                  disabled={isSubmitting || !(isValid && dirty)}
+                  disabled={isSubmitting || formIsSubmitting || !(isValid && dirty)}
                   color="primary"
                 >
-                  {t('common:save')}
+                  {isSubmitting ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    t('common:save')
+                  )}
                 </Button>
               </DialogActions>
             </Form>

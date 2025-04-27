@@ -31,13 +31,11 @@ const SubjectClassStudentsDialog = ({ open, onClose, subjectClass }) => {
   const { t } = useTranslation(['admin', 'common']);
   const [loading, setLoading] = useState(false);
   const [students, setStudents] = useState([]);
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [pageSize] = useState(100);
-  const [totalCount, setTotalCount] = useState(0);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [allStudents, setAllStudents] = useState([]);
   const [loadingAllStudents, setLoadingAllStudents] = useState(false);
-  const [studentSearch, setStudentSearch] = useState('');
   const [addingStudent, setAddingStudent] = useState(false);
   
   const [alertInfo, setAlertInfo] = useState({
@@ -60,7 +58,7 @@ const SubjectClassStudentsDialog = ({ open, onClose, subjectClass }) => {
       
       const response = await subjectClassDetailService.getClassStudents(params);
       setStudents(response.data || []);
-      setTotalCount(response.totalCount || 0);
+      // We're not using pagination controls, so we don't need to track totalCount
     } catch (error) {
       const formattedError = handleApiError(error, t('subjectClass.noStudentsFound'));
       setAlertInfo({
@@ -107,7 +105,6 @@ const SubjectClassStudentsDialog = ({ open, onClose, subjectClass }) => {
 
   const handleStudentSearch = (event) => {
     const value = event.target.value;
-    setStudentSearch(value);
     if (value.length >= 2) {
       fetchAllStudents(value);
     }

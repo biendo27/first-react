@@ -11,7 +11,6 @@ import {
   IconButton,
   TextField,
   InputAdornment,
-  Paper,
   Alert,
   Chip,
   Grid

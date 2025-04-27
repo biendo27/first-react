@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, TextField, Grid, Paper, CircularProgress } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, TextField, Grid, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
