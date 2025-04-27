@@ -346,6 +346,60 @@ export const educationModeService = createCrudService('education-modes');
 export const majorService = createCrudService('majors');
 export const studentService = createCrudService('students');
 export const subjectService = createCrudService('subjects');
+export const subjectClassService = {
+  ...createCrudService('subject-classes'),
+  export: async (params) => {
+    try {
+      const response = await fetch(`${API_URL}/v1/subject-classes/export?${new URLSearchParams(params)}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.status} ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Export error:', error);
+      throw error;
+    }
+  }
+};
+export const subjectClassDetailService = {
+  ...createCrudService('subject-class-details'),
+  getClassStudents: async (params) => {
+    try {
+      const response = await api.get('/v1/subject-class-details/class-students', { 
+        params 
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching class students:', error);
+      throw error;
+    }
+  },
+  addStudentToClass: async (data) => {
+    try {
+      const response = await api.post('/v1/subject-class-details/add-student-to-class', data);
+      return response.data;
+    } catch (error) {
+      console.error('Error adding student to class:', error);
+      throw error;
+    }
+  },
+  removeStudentFromClass: async (data) => {
+    try {
+      const response = await api.post('/v1/subject-class-details/remove-student-from-class', data);
+      return response.data;
+    } catch (error) {
+      console.error('Error removing student from class:', error);
+      throw error;
+    }
+  }
+};
 export const trainingProgramService = {
   ...createCrudService('training-programs'),
   duplicate: async (courseBatchSourceId, courseBatchDestinationId) => {
