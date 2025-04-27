@@ -284,6 +284,7 @@
     "startDate": "Ngày bắt đầu",
     "endDate": "Ngày kết thúc",
     "startLesson": "Tiết bắt đầu",
+    "lessons": "Tiết học",
     "endLesson": "Tiết kết thúc",
     "studyType": "Loại học",
     "studyTypes": {

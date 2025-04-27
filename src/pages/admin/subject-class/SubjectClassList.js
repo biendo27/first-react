@@ -64,15 +64,6 @@ const SubjectClassList = () => {
       disablePadding: true,
       render: (row) => (
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Tooltip title={t('common:edit')}>
-            <IconButton 
-              size="small" 
-              color="primary" 
-              onClick={() => handleEdit(row)}
-            >
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
           <Tooltip title={t('subjectClass.viewStudents')}>
             <IconButton 
               size="small" 
@@ -80,6 +71,15 @@ const SubjectClassList = () => {
               onClick={(e) => handleViewStudents(e, row)}
             >
               <PeopleIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('common:edit')}>
+            <IconButton 
+              size="small" 
+              color="primary" 
+              onClick={() => handleEdit(row)}
+            >
+              <EditIcon />
             </IconButton>
           </Tooltip>
           <Tooltip title={t('common:delete')}>

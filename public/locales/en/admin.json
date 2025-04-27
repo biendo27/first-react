@@ -132,6 +132,7 @@
     "startDate": "Start Date",
     "endDate": "End Date",
     "startLesson": "Start Lesson",
+    "lessons": "Lessons",
     "endLesson": "End Lesson",
     "studyType": "Study Type",
     "studyTypes": {
