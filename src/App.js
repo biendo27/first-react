@@ -13,6 +13,7 @@ import AdministrativeClassList from './pages/admin/administrative-class';
 import CourseBatchList from './pages/admin/course-batch';
 import TrainingProgramList from './pages/admin/training-program';
 import EducationModeList from './pages/admin/education-mode';
+import ClassRoomList from './pages/admin/classroom';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import './App.css';
@@ -72,6 +73,7 @@ function App() {
               <Route path="administrative-classes" element={<AdministrativeClassList />} />
               <Route path="course-batches" element={<CourseBatchList />} />
               <Route path="training-programs" element={<TrainingProgramList />} />
+              <Route path="classrooms" element={<ClassRoomList />} />
               
               <Route index element={<Navigate to="dashboard" replace />} />
             </Route>

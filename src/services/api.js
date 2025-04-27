@@ -315,6 +315,32 @@ export const academicRecordService = {
   }
 };
 export const administrativeClassService = createCrudService('administrative-classes');
+export const classRoomService = {
+  ...createCrudService('classrooms'),
+  importFile: async (file) => {
+    const formData = new FormData();
+    formData.append('File', file);
+    
+    try {
+      const response = await fetch(`${API_URL}/v1/classrooms/import`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('File upload error:', error);
+      throw error;
+    }
+  }
+};
 export const courseBatchService = createCrudService('course-batches');
 export const educationModeService = createCrudService('education-modes');
 export const majorService = createCrudService('majors');

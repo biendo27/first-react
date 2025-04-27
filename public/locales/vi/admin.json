@@ -251,5 +251,24 @@
     "importCourseBatchesDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu khóa học. Kích thước tệp tối đa là 5MB.",
     "importSuccess": "Đã nhập khóa học thành công", 
     "importError": "Không thể nhập khóa học"
+  },
+  "classRooms": "Phòng Học",
+  "classRoom": {
+    "title": "Phòng Học",
+    "addClassRoom": "Thêm Phòng Học",
+    "editClassRoom": "Sửa Phòng Học",
+    "deleteClassRoom": "Xóa Phòng Học",
+    "deleteClassRoomConfirmation": "Bạn có chắc chắn muốn xóa phòng học này?",
+    "name": "Tên",
+    "deleteSuccess": "Xóa phòng học thành công",
+    "deleteError": "Không thể xóa phòng học",
+    "createSuccess": "Tạo phòng học thành công",
+    "createError": "Không thể tạo phòng học",
+    "updateSuccess": "Cập nhật phòng học thành công",
+    "updateError": "Không thể cập nhật phòng học",
+    "importClassRooms": "Nhập Dữ Liệu Phòng Học",
+    "importDescription": "Tải lên tệp Excel (.xlsx, .xls) chứa dữ liệu phòng học. Kích thước tối đa là 5MB.",
+    "importSuccess": "Nhập dữ liệu phòng học thành công",
+    "importError": "Không thể nhập dữ liệu phòng học"
   }
 } 

@@ -18,6 +18,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import { useTranslation } from 'react-i18next';
 
 const drawerWidth = 240;
@@ -70,6 +71,11 @@ const Sidebar = ({ open, onClose, variant = 'permanent' }) => {
       name: t('academicRecords'),
       icon: <AssignmentIcon />,
       path: '/admin/academic-records'
+    },
+    {
+      name: t('classRooms'),
+      icon: <MeetingRoomIcon />,
+      path: '/admin/classrooms'
     },
   ];
 
