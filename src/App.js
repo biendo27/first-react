@@ -15,6 +15,7 @@ import TrainingProgramList from './pages/admin/training-program';
 import EducationModeList from './pages/admin/education-mode';
 import ClassRoomList from './pages/admin/classroom';
 import SubjectClassList from './pages/admin/subject-class';
+import TimeTableList from './pages/admin/time-table';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import './App.css';
@@ -76,6 +77,7 @@ function App() {
               <Route path="training-programs" element={<TrainingProgramList />} />
               <Route path="classrooms" element={<ClassRoomList />} />
               <Route path="subject-classes" element={<SubjectClassList />} />
+              <Route path="time-table" element={<TimeTableList />} />
               
               <Route index element={<Navigate to="dashboard" replace />} />
             </Route>

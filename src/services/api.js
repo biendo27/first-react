@@ -366,6 +366,27 @@ export const subjectClassService = {
       console.error('Export error:', error);
       throw error;
     }
+  },
+  exportTimeTable: async (data) => {
+    try {
+      const response = await fetch(`${API_URL}/v1/subject-class-details/export-time-table`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Export time table failed: ${response.status} ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Export time table error:', error);
+      throw error;
+    }
   }
 };
 export const subjectClassDetailService = {

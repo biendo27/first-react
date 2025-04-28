@@ -317,5 +317,20 @@
     "removeStudentSuccess": "Xóa sinh viên khỏi lớp thành công",
     "removeStudentError": "Không thể xóa sinh viên khỏi lớp",
     "noStudentsFound": "Không tìm thấy sinh viên trong lớp này"
+  },
+  "timeTable": {
+    "title": "Thời Khóa Biểu",
+    "availableClasses": "Lớp Học Phần Có Sẵn",
+    "selectedClasses": "Lớp Học Phần Đã Chọn",
+    "noClassesAdded": "Chưa có lớp học phần nào được thêm vào thời khóa biểu",
+    "exportTimeTable": "Xuất Thời Khóa Biểu",
+    "findClasses": "Tìm Lớp Học",
+    "search": "Tìm Kiếm",
+    "addToTimeTable": "Thêm vào Thời Khóa Biểu",
+    "removeFromTimeTable": "Xóa khỏi Thời Khóa Biểu",
+    "removeFromTimeTableConfirmation": "Bạn có chắc chắn muốn xóa lớp học phần này khỏi thời khóa biểu không?",
+    "noClassesSelected": "Vui lòng thêm ít nhất một lớp học phần để xuất thời khóa biểu",
+    "exportSuccess": "Xuất thời khóa biểu thành công",
+    "exportError": "Không thể xuất thời khóa biểu"
   }
 } 

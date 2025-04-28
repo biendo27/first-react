@@ -3269,6 +3269,47 @@
         ]
       }
     },
+    "/v1/subject-class-details/export-time-table": {
+      "post": {
+        "tags": [
+          "SubjectClassDetail"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportTimeTableRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "Admin"
+            ]
+          }
+        ]
+      }
+    },
     "/v1/subject-exemptions": {
       "get": {
         "tags": [
@@ -4612,6 +4653,22 @@
               "null",
               "string"
             ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExportTimeTableRequestDto": {
+        "type": "object",
+        "properties": {
+          "subjectClassIds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         },
         "additionalProperties": false

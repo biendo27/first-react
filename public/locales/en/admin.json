@@ -165,5 +165,20 @@
     "removeStudentSuccess": "Student removed from class successfully",
     "removeStudentError": "Failed to remove student from class",
     "noStudentsFound": "No students found in this class"
+  },
+  "timeTable": {
+    "title": "Time Table",
+    "availableClasses": "Available Subject Classes",
+    "selectedClasses": "Selected Subject Classes",
+    "noClassesAdded": "No subject classes added to the time table",
+    "exportTimeTable": "Export Time Table",
+    "findClasses": "Find Classes",
+    "search": "Search",
+    "addToTimeTable": "Add to Time Table",
+    "removeFromTimeTable": "Remove from Time Table",
+    "removeFromTimeTableConfirmation": "Are you sure you want to remove this subject class from the time table?",
+    "noClassesSelected": "Please add at least one subject class to export the time table",
+    "exportSuccess": "Time table exported successfully",
+    "exportError": "Failed to export time table"
   }
 } 
