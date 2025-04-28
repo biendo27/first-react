@@ -36,7 +36,7 @@ const SubjectClassStudentsDialog = ({ open, onClose, subjectClass }) => {
   const [loading, setLoading] = useState(false);
   const [students, setStudents] = useState([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize] = useState(5);
   const [totalCount, setTotalCount] = useState(0);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [allStudents, setAllStudents] = useState([]);
