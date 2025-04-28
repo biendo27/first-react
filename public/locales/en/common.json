@@ -4,11 +4,13 @@
   "paginationDisplayText": "{{from}}-{{to}} of {{count}}",
   "of": "of",
   "actions": "Actions",
+  "add": "Add",
   "edit": "Edit",
   "delete": "Delete",
   "cancel": "Cancel",
   "confirm": "Confirm",
   "save": "Save",
+  "total": "Total",
   "clearFilters": "Clear Filters",
   "showFilters": "Show Filters",
   "hideFilters": "Hide Filters",
@@ -31,4 +33,4 @@
     "loading": "Error loading data"
   },
   "optionalField": "Optional field"
-} 
+}

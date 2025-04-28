@@ -14,6 +14,10 @@ import {
   TextField,
   MenuItem,
   Grid,
+  FormControlLabel,
+  Checkbox,
+  Paper,
+  Typography,
 } from '@mui/material';
 import { Formik, Form } from 'formik';
 import FormField from '../../../components/common/FormField';
@@ -43,6 +47,8 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
     startLesson: subjectClass?.startLesson || 1,
     endLesson: subjectClass?.endLesson || 2,
     studyType: subjectClass?.studyType || 'Theory',
+    enableClone: true,
+    enableAutoImportStudent: true,
   };
 
   const validationSchema = Yup.object({
@@ -81,6 +87,8 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
     studyType: Yup.string()
       .required(t('common:fieldRequired', { field: t('subjectClass.studyType') }))
       .oneOf(['Theory', 'Practice']),
+    enableClone: Yup.boolean(),
+    enableAutoImportStudent: Yup.boolean(),
   });
 
   const fetchFormOptions = useCallback(async () => {
@@ -297,6 +305,41 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                         </MenuItem>
                       </FormField>
                     </Grid>
+
+                    {/* Only show these options when creating a new subject class */}
+                    {!subjectClass && (
+                      <Grid item xs={12}>
+                        <Paper variant="outlined" sx={{ p: 2, mt: 1 }}>
+                          <Typography variant="subtitle1" gutterBottom>
+                            {t('subjectClass.additionalOptions')}
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={values.enableClone}
+                                  onChange={(e) => setFieldValue('enableClone', e.target.checked)}
+                                  name="enableClone"
+                                  color="primary"
+                                />
+                              }
+                              label={t('subjectClass.enableClone')}
+                            />
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={values.enableAutoImportStudent}
+                                  onChange={(e) => setFieldValue('enableAutoImportStudent', e.target.checked)}
+                                  name="enableAutoImportStudent"
+                                  color="primary"
+                                />
+                              }
+                              label={t('subjectClass.enableAutoImportStudent')}
+                            />
+                          </Box>
+                        </Paper>
+                      </Grid>
+                    )}
                   </Grid>
                 )}
               </DialogContent>
