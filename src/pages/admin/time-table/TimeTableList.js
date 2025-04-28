@@ -84,7 +84,6 @@ const TimeTableList = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [selectedSubjectClass, setSelectedSubjectClass] = useState(null);
-  const [removeLoading, setRemoveLoading] = useState(false);
   const [findClassDialogOpen, setFindClassDialogOpen] = useState(false);
   
   // Filter states
@@ -487,7 +486,7 @@ const TimeTableList = () => {
         content={t('timeTable.removeFromTimeTableConfirmation')}
         onConfirm={confirmRemove}
         onCancel={() => setRemoveDialogOpen(false)}
-        loading={removeLoading}
+        loading={false}
       />
 
       {/* Alert Snackbar */}
