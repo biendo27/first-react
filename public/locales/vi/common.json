@@ -79,5 +79,14 @@
     "invalidFileType": "Định dạng tệp không hợp lệ. Định dạng được chấp nhận: {{acceptedTypes}}",
     "importSuccess": "Nhập dữ liệu thành công",
     "importError": "Không thể nhập dữ liệu"
+  },
+  "days": {
+    "monday": "Thứ Hai",
+    "tuesday": "Thứ Ba",
+    "wednesday": "Thứ Tư",
+    "thursday": "Thứ Năm",
+    "friday": "Thứ Sáu",
+    "saturday": "Thứ Bảy",
+    "sunday": "Chủ Nhật"
   }
 } 

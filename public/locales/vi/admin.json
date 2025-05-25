@@ -284,12 +284,16 @@
     "name": "Tên",
     "subject": "Môn học",
     "classRoom": "Phòng học",
-    "startDate": "Ngày bắt đầu",
-    "endDate": "Ngày kết thúc",
+    "startDate": "Bắt Đầu",
+    "endDate": "Kết thúc",
     "startLesson": "Tiết bắt đầu",
     "lessons": "Tiết học",
     "endLesson": "Tiết kết thúc",
     "studyType": "Loại học",
+    "dayOfWeek": "Thứ",
+    "term": "Đợt",
+    "administrativeClass": "Lớp hành chính",
+    "item": "Mục",
     "studyTypes": {
       "theory": "Lý thuyết",
       "practice": "Thực hành"

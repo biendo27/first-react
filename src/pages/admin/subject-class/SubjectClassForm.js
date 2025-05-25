@@ -17,7 +17,6 @@ import {
   Paper,
   Typography,
   IconButton,
-  Divider,
   Chip,
   Tooltip
 } from '@mui/material';
@@ -301,7 +300,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                             }}>
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <Typography variant="h6" sx={{ mr: 2 }}>
-                                  {t('subjectClass.item')} #{index + 1}
+                                  {t('subjectClass.title')} #{index + 1}
                                 </Typography>
                                 {item.dayOfWeek && (
                                   <Chip 
