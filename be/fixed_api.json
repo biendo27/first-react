@@ -58,11 +58,14 @@
             }
           },
           {
-            "name": "AdministrativeClassId",
+            "name": "AdministrativeClassIds",
             "in": "query",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
             }
           },
           {
@@ -390,11 +393,14 @@
             }
           },
           {
-            "name": "AdministrativeClassId",
+            "name": "AdministrativeClassIds",
             "in": "query",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
             }
           },
           {
@@ -2578,6 +2584,22 @@
             }
           },
           {
+            "name": "Term",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "AdministrativeClassId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "PageIndex",
             "in": "query",
             "schema": {
@@ -2840,6 +2862,22 @@
             }
           },
           {
+            "name": "Term",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "AdministrativeClassId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "PageIndex",
             "in": "query",
             "schema": {
@@ -3068,7 +3106,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateSubjectClassRequestDto"
+                "$ref": "#/components/schemas/CreateSubjectClassItemRequestDto"
               }
             }
           }
@@ -3363,11 +3401,14 @@
             }
           },
           {
-            "name": "AdministrativeClassId",
+            "name": "AdministrativeClassIds",
             "in": "query",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
             }
           },
           {
@@ -4386,16 +4427,18 @@
         },
         "additionalProperties": false
       },
-      "CreateSubjectClassRequestDto": {
+      "CreateSubjectClassItemRequestDto": {
         "required": [
           "classRoomId",
+          "dayOfWeek",
           "endDate",
           "endLesson",
           "name",
           "startDate",
           "startLesson",
           "studyType",
-          "subjectId"
+          "subjectId",
+          "term"
         ],
         "type": "object",
         "properties": {
@@ -4435,11 +4478,42 @@
             "type": "string",
             "format": "uuid"
           },
-          "enableClone": {
-            "type": "boolean"
+          "dayOfWeek": {
+            "maximum": 7,
+            "minimum": 2,
+            "type": "integer",
+            "format": "int32"
           },
-          "enableAutoImportStudent": {
-            "type": "boolean"
+          "term": {
+            "maximum": 4,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "administrativeClassIds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateSubjectClassRequestDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/CreateSubjectClassItemRequestDto"
+            }
           }
         },
         "additionalProperties": false
@@ -4989,6 +5063,14 @@
             "type": "integer",
             "format": "int32"
           },
+          "dayOfWeek": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "term": {
+            "type": "integer",
+            "format": "int32"
+          },
           "studyType": {
             "$ref": "#/components/schemas/StudyType"
           },
@@ -5416,13 +5498,15 @@
       "UpdateSubjectClassRequestDto": {
         "required": [
           "classRoomId",
+          "dayOfWeek",
           "endDate",
           "endLesson",
           "name",
           "startDate",
           "startLesson",
           "studyType",
-          "subjectId"
+          "subjectId",
+          "term"
         ],
         "type": "object",
         "properties": {
@@ -5453,6 +5537,18 @@
           },
           "studyType": {
             "$ref": "#/components/schemas/StudyType"
+          },
+          "dayOfWeek": {
+            "maximum": 7,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "term": {
+            "maximum": 4,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
           },
           "subjectId": {
             "type": "string",

@@ -78,9 +78,9 @@ const AcademicRecordList = () => {
     { value: 'EXEMPTED', label: t('academicRecord.resultTypes.exempted') },
   ], [t]);
 
-  // Add new state for administrative class filter
+  // Update state for administrative class filter to support multiple selections
   const [administrativeClasses, setAdministrativeClasses] = useState([]);
-  const [selectedAdministrativeClassId, setSelectedAdministrativeClassId] = useState('');
+  const [selectedAdministrativeClassIds, setSelectedAdministrativeClassIds] = useState([]);
   const [classesLoading, setClassesLoading] = useState(false);
 
   // Add function to fetch administrative classes
@@ -119,7 +119,7 @@ const AcademicRecordList = () => {
       if (academicYearFilter) params.AcademicYear = academicYearFilter;
       if (semesterFilter) params.Semester = semesterFilter;
       if (resultTypeFilter) params.ResultType = resultTypeFilter;
-      if (selectedAdministrativeClassId) params.AdministrativeClassId = selectedAdministrativeClassId;
+      if (selectedAdministrativeClassIds.length > 0) params.AdministrativeClassIds = selectedAdministrativeClassIds;
       
       const response = await academicRecordService.getAll(params);
       setRecords(response.data || []);
@@ -134,12 +134,12 @@ const AcademicRecordList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, selectedAdministrativeClassId, t]);
+  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, selectedAdministrativeClassIds, t]);
 
   // Fetch records when any filter or pagination changes
   useEffect(() => {
     fetchRecords();
-  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, selectedAdministrativeClassId, fetchRecords]);
+  }, [page, pageSize, studentCodeFilter, academicYearFilter, semesterFilter, resultTypeFilter, selectedAdministrativeClassIds, fetchRecords]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
@@ -220,7 +220,7 @@ const AcademicRecordList = () => {
     setAcademicYearFilter('');
     setSemesterFilter('');
     setResultTypeFilter('');
-    setSelectedAdministrativeClassId('');
+    setSelectedAdministrativeClassIds([]);
     setPage(1);
   };
 
@@ -286,7 +286,7 @@ const AcademicRecordList = () => {
       if (academicYearFilter) params.AcademicYear = academicYearFilter;
       if (semesterFilter) params.Semester = semesterFilter;
       if (resultTypeFilter) params.ResultType = resultTypeFilter;
-      if (selectedAdministrativeClassId) params.AdministrativeClassId = selectedAdministrativeClassId;
+      if (selectedAdministrativeClassIds.length > 0) params.AdministrativeClassIds = selectedAdministrativeClassIds;
 
       const response = await academicRecordService.export(params);
       
@@ -335,9 +335,10 @@ const AcademicRecordList = () => {
     }
   };
 
-  // Add handler for administrative class change
-  const handleAdministrativeClassChange = (_, newValue) => {
-    setSelectedAdministrativeClassId(newValue ? newValue.value : '');
+  // Update administrative class handler to support multiple selections
+  const handleAdministrativeClassChange = (_, newValues) => {
+    const selectedIds = newValues.map(item => item.value).filter(id => id !== '');
+    setSelectedAdministrativeClassIds(selectedIds);
     setPage(1);
   };
 
@@ -463,6 +464,7 @@ const AcademicRecordList = () => {
             <Grid item xs={12} md={6}>
               <Autocomplete
                 id="administrativeClass"
+                multiple
                 options={[
                   { value: '', label: t('common:all') },
                   ...administrativeClasses.map(adminClass => ({ 
@@ -472,16 +474,21 @@ const AcademicRecordList = () => {
                 ]}
                 getOptionLabel={(option) => option.label || ''}
                 value={
-                  administrativeClasses.find(c => c.id === selectedAdministrativeClassId) 
-                    ? { value: selectedAdministrativeClassId, label: administrativeClasses.find(c => c.id === selectedAdministrativeClassId).name }
-                    : { value: '', label: t('common:all') }
+                  selectedAdministrativeClassIds.length > 0
+                    ? selectedAdministrativeClassIds.map(id => {
+                        const adminClass = administrativeClasses.find(c => c.id === id);
+                        return adminClass 
+                          ? { value: id, label: adminClass.name }
+                          : { value: id, label: id }; // Fallback if class not found
+                      })
+                    : []
                 }
                 onChange={handleAdministrativeClassChange}
                 loading={classesLoading}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={t('student.class')}
+                    label={t('academicRecord.administrativeClass')}
                     variant="outlined"
                     size="small"
                     fullWidth
