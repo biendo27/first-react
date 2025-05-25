@@ -46,7 +46,7 @@ const createDefaultItem = () => ({
   startLesson: 1,
   endLesson: 2,
   studyType: 'Theory',
-  dayOfWeek: 2, // Monday (as per API: 2-7 for Monday-Saturday)
+  dayOfWeek: 2, // Monday (as per API: 2-8 for Monday-Sunday)
   term: 1,
   administrativeClassIds: []
 });
@@ -120,8 +120,8 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
       .oneOf(['Theory', 'Practice']),
     dayOfWeek: Yup.number()
       .required(t('common:fieldRequired', { field: t('subjectClass.dayOfWeek') }))
-      .min(2, t('subjectClass.dayOfWeekRange', { min: 2, max: 7 }))
-      .max(7, t('subjectClass.dayOfWeekRange', { min: 2, max: 7 }))
+      .min(2, t('subjectClass.dayOfWeekRange', { min: 2, max: 8 }))
+      .max(8, t('subjectClass.dayOfWeekRange', { min: 2, max: 8 }))
       .integer(),
     term: Yup.number()
       .required(t('common:fieldRequired', { field: t('subjectClass.term') }))
@@ -234,7 +234,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   // Create term options
   const termOptions = Array.from({ length: 4 }, (_, i) => i + 1);
   
-  // Create day of week options (2-7 correspond to Monday-Saturday)
+  // Create day of week options (2-8 correspond to Monday-Sunday)
   const dayOfWeekOptions = [
     { value: 2, label: t('common:days.monday') },
     { value: 3, label: t('common:days.tuesday') },
@@ -242,6 +242,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
     { value: 5, label: t('common:days.thursday') },
     { value: 6, label: t('common:days.friday') },
     { value: 7, label: t('common:days.saturday') },
+    { value: 8, label: t('common:days.sunday') },
   ];
 
   // Get day of week label

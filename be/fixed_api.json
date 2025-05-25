@@ -4479,7 +4479,7 @@
             "format": "uuid"
           },
           "dayOfWeek": {
-            "maximum": 7,
+            "maximum": 8,
             "minimum": 2,
             "type": "integer",
             "format": "int32"
@@ -5539,8 +5539,8 @@
             "$ref": "#/components/schemas/StudyType"
           },
           "dayOfWeek": {
-            "maximum": 7,
-            "minimum": 1,
+            "maximum": 8,
+            "minimum": 2,
             "type": "integer",
             "format": "int32"
           },
