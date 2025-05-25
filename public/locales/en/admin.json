@@ -164,7 +164,15 @@
     "addStudentError": "Failed to add student to class",
     "removeStudentSuccess": "Student removed from class successfully",
     "removeStudentError": "Failed to remove student from class",
-    "noStudentsFound": "No students found in this class"
+    "noStudentsFound": "No students found in this class",
+    "dayOfWeek": "Day of Week",
+    "dayOfWeekRange": "Day of week must be between {{min}} and {{max}}",
+    "term": "Term",
+    "termRange": "Term must be between {{min}} and {{max}}",
+    "item": "Item",
+    "addItem": "Add Subject Class Item",
+    "atLeastOneItem": "At least one subject class item is required",
+    "administrativeClass": "Administrative Class"
   },
   "timeTable": {
     "title": "Time Table",
