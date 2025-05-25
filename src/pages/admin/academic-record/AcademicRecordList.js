@@ -9,8 +9,97 @@ import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import FileImportDialog from '../../../components/common/FileImportDialog';
 import { academicRecordService, administrativeClassService, handleApiError } from '../../../services/api';
+import api from '../../../services/api'; // Import the api to access API_URL
 import AcademicRecordForm from './AcademicRecordForm';
 import { useTranslation } from 'react-i18next';
+
+// Custom function to fetch academic records with correct parameter formatting
+const fetchAcademicRecordsWithParams = async (params, adminClassIds) => {
+  try {
+    // Create URLSearchParams for proper query string formatting
+    const searchParams = new URLSearchParams();
+    
+    // Add regular params
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        searchParams.append(key, value);
+      }
+    });
+    
+    // Add multiple administrative class IDs with the same parameter name
+    if (adminClassIds && adminClassIds.length > 0) {
+      adminClassIds.forEach(id => {
+        searchParams.append('AdministrativeClassIds', id);
+      });
+    }
+    
+    // Build the URL with the formatted query string
+    const url = `${api.defaults.baseURL}/v1/academic-records?${searchParams.toString()}`;
+    console.log('Fetching records with URL:', url);
+    
+    // Make the fetch request
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching academic records:', error);
+    throw error;
+  }
+};
+
+// Custom function to export academic records with correct parameter formatting
+const exportAcademicRecordsWithParams = async (params, adminClassIds) => {
+  try {
+    // Create URLSearchParams for proper query string formatting
+    const searchParams = new URLSearchParams();
+    
+    // Add regular params
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        searchParams.append(key, value);
+      }
+    });
+    
+    // Add multiple administrative class IDs with the same parameter name
+    if (adminClassIds && adminClassIds.length > 0) {
+      adminClassIds.forEach(id => {
+        searchParams.append('AdministrativeClassIds', id);
+      });
+    }
+    
+    // Build the URL with the formatted query string
+    const url = `${api.defaults.baseURL}/v1/academic-records/export?${searchParams.toString()}`;
+    console.log('Exporting records with URL:', url);
+    
+    // Make the fetch request
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Export failed: ${response.status} ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error exporting academic records:', error);
+    throw error;
+  }
+};
 
 const AcademicRecordList = () => {
   const { t } = useTranslation(['admin', 'common']);
@@ -106,22 +195,20 @@ const AcademicRecordList = () => {
     fetchAdministrativeClasses();
   }, [fetchAdministrativeClasses]);
 
-  // Update fetchRecords to include the new filter
+  // Update fetchRecords to use the custom fetch function
   const fetchRecords = useCallback(async () => {
     setLoading(true);
     try {
       const params = {
         PageIndex: page,
         PageSize: pageSize,
+        StudentCode: studentCodeFilter || undefined,
+        AcademicYear: academicYearFilter || undefined,
+        Semester: semesterFilter || undefined,
+        ResultType: resultTypeFilter || undefined
       };
       
-      if (studentCodeFilter) params.StudentCode = studentCodeFilter;
-      if (academicYearFilter) params.AcademicYear = academicYearFilter;
-      if (semesterFilter) params.Semester = semesterFilter;
-      if (resultTypeFilter) params.ResultType = resultTypeFilter;
-      if (selectedAdministrativeClassIds.length > 0) params.AdministrativeClassIds = selectedAdministrativeClassIds;
-      
-      const response = await academicRecordService.getAll(params);
+      const response = await fetchAcademicRecordsWithParams(params, selectedAdministrativeClassIds);
       setRecords(response.data || []);
       setTotalCount(response.totalCount || 0);
     } catch (error) {
@@ -280,15 +367,13 @@ const AcademicRecordList = () => {
       const params = {
         PageIndex: page,
         PageSize: pageSize,
+        StudentCode: studentCodeFilter || undefined,
+        AcademicYear: academicYearFilter || undefined,
+        Semester: semesterFilter || undefined,
+        ResultType: resultTypeFilter || undefined
       };
       
-      if (studentCodeFilter) params.StudentCode = studentCodeFilter;
-      if (academicYearFilter) params.AcademicYear = academicYearFilter;
-      if (semesterFilter) params.Semester = semesterFilter;
-      if (resultTypeFilter) params.ResultType = resultTypeFilter;
-      if (selectedAdministrativeClassIds.length > 0) params.AdministrativeClassIds = selectedAdministrativeClassIds;
-
-      const response = await academicRecordService.export(params);
+      const response = await exportAcademicRecordsWithParams(params, selectedAdministrativeClassIds);
       
       // Convert base64 to blob
       const byteCharacters = atob(response.base64);
