@@ -9,7 +9,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { subjectClassService, subjectService, classRoomService, handleApiError } from '../../../services/api';
+import { subjectClassService, subjectService, classRoomService, administrativeClassService, handleApiError } from '../../../services/api';
 import SubjectClassForm from './SubjectClassForm';
 import SubjectClassStudentsDialog from './SubjectClassStudentsDialog';
 import { useTranslation } from 'react-i18next';
@@ -49,6 +49,21 @@ const SubjectClassList = () => {
       label: t('subjectClass.lessons'), 
       minWidth: 120,
       render: (row) => `${row.startLesson} - ${row.endLesson}`
+    },
+    { 
+      id: 'dayOfWeek', 
+      label: t('subjectClass.dayOfWeek'), 
+      minWidth: 120,
+      render: (row) => {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        return t(`common:days.${days[row.dayOfWeek - 1]?.toLowerCase()}`) || row.dayOfWeek;
+      }
+    },
+    { 
+      id: 'term', 
+      label: t('subjectClass.term'), 
+      minWidth: 80,
+      render: (row) => row.term
     },
     { 
       id: 'studyType', 
@@ -111,8 +126,13 @@ const SubjectClassList = () => {
   const [nameFilter, setNameFilter] = useState('');
   const [subjectId, setSubjectId] = useState('');
   const [classRoomId, setClassRoomId] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [termFilter, setTermFilter] = useState('');
+  const [administrativeClassId, setAdministrativeClassId] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [classRooms, setClassRooms] = useState([]);
+  const [administrativeClasses, setAdministrativeClasses] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [filtersLoading, setFiltersLoading] = useState(false);
   
@@ -122,17 +142,28 @@ const SubjectClassList = () => {
     severity: 'success',
   });
 
+  // Generate term filter options
+  const termOptions = [
+    { value: '', label: t('common:all') },
+    { value: 1, label: '1' },
+    { value: 2, label: '2' },
+    { value: 3, label: '3' },
+    { value: 4, label: '4' },
+  ];
+
   // Fetch filter options
   const fetchFilterOptions = useCallback(async () => {
     setFiltersLoading(true);
     try {
-      const [subjectsResponse, classRoomsResponse] = await Promise.all([
+      const [subjectsResponse, classRoomsResponse, administrativeClassesResponse] = await Promise.all([
         subjectService.getAll({ PageSize: 10000 }),
-        classRoomService.getAll({ PageSize: 10000 })
+        classRoomService.getAll({ PageSize: 10000 }),
+        administrativeClassService.getAll({ PageSize: 10000 })
       ]);
       
       setSubjects(subjectsResponse.data || []);
       setClassRooms(classRoomsResponse.data || []);
+      setAdministrativeClasses(administrativeClassesResponse.data || []);
     } catch (error) {
       console.error('Error fetching filter options:', error);
       const formattedError = handleApiError(error, t('common:fetchError', { resource: t('common:filters') }));
@@ -162,6 +193,10 @@ const SubjectClassList = () => {
       if (nameFilter) params.Name = nameFilter;
       if (subjectId) params.SubjectId = subjectId;
       if (classRoomId) params.ClassRoomId = classRoomId;
+      if (startDate) params.StartDate = startDate.toISOString();
+      if (endDate) params.EndDate = endDate.toISOString();
+      if (termFilter) params.Term = termFilter;
+      if (administrativeClassId) params.AdministrativeClassId = administrativeClassId;
       
       const response = await subjectClassService.getAll(params);
       setSubjectClasses(response.data || []);
@@ -176,7 +211,7 @@ const SubjectClassList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, nameFilter, subjectId, classRoomId, t]);
+  }, [page, pageSize, nameFilter, subjectId, classRoomId, startDate, endDate, termFilter, administrativeClassId, t]);
 
   // Fetch classes when filters change
   useEffect(() => {
@@ -259,10 +294,30 @@ const SubjectClassList = () => {
     setClassRoomId(value ? value.id : '');
   };
 
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value ? new Date(event.target.value) : null);
+  };
+
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value ? new Date(event.target.value) : null);
+  };
+
+  const handleTermChange = (event, value) => {
+    setTermFilter(value ? value.value : '');
+  };
+
+  const handleAdministrativeClassChange = (event, value) => {
+    setAdministrativeClassId(value ? value.id : '');
+  };
+
   const handleClearFilters = () => {
     setNameFilter('');
     setSubjectId('');
     setClassRoomId('');
+    setStartDate(null);
+    setEndDate(null);
+    setTermFilter('');
+    setAdministrativeClassId('');
     setPage(1);
   };
 
@@ -276,6 +331,10 @@ const SubjectClassList = () => {
       if (nameFilter) params.Name = nameFilter;
       if (subjectId) params.SubjectId = subjectId;
       if (classRoomId) params.ClassRoomId = classRoomId;
+      if (startDate) params.StartDate = startDate.toISOString();
+      if (endDate) params.EndDate = endDate.toISOString();
+      if (termFilter) params.Term = termFilter;
+      if (administrativeClassId) params.AdministrativeClassId = administrativeClassId;
       
       const response = await subjectClassService.export(params);
       
@@ -360,7 +419,7 @@ const SubjectClassList = () => {
           
           {showFilters && (
             <>
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   fullWidth
                   label={t('subjectClass.name')}
@@ -371,7 +430,7 @@ const SubjectClassList = () => {
                 />
               </Grid>
               
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <Autocomplete
                   options={subjects}
                   getOptionLabel={(option) => option.name ? `${option.name} (${option.subjectCode})` : ''}
@@ -397,7 +456,7 @@ const SubjectClassList = () => {
                 />
               </Grid>
               
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <Autocomplete
                   options={classRooms}
                   getOptionLabel={(option) => option.name || ''}
@@ -423,10 +482,77 @@ const SubjectClassList = () => {
                 />
               </Grid>
               
-              <Grid item>
+              <Grid item xs={12} sm={6} md={3}>
+                <Autocomplete
+                  options={administrativeClasses}
+                  getOptionLabel={(option) => option.name || ''}
+                  onChange={handleAdministrativeClassChange}
+                  loading={filtersLoading}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={t('subjectClass.administrativeClass')}
+                      variant="outlined"
+                      size="small"
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {filtersLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  label={t('subjectClass.startDate')}
+                  type="date"
+                  value={startDate ? startDate.toISOString().split('T')[0] : ''}
+                  onChange={handleStartDateChange}
+                  InputLabelProps={{ shrink: true }}
+                  size="small"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  label={t('subjectClass.endDate')}
+                  type="date"
+                  value={endDate ? endDate.toISOString().split('T')[0] : ''}
+                  onChange={handleEndDateChange}
+                  InputLabelProps={{ shrink: true }}
+                  size="small"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <Autocomplete
+                  options={termOptions}
+                  getOptionLabel={(option) => option.label || ''}
+                  onChange={handleTermChange}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={t('subjectClass.term')}
+                      variant="outlined"
+                      size="small"
+                    />
+                  )}
+                />
+              </Grid>
+              
+              <Grid item xs={12}>
                 <Button
                   variant="outlined"
                   onClick={handleClearFilters}
+                  startIcon={<ClearIcon />}
                 >
                   {t('common:clearFilters')}
                 </Button>
