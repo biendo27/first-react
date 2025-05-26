@@ -55,8 +55,19 @@ const SubjectClassList = () => {
       label: t('subjectClass.dayOfWeek'), 
       minWidth: 120,
       render: (row) => {
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        return t(`common:days.${days[row.dayOfWeek - 1]?.toLowerCase()}`) || row.dayOfWeek;
+        // Map dayOfWeek values (2-8) to corresponding day names
+        const dayMapping = {
+          2: 'monday',
+          3: 'tuesday',
+          4: 'wednesday',
+          5: 'thursday',
+          6: 'friday',
+          7: 'saturday',
+          8: 'sunday'
+        };
+        
+        const dayKey = dayMapping[row.dayOfWeek];
+        return dayKey ? t(`common:days.${dayKey}`) : row.dayOfWeek;
       }
     },
     { 
