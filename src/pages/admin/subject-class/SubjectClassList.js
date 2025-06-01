@@ -644,6 +644,48 @@ const SubjectClassList = () => {
             
             <Grid item xs={12} sm={6} md={3}>
               <Autocomplete
+                options={termOptions}
+                getOptionLabel={(option) => option.label || ''}
+                onChange={handleTermChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('subjectClass.term')}
+                    variant="outlined"
+                    size="small"
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label={t('subjectClass.startDate')}
+                type="date"
+                value={startDate ? startDate.toISOString().split('T')[0] : ''}
+                onChange={handleStartDateChange}
+                variant="outlined"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+              
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label={t('subjectClass.endDate')}
+                type="date"
+                value={endDate ? endDate.toISOString().split('T')[0] : ''}
+                onChange={handleEndDateChange}
+                variant="outlined"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <Autocomplete
                 id="administrativeClass"
                 multiple
                 options={[
@@ -681,48 +723,6 @@ const SubjectClassList = () => {
                         </>
                       ),
                     }}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                label={t('subjectClass.startDate')}
-                type="date"
-                value={startDate ? startDate.toISOString().split('T')[0] : ''}
-                onChange={handleStartDateChange}
-                variant="outlined"
-                size="small"
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-              
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                label={t('subjectClass.endDate')}
-                type="date"
-                value={endDate ? endDate.toISOString().split('T')[0] : ''}
-                onChange={handleEndDateChange}
-                variant="outlined"
-                size="small"
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-              
-            <Grid item xs={12} sm={6} md={3}>
-              <Autocomplete
-                options={termOptions}
-                getOptionLabel={(option) => option.label || ''}
-                onChange={handleTermChange}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={t('subjectClass.term')}
-                    variant="outlined"
-                    size="small"
                   />
                 )}
               />
