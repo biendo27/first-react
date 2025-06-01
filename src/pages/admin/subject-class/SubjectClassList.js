@@ -12,7 +12,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { subjectClassService, subjectService, classRoomService, administrativeClassService, handleApiError, subjectClassDetailService } from '../../../services/api';
+import { subjectClassService, subjectService, classRoomService, administrativeClassService, handleApiError } from '../../../services/api';
 import SubjectClassForm from './SubjectClassForm';
 import SubjectClassStudentsDialog from './SubjectClassStudentsDialog';
 import { useTranslation } from 'react-i18next';
