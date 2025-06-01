@@ -18,7 +18,8 @@ import {
   Typography,
   IconButton,
   Chip,
-  Tooltip
+  Tooltip,
+  InputAdornment
 } from '@mui/material';
 import { Formik, Form, FieldArray } from 'formik';
 import FormField from '../../../components/common/FormField';
@@ -28,12 +29,22 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditIcon from '@mui/icons-material/Edit';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import InfoIcon from '@mui/icons-material/Info';
 
 // Helper function to format date for form
 const formatDateForForm = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   return date.toISOString().split('T')[0];
+};
+
+// Helper function to calculate end date based on start date and weeks
+const calculateEndDate = (startDate, weeks) => {
+  if (!startDate || !weeks) return '';
+  const date = new Date(startDate);
+  date.setDate(date.getDate() + (weeks * 7));
+  return formatDateForForm(date);
 };
 
 // Create a default subject class item
@@ -43,6 +54,7 @@ const createDefaultItem = () => ({
   classRoomId: '',
   startDate: formatDateForForm(new Date()),
   endDate: formatDateForForm(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)), // 30 days later
+  numberOfWeeks: 4, // Default to 4 weeks
   startLesson: 1,
   endLesson: 2,
   studyType: 'Theory',
@@ -59,6 +71,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   const [formLoading, setFormLoading] = useState(false);
   const [administrativeClasses, setAdministrativeClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(false);
+  const [selectedAdministrativeClassIds, setSelectedAdministrativeClassIds] = useState([]);
 
   // Initialize with a single item when creating, or the existing item when editing
   const initialValues = subjectClass 
@@ -69,6 +82,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
           classRoomId: subjectClass.classRoom?.id || '',
           startDate: formatDateForForm(subjectClass.startDate) || formatDateForForm(new Date()),
           endDate: formatDateForForm(subjectClass.endDate) || formatDateForForm(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
+          numberOfWeeks: 4, // Default, will be overridden by calculated value
           startLesson: subjectClass.startLesson || 1,
           endLesson: subjectClass.endLesson || 2,
           studyType: subjectClass.studyType || 'Theory',
@@ -80,6 +94,15 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
     : {
         items: [createDefaultItem()]
       };
+
+  // Calculate number of weeks from start and end date for editing mode
+  if (subjectClass && initialValues.items[0].startDate && initialValues.items[0].endDate) {
+    const startDate = new Date(initialValues.items[0].startDate);
+    const endDate = new Date(initialValues.items[0].endDate);
+    const diffTime = Math.abs(endDate - startDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    initialValues.items[0].numberOfWeeks = Math.ceil(diffDays / 7);
+  }
 
   // Validation schema for a single item
   const subjectClassItemSchema = Yup.object({
@@ -98,6 +121,9 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
         Yup.ref('startDate'), 
         t('subjectClass.endDateAfterStart')
       ),
+    numberOfWeeks: Yup.number()
+      .min(1, t('subjectClass.minWeeks'))
+      .required(t('common:fieldRequired', { field: t('subjectClass.numberOfWeeks') })),
     startLesson: Yup.number()
       .required(t('common:fieldRequired', { field: t('subjectClass.startLesson') }))
       .min(1, t('subjectClass.lessonsBetween', { min: 1, max: 15 }))
@@ -128,7 +154,6 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
       .min(1, t('subjectClass.termRange', { min: 1, max: 4 }))
       .max(4, t('subjectClass.termRange', { min: 1, max: 4 }))
       .integer(),
-    administrativeClassIds: Yup.array()
   });
 
   // Validation schema for the entire form
@@ -188,9 +213,15 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
+      // Apply the selected administrative class ids to all items
+      const updatedItems = values.items.map(item => ({
+        ...item,
+        administrativeClassIds: selectedAdministrativeClassIds
+      }));
+
       if (subjectClass) {
         // If editing an existing subject class, update it
-        await subjectClassService.update(subjectClass.id, values.items[0]);
+        await subjectClassService.update(subjectClass.id, updatedItems[0]);
         setError({
           show: true,
           message: t('subjectClass.updateSuccess'),
@@ -198,7 +229,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
         });
       } else {
         // If creating new subject classes, send all items
-        await subjectClassService.create({ items: values.items });
+        await subjectClassService.create({ items: updatedItems });
         setError({
           show: true,
           message: t('subjectClass.createSuccess'),
@@ -223,9 +254,9 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   };
 
   // Handler for administrative class selection
-  const handleAdministrativeClassChange = (index, newValues, setFieldValue) => {
+  const handleAdministrativeClassChange = (_, newValues) => {
     const selectedIds = newValues.map(item => item.value).filter(id => id !== '');
-    setFieldValue(`items[${index}].administrativeClassIds`, selectedIds);
+    setSelectedAdministrativeClassIds(selectedIds);
   };
 
   // Create an array of numbers from 1 to 15 for lessons
@@ -283,290 +314,368 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                     <CircularProgress />
                   </Box>
                 ) : (
-                  <FieldArray name="items">
-                    {({ push, remove }) => (
-                      <Box>
-                        {values.items.map((item, index) => (
-                          <Paper 
-                            key={index} 
-                            elevation={0} 
-                            variant="outlined" 
-                            sx={{ p: 2, mb: 3, position: 'relative' }}
-                          >
-                            <Box sx={{ 
-                              display: 'flex', 
-                              justifyContent: 'space-between', 
-                              alignItems: 'center',
-                              mb: 2 
-                            }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <Typography variant="h6" sx={{ mr: 2 }}>
-                                  {t('subjectClass.title')} #{index + 1}
-                                </Typography>
-                                {item.dayOfWeek && (
-                                  <Chip 
-                                    color="primary" 
-                                    variant="outlined"
-                                    label={getDayOfWeekLabel(item.dayOfWeek)}
-                                    size="small"
-                                  />
-                                )}
-                                {subjectClass && (
-                                  <Chip 
-                                    color="secondary"
-                                    sx={{ ml: 1 }}
-                                    icon={<EditIcon />} 
-                                    label={t('common:editing')}
-                                    size="small"
-                                  />
-                                )}
-                              </Box>
-                              
-                              <Box>
-                                {/* Only show the delete button if there's more than one item or it's not an edit */}
-                                {(index > 0 || !subjectClass) && (
-                                  <Tooltip title={t('common:delete')}>
-                                    <IconButton 
-                                      aria-label="delete"
-                                      onClick={() => remove(index)}
-                                      color="error"
+                  <Box>
+                    {/* Administrative class selection at the form level */}
+                    {!subjectClass && (
+                      <Paper elevation={0} variant="outlined" sx={{ p: 2, mb: 3 }}>
+                        <Typography variant="subtitle1" gutterBottom>
+                          {t('subjectClass.selectAdministrativeClasses')}
+                        </Typography>
+                        <Autocomplete
+                          multiple
+                          options={[
+                            ...administrativeClasses.map(adminClass => ({ 
+                              value: adminClass.id, 
+                              label: adminClass.name 
+                            }))
+                          ]}
+                          getOptionLabel={(option) => option.label || ''}
+                          value={
+                            selectedAdministrativeClassIds.length > 0
+                              ? selectedAdministrativeClassIds.map(id => {
+                                  const adminClass = administrativeClasses.find(c => c.id === id);
+                                  return adminClass 
+                                    ? { value: id, label: adminClass.name }
+                                    : { value: id, label: id }; // Fallback if class not found
+                                })
+                              : []
+                          }
+                          onChange={handleAdministrativeClassChange}
+                          loading={classesLoading}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label={t('subjectClass.administrativeClass')}
+                              variant="outlined"
+                              fullWidth
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <>
+                                    {classesLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                                    {params.InputProps.endAdornment}
+                                  </>
+                                ),
+                              }}
+                            />
+                          )}
+                        />
+                      </Paper>
+                    )}
+                    
+                    <FieldArray name="items">
+                      {({ push, remove }) => (
+                        <Box>
+                          {values.items.map((item, index) => (
+                            <Paper 
+                              key={index} 
+                              elevation={0} 
+                              variant="outlined" 
+                              sx={{ p: 2, mb: 3, position: 'relative' }}
+                            >
+                              <Box sx={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center',
+                                mb: 2 
+                              }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                  <Typography variant="h6" sx={{ mr: 2 }}>
+                                    {t('subjectClass.title')} #{index + 1}
+                                  </Typography>
+                                  {item.dayOfWeek && (
+                                    <Chip 
+                                      color="primary" 
+                                      variant="outlined"
+                                      label={getDayOfWeekLabel(item.dayOfWeek)}
                                       size="small"
-                                      sx={{ ml: 1 }}
-                                    >
-                                      <DeleteIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                )}
-                                {/* Only show the clone button if it's not an edit mode */}
-                                {!subjectClass && (
-                                  <Tooltip title={t('common:duplicate')}>
-                                    <IconButton 
-                                      aria-label="clone"
-                                      onClick={() => push({...item})}
-                                      color="primary"
-                                      size="small"
-                                      sx={{ ml: 1 }}
-                                    >
-                                      <ContentCopyIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                )}
-                              </Box>
-                            </Box>
-                            
-                            <Grid container spacing={2}>
-                              <Grid item xs={12}>
-                                <FormField
-                                  name={`items[${index}].name`}
-                                  label={t('subjectClass.name')}
-                                  required
-                                />
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6}>
-                                <Autocomplete
-                                  id={`items[${index}].subjectId`}
-                                  options={subjects}
-                                  getOptionLabel={(option) => 
-                                    option.name ? `${option.name} (${option.subjectCode})` : ''
-                                  }
-                                  value={subjects.find(option => option.id === item.subjectId) || null}
-                                  onChange={(_, newValue) => {
-                                    setFieldValue(`items[${index}].subjectId`, newValue ? newValue.id : '');
-                                  }}
-                                  renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      label={t('subjectClass.subject')}
-                                      error={touched.items?.[index]?.subjectId && Boolean(errors.items?.[index]?.subjectId)}
-                                      helperText={touched.items?.[index]?.subjectId && errors.items?.[index]?.subjectId}
-                                      required
                                     />
                                   )}
-                                />
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6}>
-                                <Autocomplete
-                                  id={`items[${index}].classRoomId`}
-                                  options={classRooms}
-                                  getOptionLabel={(option) => option.name || ''}
-                                  value={classRooms.find(option => option.id === item.classRoomId) || null}
-                                  onChange={(_, newValue) => {
-                                    setFieldValue(`items[${index}].classRoomId`, newValue ? newValue.id : '');
-                                  }}
-                                  renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      label={t('subjectClass.classRoom')}
-                                      error={touched.items?.[index]?.classRoomId && Boolean(errors.items?.[index]?.classRoomId)}
-                                      helperText={touched.items?.[index]?.classRoomId && errors.items?.[index]?.classRoomId}
-                                      required
+                                  {subjectClass && (
+                                    <Chip 
+                                      color="secondary"
+                                      sx={{ ml: 1 }}
+                                      icon={<EditIcon />} 
+                                      label={t('common:editing')}
+                                      size="small"
                                     />
                                   )}
-                                />
-                              </Grid>
+                                </Box>
+                                
+                                <Box>
+                                  {/* Only show the delete button if there's more than one item or it's not an edit */}
+                                  {(index > 0 || !subjectClass) && (
+                                    <Tooltip title={t('common:delete')}>
+                                      <IconButton 
+                                        aria-label="delete"
+                                        onClick={() => remove(index)}
+                                        color="error"
+                                        size="small"
+                                        sx={{ ml: 1 }}
+                                      >
+                                        <DeleteIcon />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
+                                  {/* Only show the clone button if it's not an edit mode */}
+                                  {!subjectClass && (
+                                    <Tooltip title={t('common:duplicate')}>
+                                      <IconButton 
+                                        aria-label="clone"
+                                        onClick={() => push({...item})}
+                                        color="primary"
+                                        size="small"
+                                        sx={{ ml: 1 }}
+                                      >
+                                        <ContentCopyIcon />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
+                                </Box>
+                              </Box>
                               
-                              <Grid item xs={12} md={6}>
-                                <FormField
-                                  name={`items[${index}].startDate`}
-                                  label={t('subjectClass.startDate')}
-                                  type="date"
-                                  required
-                                />
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6}>
-                                <FormField
-                                  name={`items[${index}].endDate`}
-                                  label={t('subjectClass.endDate')}
-                                  type="date"
-                                  required
-                                />
-                              </Grid>
-                              
-                              <Grid item xs={12} md={4}>
-                                <FormField
-                                  name={`items[${index}].startLesson`}
-                                  label={t('subjectClass.startLesson')}
-                                  select
-                                  required
-                                >
-                                  {lessonOptions.map((option) => (
-                                    <MenuItem key={option} value={option}>
-                                      {option}
-                                    </MenuItem>
-                                  ))}
-                                </FormField>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={4}>
-                                <FormField
-                                  name={`items[${index}].endLesson`}
-                                  label={t('subjectClass.endLesson')}
-                                  select
-                                  required
-                                >
-                                  {lessonOptions.map((option) => (
-                                    <MenuItem key={option} value={option}>
-                                      {option}
-                                    </MenuItem>
-                                  ))}
-                                </FormField>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={4}>
-                                <FormField
-                                  name={`items[${index}].studyType`}
-                                  label={t('subjectClass.studyType')}
-                                  select
-                                  required
-                                >
-                                  <MenuItem value="Theory">
-                                    {t('subjectClass.studyTypes.theory')}
-                                  </MenuItem>
-                                  <MenuItem value="Practice">
-                                    {t('subjectClass.studyTypes.practice')}
-                                  </MenuItem>
-                                </FormField>
-                              </Grid>
-
-                              <Grid item xs={12} md={6}>
-                                <FormField
-                                  name={`items[${index}].dayOfWeek`}
-                                  label={t('subjectClass.dayOfWeek')}
-                                  select
-                                  required
-                                >
-                                  {dayOfWeekOptions.map((option) => (
-                                    <MenuItem key={option.value} value={option.value}>
-                                      {option.label}
-                                    </MenuItem>
-                                  ))}
-                                </FormField>
-                              </Grid>
-
-                              <Grid item xs={12} md={6}>
-                                <FormField
-                                  name={`items[${index}].term`}
-                                  label={t('subjectClass.term')}
-                                  select
-                                  required
-                                >
-                                  {termOptions.map((option) => (
-                                    <MenuItem key={option} value={option}>
-                                      {option}
-                                    </MenuItem>
-                                  ))}
-                                </FormField>
-                              </Grid>
-
-                              {/* Only show administrative class selection when creating new subject classes */}
-                              {!subjectClass && (
+                              <Grid container spacing={2}>
                                 <Grid item xs={12}>
+                                  <FormField
+                                    name={`items[${index}].name`}
+                                    label={t('subjectClass.name')}
+                                    required
+                                  />
+                                </Grid>
+                                
+                                <Grid item xs={12} md={6}>
                                   <Autocomplete
-                                    id={`items[${index}].administrativeClassIds`}
-                                    multiple
-                                    options={[
-                                      ...administrativeClasses.map(adminClass => ({ 
-                                        value: adminClass.id, 
-                                        label: adminClass.name 
-                                      }))
-                                    ]}
-                                    getOptionLabel={(option) => option.label || ''}
-                                    value={
-                                      item.administrativeClassIds && item.administrativeClassIds.length > 0
-                                        ? item.administrativeClassIds.map(id => {
-                                            const adminClass = administrativeClasses.find(c => c.id === id);
-                                            return adminClass 
-                                              ? { value: id, label: adminClass.name }
-                                              : { value: id, label: id }; // Fallback if class not found
-                                          })
-                                        : []
+                                    id={`items[${index}].subjectId`}
+                                    options={subjects}
+                                    getOptionLabel={(option) => 
+                                      option.name ? `${option.name} (${option.subjectCode})` : ''
                                     }
-                                    onChange={(_, newValues) => {
-                                      handleAdministrativeClassChange(index, newValues, setFieldValue);
+                                    value={subjects.find(option => option.id === item.subjectId) || null}
+                                    onChange={(_, newValue) => {
+                                      setFieldValue(`items[${index}].subjectId`, newValue ? newValue.id : '');
                                     }}
-                                    loading={classesLoading}
                                     renderInput={(params) => (
                                       <TextField
                                         {...params}
-                                        label={t('subjectClass.administrativeClass')}
-                                        variant="outlined"
-                                        fullWidth
-                                        InputProps={{
-                                          ...params.InputProps,
-                                          endAdornment: (
-                                            <>
-                                              {classesLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                                              {params.InputProps.endAdornment}
-                                            </>
-                                          ),
-                                        }}
+                                        label={t('subjectClass.subject')}
+                                        error={touched.items?.[index]?.subjectId && Boolean(errors.items?.[index]?.subjectId)}
+                                        helperText={touched.items?.[index]?.subjectId && errors.items?.[index]?.subjectId}
+                                        required
                                       />
                                     )}
                                   />
                                 </Grid>
-                              )}
-                            </Grid>
-                          </Paper>
-                        ))}
+                                
+                                <Grid item xs={12} md={6}>
+                                  <Autocomplete
+                                    id={`items[${index}].classRoomId`}
+                                    options={classRooms}
+                                    getOptionLabel={(option) => option.name || ''}
+                                    value={classRooms.find(option => option.id === item.classRoomId) || null}
+                                    onChange={(_, newValue) => {
+                                      setFieldValue(`items[${index}].classRoomId`, newValue ? newValue.id : '');
+                                    }}
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        label={t('subjectClass.classRoom')}
+                                        error={touched.items?.[index]?.classRoomId && Boolean(errors.items?.[index]?.classRoomId)}
+                                        helperText={touched.items?.[index]?.classRoomId && errors.items?.[index]?.classRoomId}
+                                        required
+                                      />
+                                    )}
+                                  />
+                                </Grid>
+                                
+                                <Grid item xs={12} md={6}>
+                                  <TextField
+                                    fullWidth
+                                    id={`items[${index}].startDate`}
+                                    name={`items[${index}].startDate`}
+                                    label={t('subjectClass.startDate')}
+                                    type="date"
+                                    value={item.startDate}
+                                    onChange={(e) => {
+                                      const newStartDate = e.target.value;
+                                      setFieldValue(`items[${index}].startDate`, newStartDate);
+                                      
+                                      // Recalculate end date when start date changes
+                                      if (item.numberOfWeeks) {
+                                        const newEndDate = calculateEndDate(newStartDate, item.numberOfWeeks);
+                                        setFieldValue(`items[${index}].endDate`, newEndDate);
+                                      }
+                                    }}
+                                    error={touched.items?.[index]?.startDate && Boolean(errors.items?.[index]?.startDate)}
+                                    helperText={touched.items?.[index]?.startDate && errors.items?.[index]?.startDate}
+                                    InputLabelProps={{ shrink: true }}
+                                    InputProps={{
+                                      endAdornment: (
+                                        <InputAdornment position="end">
+                                          <CalendarTodayIcon color="action" />
+                                        </InputAdornment>
+                                      ),
+                                    }}
+                                    required
+                                  />
+                                </Grid>
+                                
+                                <Grid item xs={12} md={3}>
+                                  <TextField
+                                    fullWidth
+                                    id={`items[${index}].numberOfWeeks`}
+                                    name={`items[${index}].numberOfWeeks`}
+                                    label={t('subjectClass.numberOfWeeks')}
+                                    type="number"
+                                    value={item.numberOfWeeks}
+                                    onChange={(e) => {
+                                      const weeks = parseInt(e.target.value);
+                                      setFieldValue(`items[${index}].numberOfWeeks`, weeks);
+                                      
+                                      // Calculate end date based on start date and weeks
+                                      if (item.startDate && weeks) {
+                                        const newEndDate = calculateEndDate(item.startDate, weeks);
+                                        setFieldValue(`items[${index}].endDate`, newEndDate);
+                                      }
+                                    }}
+                                    error={touched.items?.[index]?.numberOfWeeks && Boolean(errors.items?.[index]?.numberOfWeeks)}
+                                    helperText={touched.items?.[index]?.numberOfWeeks && errors.items?.[index]?.numberOfWeeks}
+                                    required
+                                    InputProps={{
+                                      inputProps: { min: 1 }
+                                    }}
+                                  />
+                                </Grid>
+                                
+                                <Grid item xs={12} md={3}>
+                                  <TextField
+                                    fullWidth
+                                    id={`items[${index}].endDate`}
+                                    name={`items[${index}].endDate`}
+                                    label={t('subjectClass.endDate')}
+                                    type="date"
+                                    value={item.endDate}
+                                    disabled // End date is read-only, calculated from start date + weeks
+                                    error={touched.items?.[index]?.endDate && Boolean(errors.items?.[index]?.endDate)}
+                                    helperText={touched.items?.[index]?.endDate && errors.items?.[index]?.endDate}
+                                    InputLabelProps={{ shrink: true }}
+                                    InputProps={{
+                                      endAdornment: (
+                                        <InputAdornment position="end">
+                                          <CalendarTodayIcon color="action" />
+                                        </InputAdornment>
+                                      ),
+                                    }}
+                                    required
+                                  />
+                                </Grid>
+                                
+                                {/* Exam Time Note */}
+                                {item.endDate && (
+                                  <Grid item xs={12}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                                      <InfoIcon fontSize="small" sx={{ mr: 1 }} />
+                                      <Typography variant="caption">
+                                        {t('subjectClass.examTimeNote')}
+                                      </Typography>
+                                    </Box>
+                                  </Grid>
+                                )}
+                                
+                                <Grid item xs={12} md={4}>
+                                  <FormField
+                                    name={`items[${index}].startLesson`}
+                                    label={t('subjectClass.startLesson')}
+                                    select
+                                    required
+                                  >
+                                    {lessonOptions.map((option) => (
+                                      <MenuItem key={option} value={option}>
+                                        {option}
+                                      </MenuItem>
+                                    ))}
+                                  </FormField>
+                                </Grid>
+                                
+                                <Grid item xs={12} md={4}>
+                                  <FormField
+                                    name={`items[${index}].endLesson`}
+                                    label={t('subjectClass.endLesson')}
+                                    select
+                                    required
+                                  >
+                                    {lessonOptions.map((option) => (
+                                      <MenuItem key={option} value={option}>
+                                        {option}
+                                      </MenuItem>
+                                    ))}
+                                  </FormField>
+                                </Grid>
+                                
+                                <Grid item xs={12} md={4}>
+                                  <FormField
+                                    name={`items[${index}].studyType`}
+                                    label={t('subjectClass.studyType')}
+                                    select
+                                    required
+                                  >
+                                    <MenuItem value="Theory">
+                                      {t('subjectClass.studyTypes.theory')}
+                                    </MenuItem>
+                                    <MenuItem value="Practice">
+                                      {t('subjectClass.studyTypes.practice')}
+                                    </MenuItem>
+                                  </FormField>
+                                </Grid>
 
-                        {/* Only show the add button when creating new subject classes */}
-                        {!subjectClass && (
-                          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                            <Button
-                              variant="outlined"
-                              startIcon={<AddIcon />}
-                              onClick={() => push(createDefaultItem())}
-                            >
-                              {t('subjectClass.addItem')}
-                            </Button>
-                          </Box>
-                        )}
-                      </Box>
-                    )}
-                  </FieldArray>
+                                <Grid item xs={12} md={6}>
+                                  <FormField
+                                    name={`items[${index}].dayOfWeek`}
+                                    label={t('subjectClass.dayOfWeek')}
+                                    select
+                                    required
+                                  >
+                                    {dayOfWeekOptions.map((option) => (
+                                      <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </MenuItem>
+                                    ))}
+                                  </FormField>
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                  <FormField
+                                    name={`items[${index}].term`}
+                                    label={t('subjectClass.term')}
+                                    select
+                                    required
+                                  >
+                                    {termOptions.map((option) => (
+                                      <MenuItem key={option} value={option}>
+                                        {option}
+                                      </MenuItem>
+                                    ))}
+                                  </FormField>
+                                </Grid>
+                              </Grid>
+                            </Paper>
+                          ))}
+
+                          {/* Only show the add button when creating new subject classes */}
+                          {!subjectClass && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                              <Button
+                                variant="outlined"
+                                startIcon={<AddIcon />}
+                                onClick={() => push(createDefaultItem())}
+                              >
+                                {t('subjectClass.addItem')}
+                              </Button>
+                            </Box>
+                          )}
+                        </Box>
+                      )}
+                    </FieldArray>
+                  </Box>
                 )}
               </DialogContent>
               <DialogActions>

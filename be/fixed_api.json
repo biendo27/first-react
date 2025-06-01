@@ -2592,11 +2592,14 @@
             }
           },
           {
-            "name": "AdministrativeClassId",
+            "name": "AdministrativeClassIds",
             "in": "query",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
             }
           },
           {
@@ -2816,7 +2819,7 @@
         ]
       }
     },
-    "/v1/subject-classes/export": {
+    "/v1/subject-classes/export-time-table": {
       "get": {
         "tags": [
           "SubjectClass"
@@ -2870,11 +2873,14 @@
             }
           },
           {
-            "name": "AdministrativeClassId",
+            "name": "AdministrativeClassIds",
             "in": "query",
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
             }
           },
           {
@@ -3287,6 +3293,114 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DefaultResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "Admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/v1/subject-class-details/export-subject-class-students": {
+      "get": {
+        "tags": [
+          "SubjectClassDetail"
+        ],
+        "parameters": [
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SubjectId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "ClassRoomId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "StartDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "EndDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Term",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "AdministrativeClassIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportDto"
                 }
               }
             }
@@ -4506,6 +4620,16 @@
       "CreateSubjectClassRequestDto": {
         "type": "object",
         "properties": {
+          "administrativeClassIds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           "items": {
             "type": [
               "null",

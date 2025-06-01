@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { formatDateForApi } from '../utils/dateUtils';
 
-// const API_URL = 'https://localhost:7269'; // Update with your actual API URL
+const API_URL = 'https://localhost:7269'; // Update with your actual API URL
 // const API_URL = 'https://203.162.246.99';
-const API_URL = 'https://timeschedule-api.nonamegogeto.click';
+// const API_URL = 'https://timeschedule-api.nonamegogeto.click';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -350,7 +350,7 @@ export const subjectClassService = {
   ...createCrudService('subject-classes'),
   export: async (params) => {
     try {
-      const response = await fetch(`${API_URL}/v1/subject-classes/export?${new URLSearchParams(params)}`, {
+      const response = await fetch(`${API_URL}/v1/subject-classes/export-time-table?${new URLSearchParams(params)}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
@@ -417,6 +417,25 @@ export const subjectClassDetailService = {
       return response.data;
     } catch (error) {
       console.error('Error removing student from class:', error);
+      throw error;
+    }
+  },
+  exportStudentsList: async (params) => {
+    try {
+      const response = await fetch(`${API_URL}/v1/subject-class-details/export-subject-class-students?${new URLSearchParams(params)}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Export students list failed: ${response.status} ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Export students list error:', error);
       throw error;
     }
   }

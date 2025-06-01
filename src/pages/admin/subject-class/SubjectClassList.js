@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Grid, Paper, IconButton, Tooltip, CircularProgress, Autocomplete } from '@mui/material';
+import { Box, Button, Typography, Snackbar, Alert, Stack, TextField, Grid, Paper, IconButton, Tooltip, CircularProgress, Autocomplete, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -7,12 +7,16 @@ import PeopleIcon from '@mui/icons-material/People';
 import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import TableViewIcon from '@mui/icons-material/TableView';
+import GroupIcon from '@mui/icons-material/Group';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DataTable from '../../../components/common/DataTable';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { subjectClassService, subjectService, classRoomService, administrativeClassService, handleApiError } from '../../../services/api';
+import { subjectClassService, subjectService, classRoomService, administrativeClassService, handleApiError, subjectClassDetailService } from '../../../services/api';
 import SubjectClassForm from './SubjectClassForm';
 import SubjectClassStudentsDialog from './SubjectClassStudentsDialog';
 import { useTranslation } from 'react-i18next';
+import api from '../../../services/api'; // Import API for baseURL
 
 const SubjectClassList = () => {
   const { t } = useTranslation(['admin', 'common']);
@@ -140,12 +144,13 @@ const SubjectClassList = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [termFilter, setTermFilter] = useState('');
-  const [administrativeClassId, setAdministrativeClassId] = useState('');
+  const [selectedAdministrativeClassIds, setSelectedAdministrativeClassIds] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [classRooms, setClassRooms] = useState([]);
   const [administrativeClasses, setAdministrativeClasses] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [filtersLoading, setFiltersLoading] = useState(false);
+  const [exportMenuAnchorEl, setExportMenuAnchorEl] = useState(null);
   
   const [alertInfo, setAlertInfo] = useState({
     open: false,
@@ -192,26 +197,51 @@ const SubjectClassList = () => {
     fetchFilterOptions();
   }, [fetchFilterOptions]);
 
-  // Fetch subject classes with filter
-  const fetchSubjectClasses = useCallback(async () => {
+  // Custom function to fetch subject classes with multiple administrative class IDs
+  const fetchSubjectClassesWithParams = useCallback(async () => {
     setLoading(true);
     try {
-      const params = {
-        PageIndex: page,
-        PageSize: pageSize,
-      };
+      // Create URLSearchParams for proper query string formatting
+      const searchParams = new URLSearchParams();
       
-      if (nameFilter) params.Name = nameFilter;
-      if (subjectId) params.SubjectId = subjectId;
-      if (classRoomId) params.ClassRoomId = classRoomId;
-      if (startDate) params.StartDate = startDate.toISOString();
-      if (endDate) params.EndDate = endDate.toISOString();
-      if (termFilter) params.Term = termFilter;
-      if (administrativeClassId) params.AdministrativeClassId = administrativeClassId;
+      // Add regular params
+      searchParams.append('PageIndex', page);
+      searchParams.append('PageSize', pageSize);
       
-      const response = await subjectClassService.getAll(params);
-      setSubjectClasses(response.data || []);
-      setTotalCount(response.totalCount || 0);
+      if (nameFilter) searchParams.append('Name', nameFilter);
+      if (subjectId) searchParams.append('SubjectId', subjectId);
+      if (classRoomId) searchParams.append('ClassRoomId', classRoomId);
+      if (startDate) searchParams.append('StartDate', startDate.toISOString());
+      if (endDate) searchParams.append('EndDate', endDate.toISOString());
+      if (termFilter) searchParams.append('Term', termFilter);
+      
+      // Add multiple administrative class IDs with the same parameter name
+      if (selectedAdministrativeClassIds.length > 0) {
+        selectedAdministrativeClassIds.forEach(id => {
+          searchParams.append('AdministrativeClassIds', id);
+        });
+      }
+      
+      // Build the URL with the formatted query string
+      const url = `${api.defaults.baseURL}/v1/subject-classes?${searchParams.toString()}`;
+      console.log('Fetching subject classes with URL:', url);
+      
+      // Make the fetch request
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setSubjectClasses(data.data || []);
+      setTotalCount(data.totalCount || 0);
     } catch (error) {
       const formattedError = handleApiError(error, t('common:fetchError', { resource: t('subjectClasses') }));
       setAlertInfo({
@@ -222,12 +252,12 @@ const SubjectClassList = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, nameFilter, subjectId, classRoomId, startDate, endDate, termFilter, administrativeClassId, t]);
+  }, [page, pageSize, nameFilter, subjectId, classRoomId, startDate, endDate, termFilter, selectedAdministrativeClassIds, t]);
 
   // Fetch classes when filters change
   useEffect(() => {
-    fetchSubjectClasses();
-  }, [fetchSubjectClasses]);
+    fetchSubjectClassesWithParams();
+  }, [fetchSubjectClassesWithParams]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
@@ -268,7 +298,7 @@ const SubjectClassList = () => {
         message: t('subjectClass.deleteSuccess'),
         severity: 'success',
       });
-      fetchSubjectClasses();
+      fetchSubjectClassesWithParams();
     } catch (error) {
       const formattedError = handleApiError(error, t('subjectClass.deleteError'));
       setAlertInfo({
@@ -285,7 +315,7 @@ const SubjectClassList = () => {
   const handleFormClose = (refreshData) => {
     setFormOpen(false);
     if (refreshData) {
-      fetchSubjectClasses();
+      fetchSubjectClassesWithParams();
     }
   };
 
@@ -317,8 +347,11 @@ const SubjectClassList = () => {
     setTermFilter(value ? value.value : '');
   };
 
-  const handleAdministrativeClassChange = (event, value) => {
-    setAdministrativeClassId(value ? value.id : '');
+  // Updated to support multiple administrative class selection
+  const handleAdministrativeClassChange = (event, newValues) => {
+    const selectedIds = newValues.map(item => item.value).filter(id => id !== '');
+    setSelectedAdministrativeClassIds(selectedIds);
+    setPage(1);
   };
 
   const handleClearFilters = () => {
@@ -328,7 +361,7 @@ const SubjectClassList = () => {
     setStartDate(null);
     setEndDate(null);
     setTermFilter('');
-    setAdministrativeClassId('');
+    setSelectedAdministrativeClassIds([]);
     setPage(1);
   };
 
@@ -336,52 +369,149 @@ const SubjectClassList = () => {
     setShowFilters(!showFilters);
   };
 
-  const handleExport = async () => {
+  // Export menu handlers
+  const handleOpenExportMenu = (event) => {
+    setExportMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseExportMenu = () => {
+    setExportMenuAnchorEl(null);
+  };
+
+  // Helper function to download exported file
+  const downloadExportFile = (base64Data, fileName) => {
+    // Convert base64 to blob
+    const byteCharacters = atob(base64Data);
+    const byteNumbers = new Array(byteCharacters.length);
+    
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    
+    // Create a URL for the blob
+    const url = window.URL.createObjectURL(blob);
+    
+    // Create a temporary link element
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up the URL
+    window.URL.revokeObjectURL(url);
+  };
+
+  // Custom function for timetable export
+  const exportTimeTable = async () => {
     try {
-      const params = {};
-      if (nameFilter) params.Name = nameFilter;
-      if (subjectId) params.SubjectId = subjectId;
-      if (classRoomId) params.ClassRoomId = classRoomId;
-      if (startDate) params.StartDate = startDate.toISOString();
-      if (endDate) params.EndDate = endDate.toISOString();
-      if (termFilter) params.Term = termFilter;
-      if (administrativeClassId) params.AdministrativeClassId = administrativeClassId;
+      // Create URLSearchParams
+      const searchParams = new URLSearchParams();
       
-      const response = await subjectClassService.export(params);
+      if (nameFilter) searchParams.append('Name', nameFilter);
+      if (subjectId) searchParams.append('SubjectId', subjectId);
+      if (classRoomId) searchParams.append('ClassRoomId', classRoomId);
+      if (startDate) searchParams.append('StartDate', startDate.toISOString());
+      if (endDate) searchParams.append('EndDate', endDate.toISOString());
+      if (termFilter) searchParams.append('Term', termFilter);
       
-      // Convert base64 to blob
-      const byteCharacters = atob(response.base64);
-      const byteNumbers = new Array(byteCharacters.length);
-      
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      // Add multiple administrative class IDs
+      if (selectedAdministrativeClassIds.length > 0) {
+        selectedAdministrativeClassIds.forEach(id => {
+          searchParams.append('AdministrativeClassIds', id);
+        });
       }
       
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      // Build the URL
+      const url = `${api.defaults.baseURL}/v1/subject-classes/export-time-table?${searchParams.toString()}`;
       
-      // Create a URL for the blob
-      const url = window.URL.createObjectURL(blob);
+      // Make the request
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        }
+      });
       
-      // Create a temporary link element
-      const link = document.createElement('a');
-      link.href = url;
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.status} ${response.statusText}`);
+      }
       
-      // Use the fileName from the response, or create a default one
-      const fileName = response.fileName || `subject-classes-${new Date().toISOString().split('T')[0]}.xlsx`;
-      link.download = fileName;
+      const data = await response.json();
       
-      // Append to body, click, and remove
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Use the helper function to download
+      const fileName = data.fileName || `timetable-${new Date().toISOString().split('T')[0]}.xlsx`;
+      downloadExportFile(data.base64, fileName);
       
-      // Clean up the URL
-      window.URL.revokeObjectURL(url);
-      
+      handleCloseExportMenu();
       setAlertInfo({
         open: true,
-        message: t('subjectClass.exportSuccess'),
+        message: t('subjectClass.exportTimeTableSuccess'),
+        severity: 'success',
+      });
+    } catch (error) {
+      const formattedError = handleApiError(error, t('subjectClass.exportError'));
+      setAlertInfo({
+        open: true,
+        message: formattedError.message,
+        severity: 'error',
+      });
+    }
+  };
+
+  // Export students list
+  const exportStudentsList = async () => {
+    try {
+      // Create URLSearchParams
+      const searchParams = new URLSearchParams();
+      
+      if (nameFilter) searchParams.append('Name', nameFilter);
+      if (subjectId) searchParams.append('SubjectId', subjectId);
+      if (classRoomId) searchParams.append('ClassRoomId', classRoomId);
+      if (startDate) searchParams.append('StartDate', startDate.toISOString());
+      if (endDate) searchParams.append('EndDate', endDate.toISOString());
+      if (termFilter) searchParams.append('Term', termFilter);
+      
+      // Add multiple administrative class IDs
+      if (selectedAdministrativeClassIds.length > 0) {
+        selectedAdministrativeClassIds.forEach(id => {
+          searchParams.append('AdministrativeClassIds', id);
+        });
+      }
+      
+      // Build the URL
+      const url = `${api.defaults.baseURL}/v1/subject-class-details/export-subject-class-students?${searchParams.toString()}`;
+      
+      // Make the request
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Use the helper function to download
+      const fileName = data.fileName || `students-list-${new Date().toISOString().split('T')[0]}.xlsx`;
+      downloadExportFile(data.base64, fileName);
+      
+      handleCloseExportMenu();
+      setAlertInfo({
+        open: true,
+        message: t('subjectClass.exportStudentsSuccess'),
         severity: 'success',
       });
     } catch (error) {
@@ -402,10 +532,33 @@ const SubjectClassList = () => {
           <Button
             variant="outlined"
             startIcon={<DownloadIcon />}
-            onClick={handleExport}
+            endIcon={<ArrowDropDownIcon />}
+            onClick={handleOpenExportMenu}
           >
             {t('common:export')}
           </Button>
+          <Menu
+            anchorEl={exportMenuAnchorEl}
+            open={Boolean(exportMenuAnchorEl)}
+            onClose={handleCloseExportMenu}
+          >
+            <MenuItem onClick={exportTimeTable}>
+              <ListItemIcon>
+                <TableViewIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>
+                {t('subjectClass.exportTimeTable')}
+              </ListItemText>
+            </MenuItem>
+            <MenuItem onClick={exportStudentsList}>
+              <ListItemIcon>
+                <GroupIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>
+                {t('subjectClass.exportStudentsList')}
+              </ListItemText>
+            </MenuItem>
+          </Menu>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -495,8 +648,26 @@ const SubjectClassList = () => {
               
               <Grid item xs={12} sm={6} md={3}>
                 <Autocomplete
-                  options={administrativeClasses}
-                  getOptionLabel={(option) => option.name || ''}
+                  id="administrativeClass"
+                  multiple
+                  options={[
+                    { value: '', label: t('common:all') },
+                    ...administrativeClasses.map(adminClass => ({ 
+                      value: adminClass.id, 
+                      label: adminClass.name 
+                    }))
+                  ]}
+                  getOptionLabel={(option) => option.label || ''}
+                  value={
+                    selectedAdministrativeClassIds.length > 0
+                      ? selectedAdministrativeClassIds.map(id => {
+                          const adminClass = administrativeClasses.find(c => c.id === id);
+                          return adminClass 
+                            ? { value: id, label: adminClass.name }
+                            : { value: id, label: id }; // Fallback if class not found
+                        })
+                      : []
+                  }
                   onChange={handleAdministrativeClassChange}
                   loading={filtersLoading}
                   renderInput={(params) => (
