@@ -84,11 +84,6 @@ const Sidebar = ({ open, onClose, variant = 'permanent' }) => {
       icon: <GroupsIcon />,
       path: '/admin/subject-classes'
     },
-    {
-      name: t('timeTable.title'),
-      icon: <CalendarMonthIcon />,
-      path: '/admin/time-table'
-    },
   ];
 
   return (
