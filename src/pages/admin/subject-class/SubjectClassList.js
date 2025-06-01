@@ -531,6 +531,13 @@ const SubjectClassList = () => {
         <Stack direction="row" spacing={1}>
           <Button
             variant="outlined"
+            startIcon={showFilters ? <ClearIcon /> : <FilterAltIcon />}
+            onClick={handleToggleFilters}
+          >
+            {showFilters ? t('common:hideFilters') : t('common:showFilters')}
+          </Button>
+          <Button
+            variant="outlined"
             startIcon={<DownloadIcon />}
             endIcon={<ArrowDropDownIcon />}
             onClick={handleOpenExportMenu}
@@ -569,180 +576,172 @@ const SubjectClassList = () => {
         </Stack>
       </Box>
 
-      <Paper sx={{ mb: 3, p: 2 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item>
-            <Button
-              variant="outlined"
-              startIcon={showFilters ? <ClearIcon /> : <FilterAltIcon />}
-              onClick={handleToggleFilters}
-            >
-              {showFilters ? t('common:hideFilters') : t('common:showFilters')}
-            </Button>
+      {showFilters && (
+        <Paper sx={{ mb: 3, p: 2 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label={t('subjectClass.name')}
+                value={nameFilter}
+                onChange={handleNameFilterChange}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={3}>
+              <Autocomplete
+                options={subjects}
+                getOptionLabel={(option) => option.name ? `${option.name} (${option.subjectCode})` : ''}
+                onChange={handleSubjectChange}
+                loading={filtersLoading}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('subjectClass.subject')}
+                    variant="outlined"
+                    size="small"
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {filtersLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={3}>
+              <Autocomplete
+                options={classRooms}
+                getOptionLabel={(option) => option.name || ''}
+                onChange={handleClassRoomChange}
+                loading={filtersLoading}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('subjectClass.classRoom')}
+                    variant="outlined"
+                    size="small"
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {filtersLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6} md={3}>
+              <Autocomplete
+                id="administrativeClass"
+                multiple
+                options={[
+                  { value: '', label: t('common:all') },
+                  ...administrativeClasses.map(adminClass => ({ 
+                    value: adminClass.id, 
+                    label: adminClass.name 
+                  }))
+                ]}
+                getOptionLabel={(option) => option.label || ''}
+                value={
+                  selectedAdministrativeClassIds.length > 0
+                    ? selectedAdministrativeClassIds.map(id => {
+                        const adminClass = administrativeClasses.find(c => c.id === id);
+                        return adminClass 
+                          ? { value: id, label: adminClass.name }
+                          : { value: id, label: id }; // Fallback if class not found
+                      })
+                    : []
+                }
+                onChange={handleAdministrativeClassChange}
+                loading={filtersLoading}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('subjectClass.administrativeClass')}
+                    variant="outlined"
+                    size="small"
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {filtersLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label={t('subjectClass.startDate')}
+                type="date"
+                value={startDate ? startDate.toISOString().split('T')[0] : ''}
+                onChange={handleStartDateChange}
+                variant="outlined"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+              
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label={t('subjectClass.endDate')}
+                type="date"
+                value={endDate ? endDate.toISOString().split('T')[0] : ''}
+                onChange={handleEndDateChange}
+                variant="outlined"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+              
+            <Grid item xs={12} sm={6} md={3}>
+              <Autocomplete
+                options={termOptions}
+                getOptionLabel={(option) => option.label || ''}
+                onChange={handleTermChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('subjectClass.term')}
+                    variant="outlined"
+                    size="small"
+                  />
+                )}
+              />
+            </Grid>
+              
+            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<ClearIcon />}
+                onClick={handleClearFilters}
+                size="medium"
+              >
+                {t('common:clearFilters')}
+              </Button>
+            </Grid>
           </Grid>
-          
-          {showFilters && (
-            <>
-              <Grid item xs={12} sm={6} md={3}>
-                <TextField
-                  fullWidth
-                  label={t('subjectClass.name')}
-                  value={nameFilter}
-                  onChange={handleNameFilterChange}
-                  variant="outlined"
-                  size="small"
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6} md={3}>
-                <Autocomplete
-                  options={subjects}
-                  getOptionLabel={(option) => option.name ? `${option.name} (${option.subjectCode})` : ''}
-                  onChange={handleSubjectChange}
-                  loading={filtersLoading}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label={t('subjectClass.subject')}
-                      variant="outlined"
-                      size="small"
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {filtersLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6} md={3}>
-                <Autocomplete
-                  options={classRooms}
-                  getOptionLabel={(option) => option.name || ''}
-                  onChange={handleClassRoomChange}
-                  loading={filtersLoading}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label={t('subjectClass.classRoom')}
-                      variant="outlined"
-                      size="small"
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {filtersLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6} md={3}>
-                <Autocomplete
-                  id="administrativeClass"
-                  multiple
-                  options={[
-                    { value: '', label: t('common:all') },
-                    ...administrativeClasses.map(adminClass => ({ 
-                      value: adminClass.id, 
-                      label: adminClass.name 
-                    }))
-                  ]}
-                  getOptionLabel={(option) => option.label || ''}
-                  value={
-                    selectedAdministrativeClassIds.length > 0
-                      ? selectedAdministrativeClassIds.map(id => {
-                          const adminClass = administrativeClasses.find(c => c.id === id);
-                          return adminClass 
-                            ? { value: id, label: adminClass.name }
-                            : { value: id, label: id }; // Fallback if class not found
-                        })
-                      : []
-                  }
-                  onChange={handleAdministrativeClassChange}
-                  loading={filtersLoading}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label={t('subjectClass.administrativeClass')}
-                      variant="outlined"
-                      size="small"
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {filtersLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={3}>
-                <TextField
-                  fullWidth
-                  label={t('subjectClass.startDate')}
-                  type="date"
-                  value={startDate ? startDate.toISOString().split('T')[0] : ''}
-                  onChange={handleStartDateChange}
-                  InputLabelProps={{ shrink: true }}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={3}>
-                <TextField
-                  fullWidth
-                  label={t('subjectClass.endDate')}
-                  type="date"
-                  value={endDate ? endDate.toISOString().split('T')[0] : ''}
-                  onChange={handleEndDateChange}
-                  InputLabelProps={{ shrink: true }}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={3}>
-                <Autocomplete
-                  options={termOptions}
-                  getOptionLabel={(option) => option.label || ''}
-                  onChange={handleTermChange}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label={t('subjectClass.term')}
-                      variant="outlined"
-                      size="small"
-                    />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <Button
-                  variant="outlined"
-                  onClick={handleClearFilters}
-                  startIcon={<ClearIcon />}
-                >
-                  {t('common:clearFilters')}
-                </Button>
-              </Grid>
-            </>
-          )}
-        </Grid>
-      </Paper>
+        </Paper>
+      )}
 
       <DataTable
         columns={columns}

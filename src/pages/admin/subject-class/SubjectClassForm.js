@@ -31,6 +31,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditIcon from '@mui/icons-material/Edit';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import InfoIcon from '@mui/icons-material/Info';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 // Helper function to format date for form
 const formatDateForForm = (dateString) => {
@@ -603,33 +604,111 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                 )}
                                 
                                 <Grid item xs={12} md={4}>
-                                  <FormField
+                                  <TextField
+                                    fullWidth
+                                    id={`items[${index}].startLesson`}
                                     name={`items[${index}].startLesson`}
                                     label={t('subjectClass.startLesson')}
-                                    select
+                                    value={item.startLesson}
+                                    onChange={(e) => {
+                                      let value = e.target.value;
+                                      // Handle manual input - only allow numbers between 1-15
+                                      if (value !== '') {
+                                        value = Math.max(1, Math.min(15, parseInt(value) || 1));
+                                      }
+                                      setFieldValue(`items[${index}].startLesson`, value);
+                                    }}
+                                    error={touched.items?.[index]?.startLesson && Boolean(errors.items?.[index]?.startLesson)}
+                                    helperText={touched.items?.[index]?.startLesson && errors.items?.[index]?.startLesson}
                                     required
-                                  >
-                                    {lessonOptions.map((option) => (
-                                      <MenuItem key={option} value={option}>
-                                        {option}
-                                      </MenuItem>
-                                    ))}
-                                  </FormField>
+                                    InputProps={{
+                                      endAdornment: (
+                                        <InputAdornment position="end">
+                                          <TextField
+                                            select
+                                            value={item.startLesson}
+                                            onChange={(e) => {
+                                              setFieldValue(`items[${index}].startLesson`, parseInt(e.target.value));
+                                            }}
+                                            variant="standard"
+                                            sx={{ width: 20, '& .MuiInput-input': { display: 'none' } }}
+                                            SelectProps={{
+                                              IconComponent: ArrowDropDownIcon,
+                                              MenuProps: {
+                                                PaperProps: { style: { maxHeight: 250 } }
+                                              }
+                                            }}
+                                          >
+                                            {lessonOptions.map((option) => (
+                                              <MenuItem key={option} value={option}>
+                                                {option}
+                                              </MenuItem>
+                                            ))}
+                                          </TextField>
+                                        </InputAdornment>
+                                      ),
+                                    }}
+                                    type="number"
+                                    inputProps={{ min: 1, max: 15, step: 1 }}
+                                  />
                                 </Grid>
                                 
                                 <Grid item xs={12} md={4}>
-                                  <FormField
+                                  <TextField
+                                    fullWidth
+                                    id={`items[${index}].endLesson`}
                                     name={`items[${index}].endLesson`}
                                     label={t('subjectClass.endLesson')}
-                                    select
+                                    value={item.endLesson}
+                                    onChange={(e) => {
+                                      let value = e.target.value;
+                                      // Handle manual input - only allow numbers between 1-15 and greater than startLesson
+                                      if (value !== '') {
+                                        const startLesson = item.startLesson || 1;
+                                        value = Math.max(startLesson + 1, Math.min(15, parseInt(value) || startLesson + 1));
+                                      }
+                                      setFieldValue(`items[${index}].endLesson`, value);
+                                    }}
+                                    error={touched.items?.[index]?.endLesson && Boolean(errors.items?.[index]?.endLesson)}
+                                    helperText={touched.items?.[index]?.endLesson && errors.items?.[index]?.endLesson}
                                     required
-                                  >
-                                    {lessonOptions.map((option) => (
-                                      <MenuItem key={option} value={option}>
-                                        {option}
-                                      </MenuItem>
-                                    ))}
-                                  </FormField>
+                                    InputProps={{
+                                      endAdornment: (
+                                        <InputAdornment position="end">
+                                          <TextField
+                                            select
+                                            value={item.endLesson}
+                                            onChange={(e) => {
+                                              setFieldValue(`items[${index}].endLesson`, parseInt(e.target.value));
+                                            }}
+                                            variant="standard"
+                                            sx={{ width: 20, '& .MuiInput-input': { display: 'none' } }}
+                                            SelectProps={{
+                                              IconComponent: ArrowDropDownIcon,
+                                              MenuProps: {
+                                                PaperProps: { style: { maxHeight: 250 } }
+                                              }
+                                            }}
+                                          >
+                                            {lessonOptions
+                                              .filter(option => option > (item.startLesson || 0))
+                                              .map((option) => (
+                                                <MenuItem key={option} value={option}>
+                                                  {option}
+                                                </MenuItem>
+                                              ))
+                                            }
+                                          </TextField>
+                                        </InputAdornment>
+                                      ),
+                                    }}
+                                    type="number"
+                                    inputProps={{ 
+                                      min: item.startLesson ? item.startLesson + 1 : 2, 
+                                      max: 15,
+                                      step: 1
+                                    }}
+                                  />
                                 </Grid>
                                 
                                 <Grid item xs={12} md={4}>
