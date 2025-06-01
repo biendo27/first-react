@@ -172,7 +172,15 @@
     "item": "Item",
     "addItem": "Add Subject Class Item",
     "atLeastOneItem": "At least one subject class item is required",
-    "administrativeClass": "Administrative Class"
+    "administrativeClass": "Administrative Class",
+    "numberOfWeeks": "Number of Weeks",
+    "minWeeks": "Number of weeks must be at least 1",
+    "examTimeNote": "Exams will be held one week after the class ends ({{date}})",
+    "selectAdministrativeClasses": "Select Administrative Classes",
+    "exportTimeTable": "Export Time Table",
+    "exportTimeTableSuccess": "Time table exported successfully",
+    "exportStudentsList": "Export Students List",
+    "exportStudentsSuccess": "Students list exported successfully"
   },
   "timeTable": {
     "title": "Time Table",

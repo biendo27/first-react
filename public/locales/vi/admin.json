@@ -323,7 +323,17 @@
     "addStudentError": "Không thể thêm sinh viên vào lớp",
     "removeStudentSuccess": "Xóa sinh viên khỏi lớp thành công",
     "removeStudentError": "Không thể xóa sinh viên khỏi lớp",
-    "noStudentsFound": "Không tìm thấy sinh viên trong lớp này"
+    "noStudentsFound": "Không tìm thấy sinh viên trong lớp này",
+    "numberOfWeeks": "Số Tuần",
+    "minWeeks": "Số tuần phải ít nhất là 1",
+    "examTimeNote": "Kỳ thi sẽ được tổ chức một tuần sau khi lớp học kết thúc ({{date}})",
+    "selectAdministrativeClasses": "Chọn Lớp Hành Chính",
+    "exportTimeTable": "Xuất Thời Khóa Biểu",
+    "exportTimeTableSuccess": "Xuất thời khóa biểu thành công",
+    "exportStudentsList": "Xuất Danh Sách Sinh Viên",
+    "exportStudentsSuccess": "Xuất danh sách sinh viên thành công",
+    "termRange": "Đợt phải trong khoảng từ {{min}} đến {{max}}",
+    "atLeastOneItem": "Phải có ít nhất một mục lớp học phần"
   },
   "timeTable": {
     "title": "Thời Khóa Biểu",

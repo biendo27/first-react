@@ -47,6 +47,25 @@ const calculateEndDate = (startDate, weeks) => {
   return formatDateForForm(date);
 };
 
+// Helper function to format date in dd/MM/yyyy format
+const formatDateForDisplay = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-GB', { // en-GB gives dd/MM/yyyy format
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};
+
+// Helper function to calculate exam date (one week after end date)
+const calculateExamDate = (endDate) => {
+  if (!endDate) return '';
+  const date = new Date(endDate);
+  date.setDate(date.getDate() + 7); // Add one week
+  return formatDateForDisplay(date);
+};
+
 // Create a default subject class item
 const createDefaultItem = () => ({
   name: '',
@@ -575,7 +594,9 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                     <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
                                       <InfoIcon fontSize="small" sx={{ mr: 1 }} />
                                       <Typography variant="caption">
-                                        {t('subjectClass.examTimeNote')}
+                                        {t('subjectClass.examTimeNote', {
+                                          date: calculateExamDate(item.endDate)
+                                        })}
                                       </Typography>
                                     </Box>
                                   </Grid>
