@@ -177,6 +177,7 @@
     "minWeeks": "Number of weeks must be at least 1",
     "examTimeNote": "Exams will be held one week after the class ends ({{date}})",
     "selectAdministrativeClasses": "Select Administrative Classes",
+    "selectAdministrativeClassFirst": "Please select administrative class first",
     "exportTimeTable": "Export Time Table",
     "exportTimeTableSuccess": "Time table exported successfully",
     "exportStudentsList": "Export Students List",

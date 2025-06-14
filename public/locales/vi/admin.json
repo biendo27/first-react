@@ -328,6 +328,7 @@
     "minWeeks": "Số tuần phải ít nhất là 1",
     "examTimeNote": "Kỳ thi sẽ được tổ chức một tuần sau khi lớp học kết thúc ({{date}})",
     "selectAdministrativeClasses": "Chọn Lớp Hành Chính",
+    "selectAdministrativeClassFirst": "Vui lòng chọn lớp hành chính trước",
     "exportTimeTable": "Xuất Thời Khóa Biểu",
     "exportTimeTableSuccess": "Xuất thời khóa biểu thành công",
     "exportStudentsList": "Xuất Danh Sách Sinh Viên",

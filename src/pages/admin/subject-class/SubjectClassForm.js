@@ -89,6 +89,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   const [subjects, setSubjects] = useState([]);
   const [classRooms, setClassRooms] = useState([]);
   const [formLoading, setFormLoading] = useState(false);
+  const [subjectsLoading, setSubjectsLoading] = useState(false);
   const [administrativeClasses, setAdministrativeClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(false);
   const [selectedAdministrativeClassIds, setSelectedAdministrativeClassIds] = useState([]);
@@ -207,17 +208,6 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
     try {
       const classRoomsResponse = await classRoomService.getAll({ PageSize: 10000 });
       setClassRooms(classRoomsResponse.data || []);
-      
-      // Fetch subjects based on administrative class selection if available
-      if (firstAdministrativeClassId) {
-        // Use the first administrative class ID to fetch subjects
-        const subjectsData = await subjectService.getByAdministrativeClass(firstAdministrativeClassId);
-        setSubjects(subjectsData || []);
-      } else {
-        // Fallback to fetching all subjects when no administrative class is selected
-        const subjectsResponse = await subjectService.getAll({ PageSize: 10000 });
-        setSubjects(subjectsResponse.data || []);
-      }
     } catch (error) {
       console.error('Error fetching form options:', error);
       const formattedError = handleApiError(error, t('common:fetchError', { resource: t('common:data') }));
@@ -228,6 +218,30 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
       });
     } finally {
       setFormLoading(false);
+    }
+  }, [t]);
+
+  const fetchSubjects = useCallback(async () => {
+    if (!firstAdministrativeClassId) {
+      setSubjects([]);
+      return;
+    }
+    
+    setSubjectsLoading(true);
+    try {
+      const subjectsData = await subjectService.getByAdministrativeClass(firstAdministrativeClassId);
+      setSubjects(subjectsData || []);
+    } catch (error) {
+      console.error('Error fetching subjects:', error);
+      const formattedError = handleApiError(error, t('common:fetchError', { resource: t('subjectClass.subject') }));
+      setError({
+        show: true,
+        message: formattedError.message,
+        severity: 'error'
+      });
+      setSubjects([]);
+    } finally {
+      setSubjectsLoading(false);
     }
   }, [t, firstAdministrativeClassId]);
 
@@ -240,10 +254,10 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
 
   // Fetch subjects when first administrative class ID changes
   useEffect(() => {
-    if (open && firstAdministrativeClassId) {
-      fetchFormOptions();
+    if (open) {
+      fetchSubjects();
     }
-  }, [firstAdministrativeClassId, open, fetchFormOptions]);
+  }, [open, fetchSubjects]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
@@ -349,12 +363,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                   </Box>
                 )}
                 
-                {formLoading ? (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
-                    <CircularProgress />
-                  </Box>
-                ) : (
-                  <Box>
+                <Box>
                     {/* Administrative class selection at the form level */}
                     {!subjectClass && (
                       <Paper elevation={0} variant="outlined" sx={{ p: 2, mb: 3 }}>
@@ -494,13 +503,28 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                     onChange={(_, newValue) => {
                                       setFieldValue(`items[${index}].subjectId`, newValue ? newValue.id : '');
                                     }}
+                                    disabled={!firstAdministrativeClassId && !subjectClass}
+                                    loading={subjectsLoading}
                                     renderInput={(params) => (
                                       <TextField
                                         {...params}
                                         label={t('subjectClass.subject')}
                                         error={touched.items?.[index]?.subjectId && Boolean(errors.items?.[index]?.subjectId)}
-                                        helperText={touched.items?.[index]?.subjectId && errors.items?.[index]?.subjectId}
+                                        helperText={
+                                          (!firstAdministrativeClassId && !subjectClass) 
+                                            ? t('subjectClass.selectAdministrativeClassFirst')
+                                            : (touched.items?.[index]?.subjectId && errors.items?.[index]?.subjectId)
+                                        }
                                         required
+                                        InputProps={{
+                                          ...params.InputProps,
+                                          endAdornment: (
+                                            <>
+                                              {subjectsLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                                              {params.InputProps.endAdornment}
+                                            </>
+                                          ),
+                                        }}
                                       />
                                     )}
                                   />
@@ -734,7 +758,6 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                       )}
                     </FieldArray>
                   </Box>
-                )}
               </DialogContent>
               <DialogActions>
                 <Button 
