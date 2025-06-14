@@ -44,5 +44,6 @@
     "saturday": "Saturday",
     "sunday": "Sunday"
   },
-  "export": "Export"
+  "export": "Export",
+  "noContactInfo": "No contact information"
 }

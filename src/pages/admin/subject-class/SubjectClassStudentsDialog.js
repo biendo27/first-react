@@ -296,62 +296,211 @@ const SubjectClassStudentsDialog = ({ open, onClose, subjectClass }) => {
                 </Box>
               ) : students.length > 0 ? (
                 <>
-                  <Paper variant="outlined" sx={{ mb: 2 }}>
-                    <List>
-                      {students.map((student, index) => (
-                        <React.Fragment key={student.id}>
-                          <ListItem sx={{ py: 2 }}>
-                            <ListItemText
-                              primary={
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                                  <Typography variant="subtitle1" fontWeight="medium">
-                                    {student.firstName} {student.lastName}
-                                  </Typography>
-                                  <Chip 
-                                    label={student.administrativeClass?.name || 'No Class'}
-                                    size="small"
-                                    color="primary"
-                                    variant="outlined"
-                                  />
-                                </Box>
-                              }
-                              secondary={
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                  <Typography variant="body2" color="textSecondary">
-                                    <strong>{t('student.studentCode')}:</strong> {student.studentCode}
-                                  </Typography>
-                                  {student.email && (
-                                    <Typography variant="body2" color="textSecondary">
-                                      <strong>{t('student.email')}:</strong> {student.email}
-                                    </Typography>
-                                  )}
-                                  {student.phoneNumber && (
-                                    <Typography variant="body2" color="textSecondary">
-                                      <strong>{t('student.phoneNumber')}:</strong> {student.phoneNumber}
-                                    </Typography>
-                                  )}
-                                </Box>
-                              }
-                            />
-                            <ListItemSecondaryAction>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {students.map((student) => (
+                      <Card 
+                        key={student.id}
+                        elevation={0}
+                        sx={{ 
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          borderRadius: 2,
+                          position: 'relative',
+                          overflow: 'visible',
+                          '&:hover': {
+                            borderColor: 'primary.main',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                            transform: 'translateY(-2px)'
+                          },
+                          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                        }}
+                      >
+                        <CardContent sx={{ p: 0 }}>
+                          {/* Simple header */}
+                          <Box sx={{ 
+                            p: 3,
+                            pb: 2,
+                            borderBottom: '1px solid',
+                            borderColor: 'divider'
+                          }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Typography variant="h6" sx={{ color: 'text.primary', fontWeight: 600 }}>
+                                {student.firstName} {student.lastName}
+                              </Typography>
                               <Tooltip title={t('subjectClass.removeStudent')}>
                                 <IconButton 
-                                  edge="end" 
-                                  aria-label="delete"
                                   onClick={() => handleRemoveStudent(student.id)}
-                                  color="error"
                                   size="small"
+                                  sx={{ 
+                                    color: 'text.secondary',
+                                    '&:hover': { 
+                                      bgcolor: 'error.light',
+                                      color: 'error.main'
+                                    }
+                                  }}
                                 >
-                                  <DeleteIcon />
+                                  <DeleteIcon fontSize="small" />
                                 </IconButton>
                               </Tooltip>
-                            </ListItemSecondaryAction>
-                          </ListItem>
-                          {index < students.length - 1 && <Divider />}
-                        </React.Fragment>
-                      ))}
-                    </List>
-                  </Paper>
+                            </Box>
+                          </Box>
+
+                          {/* Content area */}
+                          <Box sx={{ p: 3, pt: 2 }}>
+                            <Box sx={{ 
+                              display: 'grid', 
+                              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                              gap: 3,
+                              alignItems: 'start'
+                            }}>
+                              {/* Left Column - Basic Info */}
+                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                  <Box sx={{ 
+                                    width: 24, 
+                                    height: 24, 
+                                    borderRadius: 1, 
+                                    bgcolor: 'grey.100',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: 'text.secondary',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 'bold'
+                                  }}>
+                                    ID
+                                  </Box>
+                                  <Box>
+                                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                                      {t('student.studentCode')}
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                      {student.studentCode}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+
+                                {student.administrativeClass?.name && (
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                    <Box sx={{ 
+                                      width: 24, 
+                                      height: 24, 
+                                      borderRadius: 1, 
+                                      bgcolor: 'grey.100',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      color: 'text.secondary',
+                                      fontSize: '0.75rem',
+                                      fontWeight: 'bold'
+                                    }}>
+                                      CL
+                                    </Box>
+                                    <Box>
+                                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                                        {t('student.class')}
+                                      </Typography>
+                                      <Chip 
+                                        label={student.administrativeClass.name}
+                                        size="small"
+                                        variant="outlined"
+                                        sx={{ 
+                                          fontWeight: 500,
+                                          bgcolor: 'background.paper',
+                                          borderColor: 'divider'
+                                        }}
+                                      />
+                                    </Box>
+                                  </Box>
+                                )}
+                              </Box>
+
+                              {/* Right Column - Contact Info */}
+                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                                {student.email && (
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                    <Box sx={{ 
+                                      width: 24, 
+                                      height: 24, 
+                                      borderRadius: 1, 
+                                      bgcolor: 'grey.100',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      color: 'text.secondary',
+                                      fontSize: '0.75rem',
+                                      fontWeight: 'bold'
+                                    }}>
+                                      @
+                                    </Box>
+                                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                                        {t('student.email')}
+                                      </Typography>
+                                      <Typography 
+                                        variant="body2" 
+                                        sx={{ 
+                                          fontWeight: 500, 
+                                          color: 'text.primary',
+                                          wordBreak: 'break-all'
+                                        }}
+                                      >
+                                        {student.email}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+                                )}
+
+                                {student.phoneNumber && (
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                    <Box sx={{ 
+                                      width: 24, 
+                                      height: 24, 
+                                      borderRadius: 1, 
+                                      bgcolor: 'grey.100',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      color: 'text.secondary',
+                                      fontSize: '0.75rem',
+                                      fontWeight: 'bold'
+                                    }}>
+                                      📞
+                                    </Box>
+                                    <Box>
+                                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                                        {t('student.phoneNumber')}
+                                      </Typography>
+                                      <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                                        {student.phoneNumber}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+                                )}
+
+                                {!student.email && !student.phoneNumber && (
+                                  <Box sx={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    py: 2,
+                                    borderRadius: 1,
+                                    bgcolor: 'grey.50',
+                                    border: '1px dashed',
+                                    borderColor: 'grey.300'
+                                  }}>
+                                    <Typography variant="body2" color="text.disabled" sx={{ fontStyle: 'italic' }}>
+                                      {t('common:noContactInfo')}
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </Box>
+                            </Box>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </Box>
                   
                   <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                     <Pagination 

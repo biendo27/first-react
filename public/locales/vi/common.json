@@ -89,5 +89,6 @@
     "saturday": "Thứ Bảy",
     "sunday": "Chủ Nhật"
   },
-  "export": "Xuất"
+  "export": "Xuất",
+  "noContactInfo": "Chưa có thông tin liên hệ"
 } 
