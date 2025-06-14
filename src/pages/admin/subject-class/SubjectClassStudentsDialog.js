@@ -23,7 +23,8 @@ import {
   Pagination,
   Card,
   CardContent,
-  Chip
+  Chip,
+  Tooltip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
@@ -299,28 +300,51 @@ const SubjectClassStudentsDialog = ({ open, onClose, subjectClass }) => {
                     <List>
                       {students.map((student, index) => (
                         <React.Fragment key={student.id}>
-                          <ListItem>
+                          <ListItem sx={{ py: 2 }}>
                             <ListItemText
                               primary={
-                                <Typography variant="subtitle1" fontWeight="medium">
-                                  {student.firstName} {student.lastName}
-                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <Typography variant="subtitle1" fontWeight="medium">
+                                    {student.firstName} {student.lastName}
+                                  </Typography>
+                                  <Chip 
+                                    label={student.administrativeClass?.name || 'No Class'}
+                                    size="small"
+                                    color="primary"
+                                    variant="outlined"
+                                  />
+                                </Box>
                               }
                               secondary={
-                                <Typography variant="body2" color="textSecondary">
-                                  {student.studentCode}
-                                </Typography>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                  <Typography variant="body2" color="textSecondary">
+                                    <strong>{t('student.studentCode')}:</strong> {student.studentCode}
+                                  </Typography>
+                                  {student.email && (
+                                    <Typography variant="body2" color="textSecondary">
+                                      <strong>{t('student.email')}:</strong> {student.email}
+                                    </Typography>
+                                  )}
+                                  {student.phoneNumber && (
+                                    <Typography variant="body2" color="textSecondary">
+                                      <strong>{t('student.phoneNumber')}:</strong> {student.phoneNumber}
+                                    </Typography>
+                                  )}
+                                </Box>
                               }
                             />
                             <ListItemSecondaryAction>
-                              <IconButton 
-                                edge="end" 
-                                aria-label="delete"
-                                onClick={() => handleRemoveStudent(student.id)}
-                                color="error"
-                              >
-                                <DeleteIcon />
-                              </IconButton>
+                              <Tooltip title={t('subjectClass.removeStudent')}>
+                                <IconButton 
+                                  edge="end" 
+                                  aria-label="delete"
+                                  onClick={() => handleRemoveStudent(student.id)}
+                                  color="error"
+                                  size="small"
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
                             </ListItemSecondaryAction>
                           </ListItem>
                           {index < students.length - 1 && <Divider />}
