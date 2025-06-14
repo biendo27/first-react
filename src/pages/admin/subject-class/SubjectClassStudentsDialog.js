@@ -529,6 +529,7 @@ const SubjectClassStudentsDialog = ({ open, onClose, subjectClass }) => {
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert 
           onClose={handleCloseAlert} 

@@ -441,7 +441,7 @@ const AcademicRecordForm = ({ open, onClose, academicRecord }) => {
         open={error.show}
         autoHideDuration={6000}
         onClose={() => setError({ ...error, show: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert 
           onClose={() => setError({ ...error, show: false })}

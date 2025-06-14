@@ -321,7 +321,7 @@ const EducationModeList = () => {
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo({ ...alertInfo, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setAlertInfo({ ...alertInfo, open: false })}

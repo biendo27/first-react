@@ -483,7 +483,7 @@ const TrainingProgramList = () => {
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo({ ...alertInfo, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setAlertInfo({ ...alertInfo, open: false })}

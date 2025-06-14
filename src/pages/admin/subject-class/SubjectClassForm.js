@@ -873,6 +873,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
         open={error.show && error.severity === 'success'}
         autoHideDuration={6000}
         onClose={() => setError(prev => ({ ...prev, show: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert 
           onClose={() => setError(prev => ({ ...prev, show: false }))} 

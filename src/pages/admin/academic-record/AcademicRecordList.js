@@ -672,7 +672,7 @@ const AcademicRecordList = () => {
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo(prev => ({ ...prev, open: false }))}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setAlertInfo(prev => ({ ...prev, open: false }))}
