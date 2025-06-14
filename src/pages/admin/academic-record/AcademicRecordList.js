@@ -91,7 +91,22 @@ const exportAcademicRecordsWithParams = async (params, adminClassIds) => {
     });
     
     if (!response.ok) {
-      throw new Error(`Export failed: ${response.status} ${response.statusText}`);
+      // Parse the error response to get the detailed error message
+      let errorMessage = `Export failed: ${response.status} ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        // Extract the detail field from backend error response
+        if (errorData.detail) {
+          errorMessage = errorData.detail;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData.title) {
+          errorMessage = errorData.title;
+        }
+      } catch (parseError) {
+        console.warn('Failed to parse error response:', parseError);
+      }
+      throw new Error(errorMessage);
     }
     
     return await response.json();

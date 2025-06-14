@@ -441,7 +441,22 @@ const SubjectClassList = () => {
       });
       
       if (!response.ok) {
-        throw new Error(`Export failed: ${response.status} ${response.statusText}`);
+        // Parse the error response to get the detailed error message
+        let errorMessage = `Export failed: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          // Extract the detail field from backend error response
+          if (errorData.detail) {
+            errorMessage = errorData.detail;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.title) {
+            errorMessage = errorData.title;
+          }
+        } catch (parseError) {
+          console.warn('Failed to parse error response:', parseError);
+        }
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
@@ -457,10 +472,10 @@ const SubjectClassList = () => {
         severity: 'success',
       });
     } catch (error) {
-      const formattedError = handleApiError(error, t('subjectClass.exportError'));
+      console.error('Export time table error:', error);
       setAlertInfo({
         open: true,
-        message: formattedError.message,
+        message: error.message || t('subjectClass.exportError'),
         severity: 'error',
       });
     }
@@ -499,7 +514,22 @@ const SubjectClassList = () => {
       });
       
       if (!response.ok) {
-        throw new Error(`Export failed: ${response.status} ${response.statusText}`);
+        // Parse the error response to get the detailed error message
+        let errorMessage = `Export failed: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          // Extract the detail field from backend error response
+          if (errorData.detail) {
+            errorMessage = errorData.detail;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.title) {
+            errorMessage = errorData.title;
+          }
+        } catch (parseError) {
+          console.warn('Failed to parse error response:', parseError);
+        }
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
@@ -515,10 +545,10 @@ const SubjectClassList = () => {
         severity: 'success',
       });
     } catch (error) {
-      const formattedError = handleApiError(error, t('subjectClass.exportError'));
+      console.error('Export students list error:', error);
       setAlertInfo({
         open: true,
-        message: formattedError.message,
+        message: error.message || t('subjectClass.exportError'),
         severity: 'error',
       });
     }
