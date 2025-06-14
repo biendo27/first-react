@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { formatDateForApi } from '../utils/dateUtils';
 
-// const API_URL = 'https://localhost:7269'; // Update with your actual API URL
+const API_URL = 'https://localhost:7269'; // Update with your actual API URL
 // const API_URL = 'https://203.162.246.99';
-const API_URL = 'https://timeschedule-api.nonamegogeto.click';
+// const API_URL = 'https://timeschedule-api.nonamegogeto.click';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -345,7 +345,13 @@ export const courseBatchService = createCrudService('course-batches');
 export const educationModeService = createCrudService('education-modes');
 export const majorService = createCrudService('majors');
 export const studentService = createCrudService('students');
-export const subjectService = createCrudService('subjects');
+export const subjectService = {
+  ...createCrudService('subjects'),
+  getByAdministrativeClass: async (administrativeClassId) => {
+    const response = await api.get(`/v1/subjects/by-administrative-class/${administrativeClassId}`);
+    return response.data;
+  }
+};
 export const subjectClassService = {
   ...createCrudService('subject-classes'),
   export: async (params) => {

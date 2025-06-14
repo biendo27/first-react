@@ -31,7 +31,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditIcon from '@mui/icons-material/Edit';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import InfoIcon from '@mui/icons-material/Info';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
 
 // Helper function to format date for form
 const formatDateForForm = (dateString) => {
@@ -204,13 +204,19 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   const fetchFormOptions = useCallback(async () => {
     setFormLoading(true);
     try {
-      const [subjectsResponse, classRoomsResponse] = await Promise.all([
-        subjectService.getAll({ PageSize: 10000 }),
-        classRoomService.getAll({ PageSize: 10000 })
-      ]);
-      
-      setSubjects(subjectsResponse.data || []);
+      const classRoomsResponse = await classRoomService.getAll({ PageSize: 10000 });
       setClassRooms(classRoomsResponse.data || []);
+      
+      // Fetch subjects based on administrative class selection if available
+      if (selectedAdministrativeClassIds.length > 0) {
+        // Use the first administrative class ID to fetch subjects
+        const subjectsData = await subjectService.getByAdministrativeClass(selectedAdministrativeClassIds[0]);
+        setSubjects(subjectsData || []);
+      } else {
+        // Fallback to fetching all subjects when no administrative class is selected
+        const subjectsResponse = await subjectService.getAll({ PageSize: 10000 });
+        setSubjects(subjectsResponse.data || []);
+      }
     } catch (error) {
       console.error('Error fetching form options:', error);
       const formattedError = handleApiError(error, t('common:fetchError', { resource: t('common:data') }));
@@ -222,7 +228,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
     } finally {
       setFormLoading(false);
     }
-  }, [t]);
+  }, [t, selectedAdministrativeClassIds]);
 
   useEffect(() => {
     if (open) {
@@ -230,6 +236,13 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
       fetchAdministrativeClasses();
     }
   }, [open, fetchFormOptions, fetchAdministrativeClasses]);
+
+  // Fetch subjects when administrative class selection changes
+  useEffect(() => {
+    if (open && selectedAdministrativeClassIds.length > 0) {
+      fetchFormOptions();
+    }
+  }, [selectedAdministrativeClassIds, open, fetchFormOptions]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
@@ -604,110 +617,48 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                 )}
                                 
                                 <Grid item xs={12} md={4}>
-                                  <TextField
-                                    fullWidth
+                                  <Autocomplete
                                     id={`items[${index}].startLesson`}
-                                    name={`items[${index}].startLesson`}
-                                    label={t('subjectClass.startLesson')}
-                                    value={item.startLesson}
-                                    onChange={(e) => {
-                                      let value = e.target.value;
-                                      // Handle manual input - only allow numbers between 1-15
-                                      if (value !== '') {
-                                        value = Math.max(1, Math.min(15, parseInt(value) || 1));
+                                    options={lessonOptions}
+                                    getOptionLabel={(option) => option.toString()}
+                                    value={item.startLesson || null}
+                                    onChange={(_, newValue) => {
+                                      setFieldValue(`items[${index}].startLesson`, newValue || 1);
+                                      // Auto-adjust end lesson if it's not greater than start lesson
+                                      if (item.endLesson && newValue && item.endLesson <= newValue) {
+                                        setFieldValue(`items[${index}].endLesson`, newValue + 1);
                                       }
-                                      setFieldValue(`items[${index}].startLesson`, value);
                                     }}
-                                    error={touched.items?.[index]?.startLesson && Boolean(errors.items?.[index]?.startLesson)}
-                                    helperText={touched.items?.[index]?.startLesson && errors.items?.[index]?.startLesson}
-                                    required
-                                    InputProps={{
-                                      endAdornment: (
-                                        <InputAdornment position="end">
-                                          <TextField
-                                            select
-                                            value={item.startLesson}
-                                            onChange={(e) => {
-                                              setFieldValue(`items[${index}].startLesson`, parseInt(e.target.value));
-                                            }}
-                                            variant="standard"
-                                            sx={{ width: 20, '& .MuiInput-input': { display: 'none' } }}
-                                            SelectProps={{
-                                              IconComponent: ArrowDropDownIcon,
-                                              MenuProps: {
-                                                PaperProps: { style: { maxHeight: 250 } }
-                                              }
-                                            }}
-                                          >
-                                            {lessonOptions.map((option) => (
-                                              <MenuItem key={option} value={option}>
-                                                {option}
-                                              </MenuItem>
-                                            ))}
-                                          </TextField>
-                                        </InputAdornment>
-                                      ),
-                                    }}
-                                    type="number"
-                                    inputProps={{ min: 1, max: 15, step: 1 }}
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        label={t('subjectClass.startLesson')}
+                                        error={touched.items?.[index]?.startLesson && Boolean(errors.items?.[index]?.startLesson)}
+                                        helperText={touched.items?.[index]?.startLesson && errors.items?.[index]?.startLesson}
+                                        required
+                                      />
+                                    )}
                                   />
                                 </Grid>
                                 
                                 <Grid item xs={12} md={4}>
-                                  <TextField
-                                    fullWidth
+                                  <Autocomplete
                                     id={`items[${index}].endLesson`}
-                                    name={`items[${index}].endLesson`}
-                                    label={t('subjectClass.endLesson')}
-                                    value={item.endLesson}
-                                    onChange={(e) => {
-                                      let value = e.target.value;
-                                      // Handle manual input - only allow numbers between 1-15 and greater than startLesson
-                                      if (value !== '') {
-                                        const startLesson = item.startLesson || 1;
-                                        value = Math.max(startLesson + 1, Math.min(15, parseInt(value) || startLesson + 1));
-                                      }
-                                      setFieldValue(`items[${index}].endLesson`, value);
+                                    options={lessonOptions.filter(option => option > (item.startLesson || 0))}
+                                    getOptionLabel={(option) => option.toString()}
+                                    value={item.endLesson || null}
+                                    onChange={(_, newValue) => {
+                                      setFieldValue(`items[${index}].endLesson`, newValue || (item.startLesson || 1) + 1);
                                     }}
-                                    error={touched.items?.[index]?.endLesson && Boolean(errors.items?.[index]?.endLesson)}
-                                    helperText={touched.items?.[index]?.endLesson && errors.items?.[index]?.endLesson}
-                                    required
-                                    InputProps={{
-                                      endAdornment: (
-                                        <InputAdornment position="end">
-                                          <TextField
-                                            select
-                                            value={item.endLesson}
-                                            onChange={(e) => {
-                                              setFieldValue(`items[${index}].endLesson`, parseInt(e.target.value));
-                                            }}
-                                            variant="standard"
-                                            sx={{ width: 20, '& .MuiInput-input': { display: 'none' } }}
-                                            SelectProps={{
-                                              IconComponent: ArrowDropDownIcon,
-                                              MenuProps: {
-                                                PaperProps: { style: { maxHeight: 250 } }
-                                              }
-                                            }}
-                                          >
-                                            {lessonOptions
-                                              .filter(option => option > (item.startLesson || 0))
-                                              .map((option) => (
-                                                <MenuItem key={option} value={option}>
-                                                  {option}
-                                                </MenuItem>
-                                              ))
-                                            }
-                                          </TextField>
-                                        </InputAdornment>
-                                      ),
-                                    }}
-                                    type="number"
-                                    inputProps={{ 
-                                      min: item.startLesson ? item.startLesson + 1 : 2, 
-                                      max: 15,
-                                      step: 1
-                                    }}
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        label={t('subjectClass.endLesson')}
+                                        error={touched.items?.[index]?.endLesson && Boolean(errors.items?.[index]?.endLesson)}
+                                        helperText={touched.items?.[index]?.endLesson && errors.items?.[index]?.endLesson}
+                                        required
+                                      />
+                                    )}
                                   />
                                 </Grid>
                                 
