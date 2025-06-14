@@ -40,12 +40,22 @@ const formatDateForForm = (dateString) => {
   return date.toISOString().split('T')[0];
 };
 
-// Helper function to calculate end date based on start date and weeks
-const calculateEndDate = (startDate, weeks) => {
+// Helper function to calculate end date based on start date, weeks, and day of week
+const calculateEndDate = (startDate, weeks, dayOfWeek) => {
   if (!startDate || !weeks) return '';
+  
   const date = new Date(startDate);
-  date.setDate(date.getDate() + (weeks * 7));
-  return formatDateForForm(date);
+  
+  // Calculate the last lesson date (start date + (weeks - 1) * 7 days)
+  const lastLessonDate = new Date(date);
+  lastLessonDate.setDate(lastLessonDate.getDate() + ((weeks - 1) * 7));
+  
+  // Find Sunday of the week containing the last lesson
+  const lastLessonDayOfWeek = lastLessonDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const daysToSunday = lastLessonDayOfWeek === 0 ? 0 : 7 - lastLessonDayOfWeek;
+  lastLessonDate.setDate(lastLessonDate.getDate() + daysToSunday);
+  
+  return formatDateForForm(lastLessonDate);
 };
 
 // Helper function to format date in dd/MM/yyyy format
@@ -59,12 +69,21 @@ const formatDateForDisplay = (dateString) => {
   });
 };
 
-// Helper function to calculate exam date (one week after end date)
-const calculateExamDate = (endDate) => {
-  if (!endDate) return '';
-  const date = new Date(endDate);
-  date.setDate(date.getDate() + 7); // Add one week
-  return formatDateForDisplay(date);
+// Helper function to calculate exam date based on start date, weeks, and day of week
+const calculateExamDate = (startDate, weeks, dayOfWeek) => {
+  if (!startDate || !weeks || !dayOfWeek) return '';
+  
+  const date = new Date(startDate);
+  
+  // Calculate the last lesson date (start date + (weeks - 1) * 7 days)
+  const lastLessonDate = new Date(date);
+  lastLessonDate.setDate(lastLessonDate.getDate() + ((weeks - 1) * 7));
+  
+  // Exam date is one week after the last lesson (same day of week)
+  const examDate = new Date(lastLessonDate);
+  examDate.setDate(examDate.getDate() + 7);
+  
+  return formatDateForDisplay(examDate);
 };
 
 // Create a default subject class item
@@ -564,8 +583,8 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                       setFieldValue(`items[${index}].startDate`, newStartDate);
                                       
                                       // Recalculate end date when start date changes
-                                      if (item.numberOfWeeks) {
-                                        const newEndDate = calculateEndDate(newStartDate, item.numberOfWeeks);
+                                      if (item.numberOfWeeks && item.dayOfWeek) {
+                                        const newEndDate = calculateEndDate(newStartDate, item.numberOfWeeks, item.dayOfWeek);
                                         setFieldValue(`items[${index}].endDate`, newEndDate);
                                       }
                                     }}
@@ -596,8 +615,8 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                       setFieldValue(`items[${index}].numberOfWeeks`, weeks);
                                       
                                       // Calculate end date based on start date and weeks
-                                      if (item.startDate && weeks) {
-                                        const newEndDate = calculateEndDate(item.startDate, weeks);
+                                      if (item.startDate && weeks && item.dayOfWeek) {
+                                        const newEndDate = calculateEndDate(item.startDate, weeks, item.dayOfWeek);
                                         setFieldValue(`items[${index}].endDate`, newEndDate);
                                       }
                                     }}
@@ -634,13 +653,13 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                 </Grid>
                                 
                                 {/* Exam Time Note */}
-                                {item.endDate && (
+                                {item.startDate && item.numberOfWeeks && item.dayOfWeek && (
                                   <Grid item xs={12}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
                                       <InfoIcon fontSize="small" sx={{ mr: 1 }} />
                                       <Typography variant="caption">
                                         {t('subjectClass.examTimeNote', {
-                                          date: calculateExamDate(item.endDate)
+                                          date: calculateExamDate(item.startDate, item.numberOfWeeks, item.dayOfWeek)
                                         })}
                                       </Typography>
                                     </Box>
