@@ -186,7 +186,19 @@ const SubjectClassStudentsDialog = ({ open, onClose, subjectClass }) => {
         maxWidth="md"
       >
         <DialogTitle>
-          {t('subjectClass.studentsList', { name: subjectClass?.name || '' })}
+          {subjectClass ? (
+            <Box>
+              <Typography variant="h6" component="div">
+                {t('subjectClass.studentsList', { name: subjectClass.name || '' })}
+              </Typography>
+              <Typography variant="subtitle2" color="textSecondary" component="div">
+                {subjectClass.subject?.name ? `${subjectClass.subject.name} (${subjectClass.subject.subjectCode})` : ''}
+                {subjectClass.classRoom?.name && ` - ${subjectClass.classRoom.name}`}
+              </Typography>
+            </Box>
+          ) : (
+            t('subjectClass.studentsList', { name: '' })
+          )}
         </DialogTitle>
         
         <DialogContent dividers>
