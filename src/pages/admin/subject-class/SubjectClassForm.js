@@ -92,6 +92,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   const [administrativeClasses, setAdministrativeClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(false);
   const [selectedAdministrativeClassIds, setSelectedAdministrativeClassIds] = useState([]);
+  const [firstAdministrativeClassId, setFirstAdministrativeClassId] = useState(null);
 
   // Initialize with a single item when creating, or the existing item when editing
   const initialValues = subjectClass 
@@ -208,9 +209,9 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
       setClassRooms(classRoomsResponse.data || []);
       
       // Fetch subjects based on administrative class selection if available
-      if (selectedAdministrativeClassIds.length > 0) {
+      if (firstAdministrativeClassId) {
         // Use the first administrative class ID to fetch subjects
-        const subjectsData = await subjectService.getByAdministrativeClass(selectedAdministrativeClassIds[0]);
+        const subjectsData = await subjectService.getByAdministrativeClass(firstAdministrativeClassId);
         setSubjects(subjectsData || []);
       } else {
         // Fallback to fetching all subjects when no administrative class is selected
@@ -228,7 +229,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
     } finally {
       setFormLoading(false);
     }
-  }, [t, selectedAdministrativeClassIds]);
+  }, [t, firstAdministrativeClassId]);
 
   useEffect(() => {
     if (open) {
@@ -237,12 +238,12 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
     }
   }, [open, fetchFormOptions, fetchAdministrativeClasses]);
 
-  // Fetch subjects when administrative class selection changes
+  // Fetch subjects when first administrative class ID changes
   useEffect(() => {
-    if (open && selectedAdministrativeClassIds.length > 0) {
+    if (open && firstAdministrativeClassId) {
       fetchFormOptions();
     }
-  }, [selectedAdministrativeClassIds, open, fetchFormOptions]);
+  }, [firstAdministrativeClassId, open, fetchFormOptions]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
@@ -290,6 +291,12 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   const handleAdministrativeClassChange = (_, newValues) => {
     const selectedIds = newValues.map(item => item.value).filter(id => id !== '');
     setSelectedAdministrativeClassIds(selectedIds);
+    
+    // Only update first administrative class ID if it actually changes
+    const newFirstId = selectedIds.length > 0 ? selectedIds[0] : null;
+    if (newFirstId !== firstAdministrativeClassId) {
+      setFirstAdministrativeClassId(newFirstId);
+    }
   };
 
   // Create an array of numbers from 1 to 15 for lessons
