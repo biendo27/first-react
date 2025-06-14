@@ -297,14 +297,25 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
   }, [t]);
 
   const fetchSubjects = useCallback(async () => {
-    if (!firstAdministrativeClassId) {
+    // For editing mode, get all subjects if we don't have a first administrative class
+    const adminClassId = firstAdministrativeClassId || (subjectClass ? 'all' : null);
+    
+    if (!adminClassId) {
       setSubjects([]);
       return;
     }
     
     setSubjectsLoading(true);
     try {
-      const subjectsData = await subjectService.getByAdministrativeClass(firstAdministrativeClassId);
+      let subjectsData;
+      if (subjectClass && !firstAdministrativeClassId) {
+        // For edit mode, fetch all subjects
+        const allSubjectsResponse = await subjectService.getAll({ PageSize: 10000 });
+        subjectsData = allSubjectsResponse.data || [];
+      } else {
+        // For create mode, fetch subjects by administrative class
+        subjectsData = await subjectService.getByAdministrativeClass(firstAdministrativeClassId);
+      }
       setSubjects(subjectsData || []);
     } catch (error) {
       console.error('Error fetching subjects:', error);
@@ -318,7 +329,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
     } finally {
       setSubjectsLoading(false);
     }
-  }, [t, firstAdministrativeClassId]);
+  }, [t, firstAdministrativeClassId, subjectClass]);
 
   useEffect(() => {
     if (open) {
@@ -578,7 +589,7 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                     onChange={(_, newValue) => {
                                       setFieldValue(`items[${index}].subjectId`, newValue ? newValue.id : '');
                                     }}
-                                    disabled={!firstAdministrativeClassId && !subjectClass}
+                                    disabled={subjectClass ? true : (!firstAdministrativeClassId && !subjectClass)}
                                     loading={subjectsLoading}
                                     renderInput={(params) => (
                                       <TextField
@@ -586,9 +597,11 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                         label={t('subjectClass.subject')}
                                         error={touched.items?.[index]?.subjectId && Boolean(errors.items?.[index]?.subjectId)}
                                         helperText={
-                                          (!firstAdministrativeClassId && !subjectClass) 
-                                            ? t('subjectClass.selectAdministrativeClassFirst')
-                                            : (touched.items?.[index]?.subjectId && errors.items?.[index]?.subjectId)
+                                          subjectClass 
+                                            ? t('subjectClass.subjectCannotBeChanged') 
+                                            : (!firstAdministrativeClassId && !subjectClass) 
+                                              ? t('subjectClass.selectAdministrativeClassFirst')
+                                              : (touched.items?.[index]?.subjectId && errors.items?.[index]?.subjectId)
                                         }
                                         required
                                         InputProps={{

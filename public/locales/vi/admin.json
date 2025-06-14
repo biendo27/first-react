@@ -330,6 +330,7 @@
     "examTimeNote": "Kỳ thi sẽ được tổ chức một tuần sau khi lớp học kết thúc ({{date}})",
     "selectAdministrativeClasses": "Chọn Lớp Hành Chính",
     "selectAdministrativeClassFirst": "Vui lòng chọn lớp hành chính trước",
+    "subjectCannotBeChanged": "Không thể thay đổi môn học khi chỉnh sửa",
     "exportTimeTable": "Xuất Thời Khóa Biểu",
     "exportTimeTableSuccess": "Xuất thời khóa biểu thành công",
     "exportStudentsList": "Xuất Danh Sách Sinh Viên",

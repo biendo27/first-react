@@ -179,6 +179,7 @@
     "examTimeNote": "Exams will be held one week after the class ends ({{date}})",
     "selectAdministrativeClasses": "Select Administrative Classes",
     "selectAdministrativeClassFirst": "Please select administrative class first",
+    "subjectCannotBeChanged": "Subject cannot be changed when editing",
     "exportTimeTable": "Export Time Table",
     "exportTimeTableSuccess": "Time table exported successfully",
     "exportStudentsList": "Export Students List",
