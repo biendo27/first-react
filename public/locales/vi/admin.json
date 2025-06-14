@@ -326,6 +326,7 @@
     "noStudentsFound": "Không tìm thấy sinh viên trong lớp này",
     "numberOfWeeks": "Số Tuần",
     "minWeeks": "Số tuần phải ít nhất là 1",
+    "lastLessonNote": "Buổi học cuối cùng sẽ vào: {{date}}",
     "examTimeNote": "Kỳ thi sẽ được tổ chức một tuần sau khi lớp học kết thúc ({{date}})",
     "selectAdministrativeClasses": "Chọn Lớp Hành Chính",
     "selectAdministrativeClassFirst": "Vui lòng chọn lớp hành chính trước",

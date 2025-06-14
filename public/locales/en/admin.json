@@ -175,6 +175,7 @@
     "administrativeClass": "Administrative Class",
     "numberOfWeeks": "Number of Weeks",
     "minWeeks": "Number of weeks must be at least 1",
+    "lastLessonNote": "Last lesson will be on: {{date}}",
     "examTimeNote": "Exams will be held one week after the class ends ({{date}})",
     "selectAdministrativeClasses": "Select Administrative Classes",
     "selectAdministrativeClassFirst": "Please select administrative class first",

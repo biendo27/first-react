@@ -42,20 +42,35 @@ const formatDateForForm = (dateString) => {
 
 // Helper function to calculate end date based on start date, weeks, and day of week
 const calculateEndDate = (startDate, weeks, dayOfWeek) => {
-  if (!startDate || !weeks) return '';
+  if (!startDate || !weeks || !dayOfWeek) return '';
   
   const date = new Date(startDate);
   
-  // Calculate the last lesson date (start date + (weeks - 1) * 7 days)
-  const lastLessonDate = new Date(date);
+  // Convert API dayOfWeek (2=Monday, 3=Tuesday, ..., 8=Sunday) to JavaScript dayOfWeek (0=Sunday, 1=Monday, ...)
+  const jsApiDayOfWeek = dayOfWeek === 8 ? 0 : dayOfWeek - 1;
+  
+  // Find the first occurrence of the class day from the start date
+  const startDateDayOfWeek = date.getDay();
+  let daysToFirstClass = jsApiDayOfWeek - startDateDayOfWeek;
+  if (daysToFirstClass < 0) {
+    daysToFirstClass += 7;
+  }
+  
+  // Get the first class date
+  const firstClassDate = new Date(date);
+  firstClassDate.setDate(firstClassDate.getDate() + daysToFirstClass);
+  
+  // Calculate the last lesson date (first class date + (weeks - 1) * 7 days)
+  const lastLessonDate = new Date(firstClassDate);
   lastLessonDate.setDate(lastLessonDate.getDate() + ((weeks - 1) * 7));
   
   // Find Sunday of the week containing the last lesson
   const lastLessonDayOfWeek = lastLessonDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   const daysToSunday = lastLessonDayOfWeek === 0 ? 0 : 7 - lastLessonDayOfWeek;
-  lastLessonDate.setDate(lastLessonDate.getDate() + daysToSunday);
+  const endDate = new Date(lastLessonDate);
+  endDate.setDate(endDate.getDate() + daysToSunday);
   
-  return formatDateForForm(lastLessonDate);
+  return formatDateForForm(endDate);
 };
 
 // Helper function to format date in dd/MM/yyyy format
@@ -69,14 +84,55 @@ const formatDateForDisplay = (dateString) => {
   });
 };
 
+// Helper function to calculate last lesson date based on start date, weeks, and day of week
+const calculateLastLessonDate = (startDate, weeks, dayOfWeek) => {
+  if (!startDate || !weeks || !dayOfWeek) return '';
+  
+  const date = new Date(startDate);
+  
+  // Convert API dayOfWeek (2=Monday, 3=Tuesday, ..., 8=Sunday) to JavaScript dayOfWeek (0=Sunday, 1=Monday, ...)
+  const jsApiDayOfWeek = dayOfWeek === 8 ? 0 : dayOfWeek - 1;
+  
+  // Find the first occurrence of the class day from the start date
+  const startDateDayOfWeek = date.getDay();
+  let daysToFirstClass = jsApiDayOfWeek - startDateDayOfWeek;
+  if (daysToFirstClass < 0) {
+    daysToFirstClass += 7;
+  }
+  
+  // Get the first class date
+  const firstClassDate = new Date(date);
+  firstClassDate.setDate(firstClassDate.getDate() + daysToFirstClass);
+  
+  // Calculate the last lesson date (first class date + (weeks - 1) * 7 days)
+  const lastLessonDate = new Date(firstClassDate);
+  lastLessonDate.setDate(lastLessonDate.getDate() + ((weeks - 1) * 7));
+  
+  return formatDateForDisplay(lastLessonDate);
+};
+
 // Helper function to calculate exam date based on start date, weeks, and day of week
 const calculateExamDate = (startDate, weeks, dayOfWeek) => {
   if (!startDate || !weeks || !dayOfWeek) return '';
   
   const date = new Date(startDate);
   
-  // Calculate the last lesson date (start date + (weeks - 1) * 7 days)
-  const lastLessonDate = new Date(date);
+  // Convert API dayOfWeek (2=Monday, 3=Tuesday, ..., 8=Sunday) to JavaScript dayOfWeek (0=Sunday, 1=Monday, ...)
+  const jsApiDayOfWeek = dayOfWeek === 8 ? 0 : dayOfWeek - 1;
+  
+  // Find the first occurrence of the class day from the start date
+  const startDateDayOfWeek = date.getDay();
+  let daysToFirstClass = jsApiDayOfWeek - startDateDayOfWeek;
+  if (daysToFirstClass < 0) {
+    daysToFirstClass += 7;
+  }
+  
+  // Get the first class date
+  const firstClassDate = new Date(date);
+  firstClassDate.setDate(firstClassDate.getDate() + daysToFirstClass);
+  
+  // Calculate the last lesson date (first class date + (weeks - 1) * 7 days)
+  const lastLessonDate = new Date(firstClassDate);
   lastLessonDate.setDate(lastLessonDate.getDate() + ((weeks - 1) * 7));
   
   // Exam date is one week after the last lesson (same day of week)
@@ -652,16 +708,26 @@ const SubjectClassForm = ({ open, onClose, subjectClass }) => {
                                   />
                                 </Grid>
                                 
-                                {/* Exam Time Note */}
+                                {/* Date Information */}
                                 {item.startDate && item.numberOfWeeks && item.dayOfWeek && (
                                   <Grid item xs={12}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                                      <InfoIcon fontSize="small" sx={{ mr: 1 }} />
-                                      <Typography variant="caption">
-                                        {t('subjectClass.examTimeNote', {
-                                          date: calculateExamDate(item.startDate, item.numberOfWeeks, item.dayOfWeek)
-                                        })}
-                                      </Typography>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                      <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                                        <InfoIcon fontSize="small" sx={{ mr: 1 }} />
+                                        <Typography variant="caption">
+                                          {t('subjectClass.lastLessonNote', {
+                                            date: calculateLastLessonDate(item.startDate, item.numberOfWeeks, item.dayOfWeek)
+                                          })}
+                                        </Typography>
+                                      </Box>
+                                      <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                                        <InfoIcon fontSize="small" sx={{ mr: 1 }} />
+                                        <Typography variant="caption">
+                                          {t('subjectClass.examTimeNote', {
+                                            date: calculateExamDate(item.startDate, item.numberOfWeeks, item.dayOfWeek)
+                                          })}
+                                        </Typography>
+                                      </Box>
                                     </Box>
                                   </Grid>
                                 )}
